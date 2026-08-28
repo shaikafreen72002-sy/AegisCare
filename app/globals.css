@@ -51,13 +51,34 @@
     -moz-osx-font-smoothing: grayscale;
     margin: 0;
     padding: 0;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, font-size 0.15s ease;
   }
+}
 
-  body.extra-large-text {
-    font-size: 16px;
-    line-height: 1.6;
-  }
+/* ================= DYNAMIC TEXT SIZE SCALING ================= */
+html.text-size-sm, body.text-size-sm {
+  font-size: 12.5px;
+  zoom: 0.92;
+}
+
+html.text-size-md, body.text-size-md {
+  font-size: 14px;
+  zoom: 1.0;
+}
+
+html.text-size-lg, body.text-size-lg {
+  font-size: 16px;
+  zoom: 1.15;
+}
+
+html.text-size-xl, body.text-size-xl {
+  font-size: 18px;
+  zoom: 1.28;
+}
+
+body.extra-large-text {
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 /* HIGH CONTRAST & ACCESSIBILITY MODE OVERRIDES */

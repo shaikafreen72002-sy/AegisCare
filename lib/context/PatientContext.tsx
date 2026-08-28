@@ -26,6 +26,10 @@ interface PatientContextType {
   largeText: boolean;
   setLargeText: (val: boolean) => void;
   toggleLargeText: () => void;
+  textSizeLevel: 'sm' | 'md' | 'lg' | 'xl';
+  setTextSizeLevel: (level: 'sm' | 'md' | 'lg' | 'xl') => void;
+  increaseTextSize: () => void;
+  decreaseTextSize: () => void;
   audioAutoSpeak: boolean;
   setAudioAutoSpeak: (val: boolean) => void;
   markDoseAsTaken: (doseId: string, notes?: string) => Promise<void>;
@@ -132,6 +136,7 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [highContrast, setHighContrast] = useState<boolean>(false);
   const [largeText, setLargeText] = useState<boolean>(false);
+  const [textSizeLevel, setTextSizeLevel] = useState<'sm' | 'md' | 'lg' | 'xl'>('md');
   const [audioAutoSpeak, setAudioAutoSpeak] = useState<boolean>(false);
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState<boolean>(false);
   const [isTelegramModalOpen, setIsTelegramModalOpen] = useState<boolean>(false);
@@ -139,6 +144,13 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   useEffect(() => {
     const init = async () => {
+      if (typeof window !== 'undefined') {
+        const savedSize = localStorage.getItem('aegiscare_text_size') as 'sm' | 'md' | 'lg' | 'xl' | null;
+        if (savedSize && ['sm', 'md', 'lg', 'xl'].includes(savedSize)) {
+          setTextSizeLevel(savedSize);
+          setLargeText(savedSize === 'lg' || savedSize === 'xl');
+        }
+      }
       const p = await apiService.getProfile();
       setProfile(p);
       const a = await apiService.getAdherence();
@@ -161,13 +173,28 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
-      if (largeText) {
-        document.body.classList.add('extra-large-text');
+      const root = document.documentElement;
+      const body = document.body;
+
+      root.classList.remove('text-size-sm', 'text-size-md', 'text-size-lg', 'text-size-xl');
+      body.classList.remove('text-size-sm', 'text-size-md', 'text-size-lg', 'text-size-xl');
+
+      root.classList.add(`text-size-${textSizeLevel}`);
+      body.classList.add(`text-size-${textSizeLevel}`);
+
+      if (textSizeLevel === 'lg' || textSizeLevel === 'xl') {
+        body.classList.add('extra-large-text');
+        setLargeText(true);
       } else {
-        document.body.classList.remove('extra-large-text');
+        body.classList.remove('extra-large-text');
+        setLargeText(false);
       }
+
+      try {
+        localStorage.setItem('aegiscare_text_size', textSizeLevel);
+      } catch {}
     }
-  }, [largeText]);
+  }, [textSizeLevel]);
 
   const login = async (identifier: string, password?: string): Promise<AuthUser> => {
     const user = await apiService.login(identifier, password);
@@ -230,7 +257,33 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const toggleHighContrast = () => setHighContrast((prev) => !prev);
-  const toggleLargeText = () => setLargeText((prev) => !prev);
+
+  const increaseTextSize = () => {
+    setTextSizeLevel((curr) => {
+      if (curr === 'sm') return 'md';
+      if (curr === 'md') return 'lg';
+      if (curr === 'lg') return 'xl';
+      return 'xl';
+    });
+  };
+
+  const decreaseTextSize = () => {
+    setTextSizeLevel((curr) => {
+      if (curr === 'xl') return 'lg';
+      if (curr === 'lg') return 'md';
+      if (curr === 'md') return 'sm';
+      return 'sm';
+    });
+  };
+
+  const toggleLargeText = () => {
+    setTextSizeLevel((curr) => {
+      if (curr === 'md') return 'lg';
+      if (curr === 'lg') return 'xl';
+      if (curr === 'xl') return 'sm';
+      return 'md';
+    });
+  };
 
   const markDoseAsTaken = async (doseId: string, notes?: string) => {
     const res = await apiService.markDoseTaken(doseId, notes);
@@ -277,6 +330,10 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
         largeText,
         setLargeText,
         toggleLargeText,
+        textSizeLevel,
+        setTextSizeLevel,
+        increaseTextSize,
+        decreaseTextSize,
         audioAutoSpeak,
         setAudioAutoSpeak,
         markDoseAsTaken,
