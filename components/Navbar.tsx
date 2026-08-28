@@ -147,17 +147,6 @@ export const Navbar: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-2.5 flex-nowrap">
-            {/* Simulated Voice Call / Audio Reminder */}
-            <button
-              type="button"
-              onClick={playVoiceReminderCall}
-              aria-label="Play Voice Call Reminder from App"
-              title="Simulate / Trigger In-App Voice Call Reminder"
-              className="h-[38px] flex items-center gap-1.5 px-2.5 sm:px-3 rounded-[8px] text-xs font-semibold bg-[#FEF3C7] hover:bg-[#FDE68A] text-[#D97706] border border-[#F59E0B]/30 shadow-xs transition active:scale-[0.98] cursor-pointer shrink-0"
-            >
-              <Volume2 className="w-4 h-4 text-[#D97706] animate-pulse" />
-              <span className="hidden lg:inline">Voice Call Reminder</span>
-            </button>
             <button
               onClick={toggleHighContrast}
               aria-label={highContrast ? 'Switch to Standard Theme' : 'Switch to High Contrast Theme'}
