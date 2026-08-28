@@ -19,12 +19,16 @@ export const AdherenceStreakCard: React.FC = () => {
   const [showConfetti, setShowConfetti] = useState(false);
   const [celebratedMilestone, setCelebratedMilestone] = useState<Milestone | null>(null);
 
-  const fullDaysCompleted = (adherence.history || []).filter(
-    (h) => h.status === 'COMPLETED' || (h.doses_taken > 0 && h.doses_taken === h.total_doses)
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  // Count past full days completed (excluding today to ensure 1 day per whole day)
+  const previousFullDaysCompleted = (adherence.history || []).filter(
+    (h) => h.date !== todayStr && (h.status === 'COMPLETED' || (h.doses_taken > 0 && h.doses_taken >= h.total_doses))
   ).length;
 
-  const allTodayTaken = adherence.schedule.length > 0 && adherence.schedule.every((s) => s.status === 'TAKEN');
-  const streakDays = fullDaysCompleted + (allTodayTaken ? 1 : 0);
+  // Today counts as 1 full day ONLY IF all doses scheduled for today are taken
+  const isTodayFullyCompleted = adherence.schedule.length > 0 && adherence.schedule.every((s) => s.status === 'TAKEN');
+  const streakDays = previousFullDaysCompleted + (isTodayFullyCompleted ? 1 : 0);
 
   const milestones: Milestone[] = [
     { days: 1, label: 'Day 1 Done', title: 'First Step Taken', icon: '🌱', reward: 'Habit Initiator', color: 'from-emerald-500 to-teal-500' },
@@ -34,7 +38,7 @@ export const AdherenceStreakCard: React.FC = () => {
     { days: 30, label: 'Day 30 Done', title: '30-Day Legend', icon: '👑', reward: 'Care Legend', color: 'from-rose-500 to-red-500' }
   ];
 
-  // Trigger party celebration
+  // Trigger party celebration automatically
   const triggerCelebration = (m: Milestone) => {
     setCelebratedMilestone(m);
     setShowConfetti(true);
@@ -49,14 +53,16 @@ export const AdherenceStreakCard: React.FC = () => {
     }
   };
 
-  // Auto-celebrate when reaching milestone
+  // Auto-celebrate automatically when a milestone is reached
   useEffect(() => {
-    const matched = milestones.find((m) => m.days === streakDays);
-    if (matched && streakDays > 0) {
-      const key = `aegiscare_milestone_celebrated_${profile.preferred_name || 'patient'}_${matched.days}`;
-      if (typeof window !== 'undefined' && !localStorage.getItem(key)) {
-        localStorage.setItem(key, 'true');
-        triggerCelebration(matched);
+    if (streakDays > 0) {
+      const matched = milestones.find((m) => m.days === streakDays);
+      if (matched) {
+        const key = `aegiscare_milestone_celebrated_${profile.preferred_name || 'patient'}_${matched.days}`;
+        if (typeof window !== 'undefined' && !sessionStorage.getItem(key)) {
+          sessionStorage.setItem(key, 'true');
+          triggerCelebration(matched);
+        }
       }
     }
   }, [streakDays, profile.preferred_name]);
@@ -146,15 +152,10 @@ export const AdherenceStreakCard: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-center">
-          <button
-            type="button"
-            onClick={() => triggerCelebration(milestones[0])}
-            title="Click to celebrate streak progress with party poppers"
-            className="touch-target flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] bg-[#FEF3C7] hover:bg-[#FDE68A] text-[#D97706] text-xs font-bold border border-[#F59E0B]/30 shadow-xs transition active:scale-[0.98] cursor-pointer"
-          >
-            <PartyPopper className="w-4 h-4 text-[#EA580C]" />
-            <span>Celebrate! 🎉</span>
-          </button>
+          <div className="px-3 py-1.5 rounded-[8px] bg-[#EAF3FF] text-[#2F80ED] text-xs font-bold flex items-center gap-1.5 border border-[#CBD5E1]/40">
+            <Award className="w-4 h-4 text-[#2F80ED]" />
+            <span>{streakDays > 0 ? `${streakDays} Day${streakDays > 1 ? 's' : ''} 100% Completed` : 'New Habit Tracking'}</span>
+          </div>
         </div>
       </div>
 
