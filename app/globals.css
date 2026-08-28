@@ -348,9 +348,60 @@ body.high-contrast tr.hover\:bg-\[\#FAF7F2\]:hover {
   background-color: #2B2346 !important;
 }
 
-/* Chat window specific overrides */
-body.high-contrast .bg-\[\#F7F4EE\] {
-  background-color: #161324 !important;
+/* Patient Bottom Profile Floating Button & Expanded Drawer */
+body.high-contrast button[aria-label="Toggle Patient Clinical Profile Drawer"],
+body.high-contrast .fixed.bottom-4.right-4 button {
+  background-color: #211B35 !important;
+  color: #FFFFFF !important;
+  border-color: #FF6138 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+}
+body.high-contrast button[aria-label="Toggle Patient Clinical Profile Drawer"]:hover,
+body.high-contrast .fixed.bottom-4.right-4 button:hover {
+  background-color: #2E2548 !important;
+}
+body.high-contrast .fixed.bottom-4.right-4 span.text-\[\#2D2545\],
+body.high-contrast .fixed.bottom-4.right-4 span.text-\[\#0F172A\] {
+  color: #FFFFFF !important;
+}
+body.high-contrast .fixed.bottom-4.right-4 span.text-\[\#6B6282\],
+body.high-contrast .fixed.bottom-4.right-4 span.text-\[\#64748B\] {
+  color: #D6CEF0 !important;
+}
+body.high-contrast .fixed.bottom-4.right-4 div.bg-white {
+  background-color: #211B35 !important;
+  border-color: #382F54 !important;
+  color: #FFFFFF !important;
+}
+body.high-contrast .fixed.bottom-4.right-4 div.bg-\[\#FAF7F2\],
+body.high-contrast .fixed.bottom-4.right-4 div.bg-\[\#F8FAFC\] {
+  background-color: #2A2144 !important;
+  border-color: #3E335C !important;
+  color: #FFFFFF !important;
+}
+
+/* Modals & Dialog Overlays (CareTeam, Telegram, Intake, Emergency) */
+body.high-contrast .fixed.inset-0 {
+  background-color: rgba(10, 8, 18, 0.85) !important;
+}
+body.high-contrast .fixed.inset-0 div.bg-white {
+  background-color: #211B35 !important;
+  border-color: #382F54 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6) !important;
+}
+body.high-contrast .fixed.inset-0 div.bg-\[\#FAF7F2\],
+body.high-contrast .fixed.inset-0 div.bg-\[\#F8FAFC\] {
+  background-color: #2A2144 !important;
+  border-color: #3E335C !important;
+  color: #FFFFFF !important;
+}
+
+/* Universal text safety in dark mode */
+body.high-contrast div,
+body.high-contrast article,
+body.high-contrast aside {
+  color: inherit;
 }
 
 .touch-target {
