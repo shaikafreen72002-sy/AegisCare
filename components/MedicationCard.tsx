@@ -36,11 +36,26 @@ export const MedicationCard: React.FC<MedicationCardProps> = ({ dose, onOpenChat
   const isDue = dose.status === 'DUE';
   const isMissed = dose.status === 'MISSED' || showMissedHelp;
 
+  const getMealTag = () => {
+    const s = (dose.time_slot || '').toLowerCase();
+    const t = (dose.scheduled_time || '').toLowerCase();
+    const hourNum = parseInt(t.split(':')[0] || '20', 10);
+    if (s.includes('breakfast') || s.includes('morning') || hourNum < 12) {
+      return { label: '☕ Before / With Breakfast', color: 'bg-[#FEF3C7] text-[#D97706] border-[#F59E0B]/30' };
+    }
+    if (s.includes('lunch') || s.includes('afternoon') || (hourNum >= 12 && hourNum < 17)) {
+      return { label: '🍽️ After Lunch (Midday)', color: 'bg-[#DCFCE7] text-[#16A34A] border-[#16A34A]/30' };
+    }
+    return { label: '🌙 After Dinner / Bedtime', color: 'bg-[#EAF3FF] text-[#2F80ED] border-[#2F80ED]/30' };
+  };
+
+  const mealTag = getMealTag();
+
   return (
     <div
       className={`rounded-[12px] border transition-all p-5 shadow-[0_1px_3px_rgba(15,23,42,0.06)] bg-white ${
         isTaken
-          ? 'border-[#E2E8F0] bg-[#F8FAFC]'
+          ? 'border-[#16A34A]/30 bg-[#F0FDF4]/40'
           : isDue
           ? 'border-[#2F80ED] ring-1 ring-[#2F80ED]/20'
           : isMissed
@@ -80,7 +95,12 @@ export const MedicationCard: React.FC<MedicationCardProps> = ({ dose, onOpenChat
                     : 'bg-[#F1F5F9] text-[#64748B]'
                 }`}
               >
-                {isTaken ? 'Taken' : isDue ? 'Due Now' : isMissed ? 'Needs Help' : 'Upcoming'}
+                {isTaken ? 'Recorded' : isDue ? 'Due Now' : isMissed ? 'Needs Help' : 'Upcoming'}
+              </span>
+
+              {/* Before / After Medicine Meal Context Tag */}
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${mealTag.color}`}>
+                {mealTag.label}
               </span>
             </div>
 
@@ -96,8 +116,8 @@ export const MedicationCard: React.FC<MedicationCardProps> = ({ dose, onOpenChat
             </p>
 
             {isTaken && dose.taken_at && (
-              <p className="text-xs font-medium text-[#16A34A] mt-1 flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5" /> Recorded at {dose.taken_at}
+              <p className="text-xs font-semibold text-[#16A34A] mt-1 flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5 text-[#16A34A]" /> Recorded at {dose.taken_at} • Locked & Verified
               </p>
             )}
           </div>
@@ -115,9 +135,12 @@ export const MedicationCard: React.FC<MedicationCardProps> = ({ dose, onOpenChat
               <span>Mark as Taken</span>
             </button>
           ) : (
-            <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-[8px] bg-[#DCFCE7] text-[#16A34A] font-semibold text-xs border border-[#16A34A]/20">
+            <div
+              title="Medication intake is recorded and locked. Cannot be altered."
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-[8px] bg-[#DCFCE7] text-[#16A34A] font-bold text-xs border border-[#16A34A]/30 cursor-not-allowed select-none shadow-2xs"
+            >
               <CheckCircle2 className="w-4 h-4 text-[#16A34A]" />
-              <span>Completed</span>
+              <span>✓ Recorded & Locked</span>
             </div>
           )}
 

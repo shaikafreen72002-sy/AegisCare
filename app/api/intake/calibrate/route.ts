@@ -8,6 +8,7 @@ import {
   getActiveUserId,
   REGISTERED_USERS
 } from '@/lib/stateStore';
+import { DoseScheduleItem } from '@/lib/types/adherence';
 
 export async function POST(req: Request) {
   try {
@@ -60,59 +61,52 @@ export async function POST(req: Request) {
     const prefName = body.preferred_name || body.name || 'Patient';
     const colors = ['emerald', 'sky', 'indigo', 'purple', 'amber', 'rose'];
 
-    const scheduleItems = (body.medication_timings && Array.isArray(body.medication_timings) && body.medication_timings.length > 0)
-      ? body.medication_timings.map((slot: any, idx: number) => {
-          const slotTime = slot.time || '20:00';
-          const [h, m] = slotTime.split(':');
-          const hourNum = parseInt(h, 10);
-          const period = hourNum >= 12 ? 'PM' : 'AM';
-          const displayHour = hourNum % 12 || 12;
-          const formattedTime = `${displayHour}:${m || '00'} ${period} IST`;
-
-          return {
-            id: `dose_${slot.id || idx}_${userId}`,
-            time_slot: `${slot.label || `Dose ${idx + 1}`} (${formattedTime})`,
-            scheduled_time: slotTime,
-            medication_name: medName,
-            dosage: medDosage,
-            status: idx === 0 ? 'TAKEN' : 'DUE',
-            taken_at: idx === 0 ? formattedTime : null,
-            instructions: slot.instructions || `Take orally at ${formattedTime} with water.`,
-            color: colors[idx % colors.length]
-          };
-        })
+    // Sort timings chronologically by time
+    const rawTimings = (body.medication_timings && Array.isArray(body.medication_timings) && body.medication_timings.length > 0)
+      ? [...body.medication_timings].sort((a, b) => (a.time || '20:00').localeCompare(b.time || '20:00'))
       : [
-          {
-            id: `dose_morning_${userId}`,
-            time_slot: 'Morning Dose (8:00 AM IST)',
-            scheduled_time: '08:00',
-            medication_name: medName,
-            dosage: medDosage,
-            status: 'TAKEN',
-            taken_at: '08:00 AM IST',
-            instructions: 'Take after breakfast or tea with water.',
-            color: 'emerald'
-          },
-          {
-            id: `dose_evening_${userId}`,
-            time_slot: `Evening Dose (${eveningTime} IST)`,
-            scheduled_time: eveningTime,
-            medication_name: medName,
-            dosage: medDosage,
-            status: 'DUE',
-            taken_at: null,
-            instructions: `Take orally with water or an evening snack.`,
-            color: 'indigo'
-          }
+          { id: 't_morning', label: 'Morning Dose (Breakfast)', time: '08:00', instructions: 'Take with or after morning breakfast with water.' },
+          { id: 't_evening', label: 'Evening Maintenance Dose', time: eveningTime, instructions: 'Take after dinner or before retiring with water.' }
         ];
 
+    const scheduleItems: DoseScheduleItem[] = rawTimings.map((slot: any, idx: number) => {
+      const slotTime = slot.time || '20:00';
+      const [h, m] = slotTime.split(':');
+      const hourNum = parseInt(h, 10);
+      const period = hourNum >= 12 ? 'PM' : 'AM';
+      const displayHour = hourNum % 12 || 12;
+      const formattedTime = `${displayHour}:${m || '00'} ${period} IST`;
+
+      // Smart meal context depending on time of day
+      let defaultInstruction = `Take orally at ${formattedTime} with water.`;
+      if (hourNum < 12) {
+        defaultInstruction = `☕ Take with or after breakfast / morning tea with water.`;
+      } else if (hourNum < 17) {
+        defaultInstruction = `🍽️ Take 30 mins after midday lunch with a glass of water.`;
+      } else {
+        defaultInstruction = `🌙 Take after dinner or before retiring with a glass of water.`;
+      }
+
+      return {
+        id: `dose_${slot.id || idx}_${userId}`,
+        time_slot: `${slot.label || `Dose ${idx + 1}`} (${formattedTime})`,
+        scheduled_time: slotTime,
+        medication_name: medName,
+        dosage: medDosage,
+        status: 'DUE' as const, // All doses start fresh for the patient to log upon reminder
+        taken_at: null,
+        instructions: slot.instructions || defaultInstruction,
+        color: colors[idx % colors.length]
+      };
+    });
+
     updateUserAdherence(userId, {
-      growth_stage: 2,
+      growth_stage: 1,
       garden_name: `${prefName}'s Routine Care`,
-      routine_message: `🌱 Personalized routine calibrated for ${prefName} with ${medName} ${medDosage} across ${scheduleItems.length} daily dose time(s).`,
+      routine_message: `🌱 Fresh daily routine ready for ${prefName} with ${medName} ${medDosage} across ${scheduleItems.length} dose timing(s).`,
       schedule: scheduleItems,
       history: [
-        { date: new Date().toISOString().split('T')[0], status: 'IN_PROGRESS', doses_taken: 1, total_doses: scheduleItems.length }
+        { date: new Date().toISOString().split('T')[0], status: 'IN_PROGRESS', doses_taken: 0, total_doses: scheduleItems.length }
       ]
     });
 

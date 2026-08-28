@@ -30,29 +30,55 @@ export interface MedicationTimingSlot {
 }
 
 export const OnboardingWizard: React.FC = () => {
-  const { profile, currentUser, updateProfileData, setActiveTab, calibrateIntakeWithAI } = usePatient();
+  const { profile, currentUser, adherence, updateProfileData, setActiveTab, calibrateIntakeWithAI } = usePatient();
   const [step, setStep] = useState(1);
 
-  // Keep fields completely blank on new intake assessment
-  const [name, setName] = useState('');
-  const [preferredName, setPreferredName] = useState('');
-  const [age, setAge] = useState<number | string>('');
-  const [gender, setGender] = useState<string>('Female');
-  const [heightCm, setHeightCm] = useState<number | string>('');
-  const [weightKg, setWeightKg] = useState<number | string>('');
-  const [conditionSeverity, setConditionSeverity] = useState<string>("Mild Cognitive Impairment / Early Support");
-  const [diagnosisDate, setDiagnosisDate] = useState<string>(new Date().toISOString().slice(0, 7));
-  const [selectedMedId, setSelectedMedId] = useState<string>('donepezil');
-  const [selectedDose, setSelectedDose] = useState<string>('10 mg');
-  const [caregiverName, setCaregiverName] = useState<string>('');
-  const [caregiverRelation, setCaregiverRelation] = useState<string>('');
-  const [caregiverPhone, setCaregiverPhone] = useState<string>('+91 ');
+  // Pre-load existing patient data if already present so the patient can edit existing data
+  const initialName = (profile.name && !profile.name.includes('Lakshmi Devi')) ? profile.name : (currentUser?.name && !currentUser.name.includes('Lakshmi Devi') ? currentUser.name : '');
+  const initialPrefName = (profile.preferred_name && !profile.preferred_name.includes('Lakshmi Amma')) ? profile.preferred_name : (currentUser?.preferred_name || initialName);
+  const initialAge = (profile.age && profile.age > 0) ? profile.age : '';
+  const initialGender = (profile.gender && profile.gender !== 'Not specified') ? profile.gender : 'Female';
+  const initialHeight = (profile.height_cm && profile.height_cm > 0) ? profile.height_cm : '';
+  const initialWeight = (profile.weight_kg && profile.weight_kg > 0) ? profile.weight_kg : '';
+  const initialCondition = (profile.condition_severity && !profile.condition_severity.includes('Assessment')) ? profile.condition_severity : "Mild Cognitive Impairment / Early Support";
+  const initialDiagnosis = (profile.diagnosis_date && !profile.diagnosis_date.includes('Pending')) ? profile.diagnosis_date : new Date().toISOString().slice(0, 7);
+  const initialCaregiverName = (profile.caregiver?.name && !profile.caregiver.name.includes('Priya')) ? profile.caregiver.name : (profile.caregiver?.name || '');
+  const initialCaregiverPhone = (profile.caregiver?.phone && !profile.caregiver.phone.includes('(555)')) ? profile.caregiver.phone : (profile.caregiver?.phone || '+91 ');
+  const initialCaregiverRel = (profile.caregiver?.relation && !profile.caregiver.relation.includes('Daughter')) ? profile.caregiver.relation : (profile.caregiver?.relation || 'Primary Caregiver');
 
-  // Multi-dose medication timings with Indian Standard Time (IST)
-  const [medicationTimings, setMedicationTimings] = useState<MedicationTimingSlot[]>([
-    { id: 't_1', label: 'Morning Dose (Breakfast)', time: '08:00', instructions: 'Take with water after morning tea or breakfast' },
-    { id: 't_2', label: 'Evening Maintenance Dose', time: '20:00', instructions: 'Take with dinner or before retiring' }
-  ]);
+  const [name, setName] = useState(initialName);
+  const [preferredName, setPreferredName] = useState(initialPrefName);
+  const [age, setAge] = useState<number | string>(initialAge);
+  const [gender, setGender] = useState<string>(initialGender);
+  const [heightCm, setHeightCm] = useState<number | string>(initialHeight);
+  const [weightKg, setWeightKg] = useState<number | string>(initialWeight);
+  const [conditionSeverity, setConditionSeverity] = useState<string>(initialCondition);
+  const [diagnosisDate, setDiagnosisDate] = useState<string>(initialDiagnosis);
+  const [selectedMedId, setSelectedMedId] = useState<string>(() => {
+    const medLower = (profile.primary_medication?.name || '').toLowerCase();
+    const found = COMMON_MEDICATIONS.find((m) => m.name.toLowerCase().includes(medLower) || m.id.toLowerCase().includes(medLower));
+    return found ? found.id : 'donepezil';
+  });
+  const [selectedDose, setSelectedDose] = useState<string>(profile.primary_medication?.dosage || '10 mg');
+  const [caregiverName, setCaregiverName] = useState<string>(initialCaregiverName);
+  const [caregiverRelation, setCaregiverRelation] = useState<string>(initialCaregiverRel);
+  const [caregiverPhone, setCaregiverPhone] = useState<string>(initialCaregiverPhone);
+
+  // Multi-dose medication timings pre-loaded from existing schedule or defaults
+  const [medicationTimings, setMedicationTimings] = useState<MedicationTimingSlot[]>(() => {
+    if (adherence.schedule && adherence.schedule.length > 0) {
+      return adherence.schedule.map((item, idx) => ({
+        id: item.id || `t_${idx + 1}`,
+        label: item.time_slot ? item.time_slot.split(' (')[0] : `Dose Timing ${idx + 1}`,
+        time: item.scheduled_time || '20:00',
+        instructions: item.instructions || 'Take as prescribed with water'
+      }));
+    }
+    return [
+      { id: 't_1', label: 'Morning Dose (Breakfast)', time: '08:00', instructions: 'Take with water after morning tea or breakfast' },
+      { id: 't_2', label: 'Evening Maintenance Dose', time: '20:00', instructions: 'Take with dinner or before retiring' }
+    ];
+  });
 
   const addMedicationTiming = () => {
     const nextNum = medicationTimings.length + 1;

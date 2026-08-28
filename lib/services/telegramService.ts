@@ -69,7 +69,8 @@ export class TelegramService {
       }
     }
 
-    const messageText = `🔔 *Medication Reminder*\n\nIt's time to take your *${medName} — ${dose}*.\n\nHave you taken your medication?`;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const messageText = `🔔 *Medication Reminder*\n\nIt's time to take your *${medName} — ${dose}* (${params.time || 'Scheduled Time'}).\n\nHave you taken your medication?\n\n📱 *Direct Web Link:* [Open AegisCare Routine](${appUrl})`;
 
     const inlineKeyboard = {
       inline_keyboard: [
@@ -80,6 +81,9 @@ export class TelegramService {
         [
           { text: '❓ Not sure', callback_data: `notsure:${doseId}` },
           { text: '❌ Missed', callback_data: `missed:${doseId}` }
+        ],
+        [
+          { text: '📱 Open AegisCare Routine', url: appUrl }
         ]
       ]
     };
