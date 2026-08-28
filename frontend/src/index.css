@@ -1,0 +1,212 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Primary Brand Apollo Blue */
+    --color-primary: #2F80ED;
+    --color-primary-hover: #2563D9;
+    --color-primary-active: #1D4ED8;
+    --color-primary-soft: #EAF3FF;
+    --color-primary-subtle: #F4F8FF;
+
+    /* Neutrals */
+    --color-bg: #F7F9FC;
+    --color-surface: #FFFFFF;
+    --color-gray-50: #F8FAFC;
+    --color-gray-100: #F1F5F9;
+    --color-gray-200: #E2E8F0;
+    --color-gray-300: #CBD5E1;
+    --color-gray-400: #94A3B8;
+    --color-gray-500: #64748B;
+    --color-gray-600: #475569;
+    --color-gray-700: #334155;
+    --color-gray-800: #1E293B;
+    --color-gray-900: #0F172A;
+
+    /* Status Colors */
+    --color-success: #16A34A;
+    --color-success-soft: #DCFCE7;
+    --color-warning: #F59E0B;
+    --color-warning-soft: #FEF3C7;
+    --color-error: #DC2626;
+    --color-error-soft: #FEE2E2;
+    --color-info: #0284C7;
+    --color-info-soft: #E0F2FE;
+
+    /* Typography & Sizing */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-pill: 999px;
+
+    /* Shadows */
+    --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.08);
+    --shadow-card-elevated: 0 4px 12px rgba(15, 23, 42, 0.08);
+    --shadow-modal: 0 12px 32px rgba(15, 23, 42, 0.14);
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-gray-900);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  /* Extra Large Text Mode */
+  body.extra-large-text {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+}
+
+/* HIGH CONTRAST & ACCESSIBILITY MODE OVERRIDES */
+body.high-contrast {
+  background-color: #030712 !important;
+  color: #FFFFFF !important;
+}
+
+body.high-contrast header,
+body.high-contrast nav,
+body.high-contrast main,
+body.high-contrast div.bg-white,
+body.high-contrast div.bg-\[\#F7F9FC\],
+body.high-contrast div.bg-\[\#F8FAFC\],
+body.high-contrast div.bg-\[\#F1F5F9\],
+body.high-contrast section {
+  background-color: #111827 !important;
+  color: #FFFFFF !important;
+  border-color: #4B5563 !important;
+}
+
+body.high-contrast h1,
+body.high-contrast h2,
+body.high-contrast h3,
+body.high-contrast h4,
+body.high-contrast .text-\[\#0F172A\],
+body.high-contrast .text-\[\#1E293B\],
+body.high-contrast .text-\[\#334155\],
+body.high-contrast .text-\[\#475569\],
+body.high-contrast strong {
+  color: #FFFFFF !important;
+}
+
+body.high-contrast p,
+body.high-contrast span,
+body.high-contrast .text-\[\#64748B\],
+body.high-contrast .text-\[\#94A3B8\] {
+  color: #E5E7EB !important;
+}
+
+body.high-contrast input,
+body.high-contrast select,
+body.high-contrast textarea {
+  background-color: #1F2937 !important;
+  color: #FFFFFF !important;
+  border-color: #6B7280 !important;
+}
+
+body.high-contrast .border,
+body.high-contrast .border-t,
+body.high-contrast .border-b,
+body.high-contrast .border-\[\#E2E8F0\],
+body.high-contrast .border-\[\#CBD5E1\],
+body.high-contrast .border-\[\#F1F5F9\] {
+  border-color: #4B5563 !important;
+}
+
+body.high-contrast .bg-\[\#EAF3FF\],
+body.high-contrast .hover\:bg-\[\#EAF3FF\]:hover {
+  background-color: #1E3A8A !important;
+  color: #93C5FD !important;
+  border-color: #3B82F6 !important;
+}
+
+body.high-contrast .bg-\[\#DCFCE7\] {
+  background-color: #064E3B !important;
+  color: #A7F3D0 !important;
+  border-color: #10B981 !important;
+}
+
+body.high-contrast .bg-\[\#FEF3C7\] {
+  background-color: #78350F !important;
+  color: #FDE68A !important;
+  border-color: #F59E0B !important;
+}
+
+body.high-contrast .bg-\[\#FEE2E2\],
+body.high-contrast .bg-\[\#FEF2F2\] {
+  background-color: #7F1D1D !important;
+  color: #FECACA !important;
+  border-color: #EF4444 !important;
+}
+
+body.high-contrast .text-\[\#2F80ED\] {
+  color: #60A5FA !important;
+}
+
+body.high-contrast .text-\[\#16A34A\] {
+  color: #34D399 !important;
+}
+
+body.high-contrast .text-\[\#D97706\],
+body.high-contrast .text-\[\#F59E0B\] {
+  color: #FBBF24 !important;
+}
+
+body.high-contrast .text-\[\#DC2626\] {
+  color: #F87171 !important;
+}
+
+/* Universal Typography */
+h1 {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+h3 {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+/* Accessible Touch Targets */
+.touch-target {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Smooth Transitions */
+button {
+  transition: all 0.15s ease-in-out;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

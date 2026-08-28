@@ -1,0 +1,194 @@
+{
+  "monographs": [
+    {
+      "chunk_id": "don_01_indication",
+      "medication": "donepezil",
+      "brand_name": "Aricept",
+      "source_type": "product_monograph",
+      "document": "Donepezil Hydrochloride Product Monograph",
+      "section": "indications_and_clinical_use",
+      "page_number": 3,
+      "content": "Donepezil hydrochloride is indicated for the symptomatic treatment of mild, moderate, and severe dementia of the Alzheimer's type. It is a reversible, non-competitive inhibitor of the enzyme acetylcholinesterase, thereby increasing acetylcholine concentrations in cerebral synapses to support cognitive and functional performance."
+    },
+    {
+      "chunk_id": "don_02_dosing",
+      "medication": "donepezil",
+      "brand_name": "Aricept",
+      "source_type": "product_monograph",
+      "document": "Donepezil Hydrochloride Product Monograph",
+      "section": "dosage_and_administration",
+      "page_number": 12,
+      "content": "Donepezil is taken orally once daily in the evening, just prior to retiring. Initial dosage is 5 mg once daily. After 4 to 6 weeks of clinical assessment at 5 mg/day, the dose may be increased to 10 mg once daily if clinically indicated. Maximum recommended daily dose is 10 mg/day."
+    },
+    {
+      "chunk_id": "don_03_food",
+      "medication": "donepezil",
+      "brand_name": "Aricept",
+      "source_type": "product_monograph",
+      "document": "Donepezil Hydrochloride Product Monograph",
+      "section": "administration_with_food",
+      "page_number": 13,
+      "content": "Donepezil can be taken with or without food. Food does not significantly alter the rate or extent of absorption of Donepezil hydrochloride. If gastrointestinal upset or mild nausea occurs, taking the dose with an evening snack or milk may help soothe stomach sensitivity."
+    },
+    {
+      "chunk_id": "don_04_missed_dose",
+      "medication": "donepezil",
+      "brand_name": "Aricept",
+      "source_type": "product_monograph",
+      "document": "Donepezil Hydrochloride Product Monograph",
+      "section": "missed_dose",
+      "page_number": 49,
+      "content": "If a dose of Donepezil is missed, do NOT take an extra dose or double the next dose to make up for the missed one. Skip the missed dose and resume your regular dosing schedule the next evening at the normal time. If Donepezil has been missed for 7 consecutive days or more, consult your physician before restarting, as re-titration starting at 5 mg/day may be necessary to avoid cholinergic side effects."
+    },
+    {
+      "chunk_id": "don_05_adverse_effects",
+      "medication": "donepezil",
+      "brand_name": "Aricept",
+      "source_type": "product_monograph",
+      "document": "Donepezil Hydrochloride Product Monograph",
+      "section": "adverse_reactions",
+      "page_number": 18,
+      "content": "Most common adverse reactions are mild and transient: nausea, diarrhea, insomnia, fatigue, muscle cramps, anorexia, and vomiting. These often resolve within 1 to 3 weeks as the body adjusts. Cholinergic actions may cause bradycardia (slow heart rate) or syncope (fainting). Any severe dizziness, sudden slow pulse, blackouts, or chest pain must be reported immediately to a healthcare professional."
+    },
+    {
+      "chunk_id": "riv_01_indication_dosing",
+      "medication": "rivastigmine",
+      "brand_name": "Exelon",
+      "source_type": "product_monograph",
+      "document": "Rivastigmine Tartrate Product Monograph",
+      "section": "dosage_and_administration",
+      "page_number": 5,
+      "content": "Rivastigmine is a pseudo-irreversible inhibitor of acetylcholinesterase and butyrylcholinesterase indicated for mild to moderate dementia of the Alzheimer's type and Parkinson's disease dementia. Oral capsules are administered twice daily with meals (morning breakfast and evening dinner). Transdermal patches are applied once daily to clean, dry, hairless skin on the upper back or chest."
+    },
+    {
+      "chunk_id": "riv_02_food",
+      "medication": "rivastigmine",
+      "brand_name": "Exelon",
+      "source_type": "product_monograph",
+      "document": "Rivastigmine Tartrate Product Monograph",
+      "section": "administration_with_food",
+      "page_number": 8,
+      "content": "Rivastigmine oral capsules MUST be taken with food (during breakfast and evening meal) to significantly reduce potential gastrointestinal adverse effects such as nausea, vomiting, and abdominal discomfort."
+    },
+    {
+      "chunk_id": "riv_03_missed_dose",
+      "medication": "rivastigmine",
+      "brand_name": "Exelon",
+      "source_type": "product_monograph",
+      "document": "Rivastigmine Tartrate Product Monograph",
+      "section": "missed_dose",
+      "page_number": 32,
+      "content": "If you miss a dose of oral Rivastigmine, take the next dose at the usual scheduled time with your next meal. Never take a double dose to compensate. If treatment is interrupted for more than 3 consecutive days, do not resume without contacting your prescribing physician, as treatment must be re-started at the lowest 1.5 mg twice-daily dose to prevent severe gastrointestinal intolerance."
+    },
+    {
+      "chunk_id": "riv_04_adverse_reactions",
+      "medication": "rivastigmine",
+      "brand_name": "Exelon",
+      "source_type": "product_monograph",
+      "document": "Rivastigmine Tartrate Product Monograph",
+      "section": "adverse_reactions",
+      "page_number": 21,
+      "content": "Common adverse events include nausea, vomiting, decreased appetite, weight loss, dizziness, and diarrhea. If using transdermal patches, rotate the application site daily to minimize skin irritation. Red-flag symptoms requiring emergency physician contact include severe persistent vomiting (risk of dehydration or esophageal rupture), fainting, and severe slow heartbeat."
+    },
+    {
+      "chunk_id": "gal_01_indication_dosing",
+      "medication": "galantamine",
+      "brand_name": "Razadyne / Reminyl",
+      "source_type": "product_monograph",
+      "document": "Galantamine Hydrobromide Extended-Release Product Monograph",
+      "section": "dosage_and_administration",
+      "page_number": 4,
+      "content": "Galantamine is a selective, competitive cholinesterase inhibitor and allosteric nicotinic receptor modulator indicated for mild to moderate dementia of the Alzheimer's type. Extended-Release (ER) capsules are taken once daily in the morning, preferably with breakfast. Adequate fluid intake is recommended during therapy."
+    },
+    {
+      "chunk_id": "gal_02_food_fluids",
+      "medication": "galantamine",
+      "brand_name": "Razadyne / Reminyl",
+      "source_type": "product_monograph",
+      "document": "Galantamine Hydrobromide Extended-Release Product Monograph",
+      "section": "administration_with_food",
+      "page_number": 7,
+      "content": "Galantamine should be administered with food, preferably with the morning meal. Taking it with breakfast substantially mitigates gastrointestinal side effects. Patients must swallow capsules whole with plenty of water and maintain adequate daily hydration."
+    },
+    {
+      "chunk_id": "gal_03_missed_dose",
+      "medication": "galantamine",
+      "brand_name": "Razadyne / Reminyl",
+      "source_type": "product_monograph",
+      "document": "Galantamine Hydrobromide Extended-Release Product Monograph",
+      "section": "missed_dose",
+      "page_number": 28,
+      "content": "If you miss a dose of Galantamine ER in the morning, skip the missed dose and take your regular capsule the following morning with breakfast. Never take two capsules on the same day. If therapy is interrupted for several days, consult your physician before restarting."
+    },
+    {
+      "chunk_id": "gal_04_adverse_reactions",
+      "medication": "galantamine",
+      "brand_name": "Razadyne / Reminyl",
+      "source_type": "product_monograph",
+      "document": "Galantamine Hydrobromide Extended-Release Product Monograph",
+      "section": "adverse_reactions",
+      "page_number": 16,
+      "content": "Principal adverse reactions are nausea, vomiting, dizziness, headache, fatigue, and decreased appetite. Cholinomimetic effects may cause bradycardia and AV block. Serious cutaneous adverse reactions (Stevens-Johnson syndrome) have been rarely reported; any unexplained rash or skin blistering mandates immediate discontinuation and medical attention."
+    },
+    {
+      "chunk_id": "mem_01_indication_dosing",
+      "medication": "memantine",
+      "brand_name": "Namenda / Ebixa",
+      "source_type": "product_monograph",
+      "document": "Memantine Hydrochloride Product Monograph",
+      "section": "dosage_and_administration",
+      "page_number": 6,
+      "content": "Memantine hydrochloride is a voltage-dependent, moderate-affinity uncompetitive NMDA receptor antagonist indicated for moderate to severe Alzheimer's disease. Target maintenance dose is 20 mg daily, achieved via weekly titration (5 mg/day week 1, 10 mg/day week 2, 15 mg/day week 3, 20 mg/day maintenance). It can be administered once daily in the morning or divided twice daily."
+    },
+    {
+      "chunk_id": "mem_02_food",
+      "medication": "memantine",
+      "brand_name": "Namenda / Ebixa",
+      "source_type": "product_monograph",
+      "document": "Memantine Hydrochloride Product Monograph",
+      "section": "administration_with_food",
+      "page_number": 9,
+      "content": "Memantine can be taken with or without food. Dietary intake does not affect the bioavailability of Memantine hydrochloride. Take with a glass of water at a consistent time each day."
+    },
+    {
+      "chunk_id": "mem_03_missed_dose",
+      "medication": "memantine",
+      "brand_name": "Namenda / Ebixa",
+      "source_type": "product_monograph",
+      "document": "Memantine Hydrochloride Product Monograph",
+      "section": "missed_dose",
+      "page_number": 35,
+      "content": "If you forget a dose of Memantine, do not take an extra dose. Skip the forgotten dose and take your next dose at the regular scheduled time. Never take a double dose. If you miss doses for several days in a row, consult your physician before resuming your regular dose."
+    },
+    {
+      "chunk_id": "mem_04_adverse_reactions",
+      "medication": "memantine",
+      "brand_name": "Namenda / Ebixa",
+      "source_type": "product_monograph",
+      "document": "Memantine Hydrochloride Product Monograph",
+      "section": "adverse_reactions",
+      "page_number": 19,
+      "content": "Common adverse events include dizziness, headache, confusion, constipation, and somnolence (sleepiness). In clinical trials, dizziness and headache were generally mild to moderate. Any signs of acute confusion, hallucinations, or severe unsteadiness should be evaluated by the care team."
+    },
+    {
+      "chunk_id": "bpsd_01_nonpharm_guideline",
+      "medication": "general_bpsd",
+      "brand_name": "Clinical Practice Guideline",
+      "source_type": "clinical_guideline",
+      "document": "BPSD Clinical Practice Guidelines for Dementia Care",
+      "section": "non_pharmacological_management",
+      "page_number": 14,
+      "content": "Behavioral and psychological symptoms of dementia (BPSD) including agitation, restlessness, and anxiety should first be addressed using personalized non-pharmacological strategies: calming sensory environments, structured daily routines, soothing music, gentle reassurance, and identifying unmet physical needs (pain, hunger, thirst, full bladder, room temperature)."
+    },
+    {
+      "chunk_id": "bpsd_02_routine_fatigue",
+      "medication": "general_bpsd",
+      "brand_name": "Clinical Practice Guideline",
+      "source_type": "clinical_guideline",
+      "document": "BPSD Clinical Practice Guidelines for Dementia Care",
+      "section": "adherence_support",
+      "page_number": 22,
+      "content": "Medication routine fatigue and resistance can be softened by pairing medication administration with comforting daily rituals (e.g., favorite morning tea or gentle morning sunlight), speaking in calm short sentences, avoiding confrontation, and providing positive visual reinforcement."
+    }
+  ]
+}
