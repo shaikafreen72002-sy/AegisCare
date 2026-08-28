@@ -29,28 +29,28 @@ export const DemoScenarioBar: React.FC<DemoScenarioBarProps> = ({
       badgeColor: 'bg-[#DCFCE7] text-[#16A34A]'
     },
     {
-      id: 'scenario_2_missed_dose',
-      label: '2. Missed Dose (1→5)',
+      id: 'scenario_2_missed_2days',
+      label: '2. Missed 2 Days',
       prompt: '__STEP_MISSED_DOSE__',
       icon: <Clock className="w-3.5 h-3.5 text-[#F59E0B]" />,
-      badge: 'Escalation Tree',
+      badge: 'Caregiver Flagged',
       badgeColor: 'bg-[#FEF3C7] text-[#D97706]'
     },
     {
-      id: 'scenario_3_side_effect',
-      label: '3. Side-Effect Query',
+      id: 'scenario_3_missed_3days',
+      label: '3. Missed 3+ Days',
+      prompt: '__STEP_MISSED_DOSE__',
+      icon: <AlertCircle className="w-3.5 h-3.5 text-[#DC2626]" />,
+      badge: 'Doctor Escalated',
+      badgeColor: 'bg-[#FEE2E2] text-[#DC2626]'
+    },
+    {
+      id: 'scenario_4_side_effect',
+      label: '4. Side-Effect Query',
       prompt: 'I feel dizzy and slightly nauseous after taking my pill.',
       icon: <AlertCircle className="w-3.5 h-3.5 text-[#2F80ED]" />,
       badge: 'RAG Grounding',
       badgeColor: 'bg-[#EAF3FF] text-[#2F80ED]'
-    },
-    {
-      id: 'scenario_4_unknown_info',
-      label: '4. Unknown Drug Info',
-      prompt: 'Can I take ibuprofen and amoxicillin with my medicine for tooth pain?',
-      icon: <HelpCircle className="w-3.5 h-3.5 text-[#64748B]" />,
-      badge: 'Zero Hallucination',
-      badgeColor: 'bg-[#F1F5F9] text-[#475569]'
     },
     {
       id: 'scenario_5_urgent_emergency',

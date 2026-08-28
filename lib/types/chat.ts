@@ -67,3 +67,12 @@ export interface ChatMessage {
   sources?: SourceCitation[];
   ai_pipeline_events?: PipelineEvent[];
 }
+
+export interface ChatSession {
+  id: string;
+  title: string;
+  date_label: string; // e.g. "Today", "Yesterday", "Previous Days"
+  created_at: string;
+  messages: ChatMessage[];
+  last_snippet?: string;
+}

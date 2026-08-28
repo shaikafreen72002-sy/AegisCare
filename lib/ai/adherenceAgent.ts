@@ -2,7 +2,7 @@ export interface AdherenceDecision {
   acknowledgement_count: number;
   previous_count?: number;
   adherence_status: string;
-  escalation_level: 'none' | 'gentle' | 'reminder' | 'caregiver_consideration' | 'caregiver' | 'doctor';
+  escalation_level: 'none' | 'gentle' | 'caregiver_alert' | 'doctor_escalation';
   action: string;
   reason: string;
   requires_caregiver_alert?: boolean;
@@ -11,7 +11,7 @@ export interface AdherenceDecision {
 
 export class AdherenceEscalationAgent {
   private counter: number = 0;
-  private maxCounter: number = 5;
+  private maxCounter: number = 3;
 
   public resetCounter() {
     this.counter = 0;
@@ -41,51 +41,31 @@ export class AdherenceEscalationAgent {
 
     if (c === 1) {
       return {
-        acknowledgement_count: c,
-        adherence_status: 'mild_delay',
+        acknowledgement_count: 1,
+        adherence_status: 'day_1_missed',
         escalation_level: 'gentle',
-        action: 'send_gentle_reminder',
-        reason: '1st reminder unanswered. Gentle follow-up prompt required.',
+        action: 'send_patient_reminder',
+        reason: 'Day 1: Medication reminder unanswered. Gentle in-app prompt and Telegram reminder sent to patient.',
         requires_caregiver_alert: false,
         requires_doctor_alert: false
       };
     } else if (c === 2) {
       return {
-        acknowledgement_count: c,
-        adherence_status: 'delayed',
-        escalation_level: 'reminder',
-        action: 'send_clear_reminder',
-        reason: '2nd reminder unanswered. Clear single-action reminder required.',
-        requires_caregiver_alert: false,
-        requires_doctor_alert: false
-      };
-    } else if (c === 3) {
-      return {
-        acknowledgement_count: c,
-        adherence_status: 'at_risk',
-        escalation_level: 'caregiver_consideration',
-        action: 'flag_caregiver_consideration',
-        reason: '3rd reminder unanswered. Flagging potential adherence barrier for caregiver support.',
-        requires_caregiver_alert: false,
-        requires_doctor_alert: false
-      };
-    } else if (c === 4) {
-      return {
-        acknowledgement_count: c,
-        adherence_status: 'escalated_caregiver',
-        escalation_level: 'caregiver',
+        acknowledgement_count: 2,
+        adherence_status: 'day_2_caregiver_alert',
+        escalation_level: 'caregiver_alert',
         action: 'dispatch_caregiver_alert',
-        reason: '4th reminder unanswered. Direct Caregiver Telegram notification triggered.',
+        reason: 'Day 2: Patient has not taken medication for 2 consecutive days. High-priority Telegram alert dispatched to caregiver.',
         requires_caregiver_alert: true,
         requires_doctor_alert: false
       };
     } else {
       return {
-        acknowledgement_count: c,
-        adherence_status: 'escalated_doctor',
-        escalation_level: 'doctor',
+        acknowledgement_count: 3,
+        adherence_status: 'day_3_doctor_escalation',
+        escalation_level: 'doctor_escalation',
         action: 'dispatch_doctor_escalation',
-        reason: '5th reminder unanswered. High clinical risk. Direct Physician escalation triggered.',
+        reason: 'Day 3+: No progress after caregiver notification. Clinical telemetry and missed dose escalation sent to Dr. Aarav Mehta (Physician).',
         requires_caregiver_alert: true,
         requires_doctor_alert: true
       };

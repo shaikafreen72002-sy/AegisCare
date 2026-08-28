@@ -50,19 +50,15 @@ export class EmpatheticCommunicatorAgent {
       return `Wonderful, ${patientName}! ✨ I have marked down your dose. You are doing a brilliant job keeping up with your daily wellness.`;
     }
 
-    // Priority 3: 1-5 Adherence Escalation Reminders
-    if (adherenceDecision && ['gentle', 'reminder', 'caregiver_consideration', 'caregiver', 'doctor'].includes(adherenceDecision.escalation_level)) {
+    // Priority 3: 2-Day Caregiver & 3-Day Doctor Escalation Reminders
+    if (adherenceDecision && ['gentle', 'caregiver_alert', 'doctor_escalation'].includes(adherenceDecision.escalation_level)) {
       const lvl = adherenceDecision.escalation_level;
       if (lvl === 'gentle') {
-        return `Hi ${patientName} 😊 It looks like your evening medicine reminder was missed. When you have a moment, please check your medicine table.`;
-      } else if (lvl === 'reminder') {
-        return `Hello ${patientName} 🌸 Just a gentle reminder: your evening tablet is ready for you with a fresh glass of water.`;
-      } else if (lvl === 'caregiver_consideration') {
-        return `Hi ${patientName}, your evening dose is still waiting. If you need any help taking it, I can reach out to Priya for you.`;
-      } else if (lvl === 'caregiver') {
-        return `Hi ${patientName}, since your reminder was missed a few times, I have sent a quick note to Priya so she can assist you comfortably.`;
+        return `Hi ${patientName} 😊 It looks like your evening medicine reminder was missed. When you have a moment, please check your medicine table and take your tablet with water.`;
+      } else if (lvl === 'caregiver_alert') {
+        return `⚠️ URGENT CAREGIVER ALERT: Hello ${patientName}, you have not logged medication for 2 consecutive days. I have automatically sent a high-priority Telegram alert to your caregiver so they can check in on you.`;
       } else {
-        return `Hello ${patientName}, I have notified both Priya and Dr. Mehta's care team to ensure you stay well and supported.`;
+        return `🚨 CLINICAL ESCALATION: Hello ${patientName}, since no progress was logged for 3+ consecutive days, clinical telemetry and missed dose history have been escalated directly to Dr. Aarav Mehta (Physician).`;
       }
     }
 

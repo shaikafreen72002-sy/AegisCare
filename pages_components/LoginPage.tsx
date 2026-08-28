@@ -32,6 +32,7 @@ export const LoginPage: React.FC = () => {
   // Register (New User) State
   const [regName, setRegName] = useState('Afreen');
   const [regIdentifier, setRegIdentifier] = useState('afreen@example.com');
+  const [regPhone, setRegPhone] = useState('+91 ');
   const [regPassword, setRegPassword] = useState('afreen123');
   const [regConfirmPassword, setRegConfirmPassword] = useState('afreen123');
   const [showRegPassword, setShowRegPassword] = useState(false);
@@ -62,8 +63,13 @@ export const LoginPage: React.FC = () => {
       setErrorMessage('Please enter your full name.');
       return;
     }
+    const cleanPhone = regPhone.replace(/\D/g, '');
+    if (!regPhone.trim() || cleanPhone.length < 10) {
+      setErrorMessage('Mobile phone number is compulsory (India +91) because it connects with Telegram medication reminders.');
+      return;
+    }
     if (!regIdentifier.trim()) {
-      setErrorMessage('Please enter your email address or phone number.');
+      setErrorMessage('Please enter your email address.');
       return;
     }
     if (!regPassword.trim()) {
@@ -337,19 +343,50 @@ export const LoginPage: React.FC = () => {
 
               <div>
                 <label
+                  htmlFor="reg-phone"
+                  className="block text-xs font-bold text-[#334155] mb-1 flex items-center justify-between"
+                >
+                  <span>Mobile Phone Number (Compulsory for Telegram)</span>
+                  <span className="text-[10px] text-[#DC2626] font-bold uppercase">Required</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-3 text-xs font-bold text-[#2F80ED]">🇮🇳</span>
+                  <input
+                    id="reg-phone"
+                    type="tel"
+                    value={regPhone}
+                    onChange={(e) => {
+                      let val = e.target.value;
+                      if (!val.startsWith('+91')) {
+                        val = '+91 ' + val.replace(/^\+?91\s*/, '');
+                      }
+                      setRegPhone(val);
+                    }}
+                    placeholder="+91 98765 43210"
+                    required
+                    className="touch-target w-full h-[44px] pl-9 pr-3.5 rounded-[8px] border border-[#CBD5E1] bg-white text-sm text-[#0F172A] font-semibold placeholder:text-[#94A3B8] placeholder:font-normal focus:outline-none focus:border-[#2F80ED] focus:ring-2 focus:ring-[#EAF3FF]"
+                  />
+                </div>
+                <p className="text-[11px] text-[#64748B] mt-0.5">
+                  Used by @BversityCareBot to dispatch automated interactive medication reminders.
+                </p>
+              </div>
+
+              <div>
+                <label
                   htmlFor="reg-identifier"
                   className="block text-xs font-bold text-[#334155] mb-1"
                 >
-                  Email Address or Mobile Phone
+                  Email Address
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 absolute left-3 top-3.5 text-[#94A3B8]" />
                   <input
                     id="reg-identifier"
-                    type="text"
+                    type="email"
                     value={regIdentifier}
                     onChange={(e) => setRegIdentifier(e.target.value)}
-                    placeholder="e.g. afreen@example.com or +91 98765 43210"
+                    placeholder="e.g. afreen@example.com"
                     required
                     className="touch-target w-full h-[44px] pl-9 pr-3.5 rounded-[8px] border border-[#CBD5E1] bg-white text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#2F80ED] focus:ring-2 focus:ring-[#EAF3FF]"
                   />

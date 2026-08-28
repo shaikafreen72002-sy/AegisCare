@@ -17,7 +17,9 @@ import {
   Activity,
   LogOut,
   ShieldCheck,
-  Send
+  Send,
+  Stethoscope,
+  Volume2
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -40,6 +42,19 @@ export const Navbar: React.FC = () => {
     setIsTelegramModalOpen,
     profile
   } = usePatient();
+
+  const playVoiceReminderCall = () => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(
+        `Hello ${profile.preferred_name || profile.name}. This is your AegisCare medication reminder call. It is time to take your ${profile.primary_medication?.name || 'prescribed medication'} ${profile.primary_medication?.dosage || '10 mg'} with a fresh glass of water.`
+      );
+      utterance.rate = 0.92;
+      utterance.pitch = 1.0;
+      window.speechSynthesis.speak(utterance);
+    }
+    setIsEmergencyModalOpen(true);
+  };
 
   const navItems: { id: ActiveTab; label: string; icon: React.ReactNode; ariaLabel: string }[] = [
     {
@@ -91,21 +106,58 @@ export const Navbar: React.FC = () => {
             </div>
           </div>
 
-          <div className="hidden xl:flex items-center gap-2 px-2.5 py-1 bg-[#F0FDF4] border border-[#16A34A]/30 rounded-[8px] max-w-[200px]">
-            <div className="w-5 h-5 rounded-full bg-[#16A34A] text-white flex items-center justify-center text-[10px] font-bold shrink-0">
-              <ShieldCheck className="w-3 h-3" />
+          <div className="hidden xl:flex items-center gap-2">
+            {/* Caregiver Badge */}
+            <div
+              onClick={() => setIsEmergencyModalOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1 bg-[#F0FDF4] border border-[#16A34A]/30 rounded-[8px] max-w-[170px] cursor-pointer hover:bg-[#DCFCE7] transition"
+              title="Click to view Caregiver info & Call"
+            >
+              <div className="w-5 h-5 rounded-full bg-[#16A34A] text-white flex items-center justify-center text-[10px] font-bold shrink-0">
+                <ShieldCheck className="w-3 h-3" />
+              </div>
+              <div className="text-left overflow-hidden min-w-0">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-[#16A34A] block leading-none truncate">
+                  Caregiver
+                </span>
+                <span className="text-xs font-bold text-[#0F172A] block leading-tight truncate">
+                  {profile.caregiver?.name ? profile.caregiver.name : 'Setup Pending'}
+                </span>
+              </div>
             </div>
-            <div className="text-left overflow-hidden min-w-0">
-              <span className="text-[9px] font-bold uppercase tracking-wider text-[#16A34A] block leading-none truncate">
-                Caregiver
-              </span>
-              <span className="text-xs font-bold text-[#0F172A] block leading-tight truncate">
-                {profile.caregiver?.name ? profile.caregiver.name : 'Setup Pending'}
-              </span>
+
+            {/* Doctor / Physician Badge */}
+            <div
+              onClick={() => setIsEmergencyModalOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1 bg-[#EAF3FF] border border-[#2F80ED]/30 rounded-[8px] max-w-[180px] cursor-pointer hover:bg-[#D4E8FF] transition"
+              title="Click to view Physician info & Call"
+            >
+              <div className="w-5 h-5 rounded-full bg-[#2F80ED] text-white flex items-center justify-center text-[10px] font-bold shrink-0">
+                <Stethoscope className="w-3 h-3" />
+              </div>
+              <div className="text-left overflow-hidden min-w-0">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-[#2F80ED] block leading-none truncate">
+                  Doctor
+                </span>
+                <span className="text-xs font-bold text-[#0F172A] block leading-tight truncate">
+                  {profile.physician?.name ? profile.physician.name : 'Dr. Aarav Mehta'}
+                </span>
+              </div>
             </div>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-2.5 flex-nowrap">
+            {/* Simulated Voice Call / Audio Reminder */}
+            <button
+              type="button"
+              onClick={playVoiceReminderCall}
+              aria-label="Play Voice Call Reminder from App"
+              title="Simulate / Trigger In-App Voice Call Reminder"
+              className="h-[38px] flex items-center gap-1.5 px-2.5 sm:px-3 rounded-[8px] text-xs font-semibold bg-[#FEF3C7] hover:bg-[#FDE68A] text-[#D97706] border border-[#F59E0B]/30 shadow-xs transition active:scale-[0.98] cursor-pointer shrink-0"
+            >
+              <Volume2 className="w-4 h-4 text-[#D97706] animate-pulse" />
+              <span className="hidden lg:inline">Voice Call Reminder</span>
+            </button>
             <button
               onClick={toggleHighContrast}
               aria-label={highContrast ? 'Switch to Standard Theme' : 'Switch to High Contrast Theme'}

@@ -129,6 +129,12 @@ export const OnboardingWizard: React.FC = () => {
 
   const handleNext = async () => {
     if (step === 6) {
+      const cleanPhone = caregiverPhone.replace(/\D/g, '');
+      if (!caregiverPhone.trim() || cleanPhone.length < 10) {
+        alert('Caregiver Mobile Number is compulsory (India +91) because it connects with Telegram medication reminders (@BversityCareBot).');
+        return;
+      }
+
       setIsCalibrating(true);
       setStep(7);
       try {
@@ -141,10 +147,12 @@ export const OnboardingWizard: React.FC = () => {
           weight_kg: numWeight,
           condition_severity: conditionSeverity,
           diagnosis_date: diagnosisDate,
-          daily_medications: [currentMed.name],
-          caregiver_name: caregiverName,
-          caregiver_phone: caregiverPhone,
-          caregiver_relation: caregiverRelation,
+          current_medication_id: selectedMedId,
+          current_medication_name: currentMed.name,
+          dosage: selectedDose,
+          caregiver_name: caregiverName || 'Priya',
+          caregiver_relation: caregiverRelation || 'Daughter',
+          caregiver_phone: caregiverPhone || '+91 98765 43210',
           medication_timings: medicationTimings,
           physician_name: profile.physician.name,
           physician_phone: profile.physician.phone
