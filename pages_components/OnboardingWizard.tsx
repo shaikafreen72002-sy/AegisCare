@@ -208,38 +208,38 @@ export const OnboardingWizard: React.FC = () => {
   return (
     <div className="max-w-2xl mx-auto py-4 sm:py-6 animate-fade-in">
       <div className="mb-5">
-        <div className="flex items-center justify-between text-xs font-bold text-[#64748B] mb-1.5">
-          <span className="flex items-center gap-1 text-[#2F80ED]">
+        <div className="flex items-center justify-between text-xs font-bold text-[#6B6282] mb-1.5">
+          <span className="flex items-center gap-1 text-[#FF6138]">
             <Sparkles className="w-3.5 h-3.5" /> Step {step} of {totalSteps} • Clinical Intake Assessment
           </span>
-          <span>{Math.round((step / totalSteps) * 100)}% Complete</span>
+          <span className="font-bold text-[#2D2545]">{Math.round((step / totalSteps) * 100)}% Complete</span>
         </div>
-        <div className="w-full h-2 bg-[#E2E8F0] rounded-full overflow-hidden">
+        <div className="w-full h-2.5 bg-[#EFEAE1] rounded-full overflow-hidden">
           <div
-            className="h-full bg-[#2F80ED] rounded-full transition-all duration-300"
+            className="h-full bg-gradient-to-r from-[#FF6138] to-[#FFA439] rounded-full transition-all duration-300 shadow-xs"
             style={{ width: `${(step / totalSteps) * 100}%` }}
           />
         </div>
       </div>
 
-      <div className="bg-white border border-[#E2E8F0] rounded-[12px] p-6 sm:p-8 shadow-[0_1px_3px_rgba(15,23,42,0.06)]">
+      <div className="bg-white border border-[#EFEAE1] rounded-[20px] p-6 sm:p-8 shadow-[0_8px_30px_rgba(45,37,69,0.06)]">
         {step === 1 && (
           <div className="space-y-4">
-            <div className="w-11 h-11 rounded-[8px] bg-[#EAF3FF] text-[#2F80ED] flex items-center justify-center">
+            <div className="w-12 h-12 rounded-[14px] bg-[#FFF0EB] text-[#FF6138] flex items-center justify-center shadow-xs">
               <User className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-[#0F172A]">
+              <h2 className="text-xl font-extrabold text-[#2D2545] font-['Outfit']">
                 What is the patient's full name & preferred greeting?
               </h2>
-              <p className="text-xs text-[#64748B] mt-0.5">
+              <p className="text-xs text-[#6B6282] mt-0.5">
                 We personalize all conversational AI interactions and gentle reminders with this name.
               </p>
             </div>
 
             <div className="space-y-3 pt-2">
               <div>
-                <label htmlFor="intake-fullname" className="block text-xs font-semibold text-[#334155] mb-1">
+                <label htmlFor="intake-fullname" className="block text-xs font-bold text-[#40365D] mb-1">
                   Full Legal Name
                 </label>
                 <input
@@ -247,13 +247,13 @@ export const OnboardingWizard: React.FC = () => {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Lakshmi Devi"
-                  className="touch-target w-full h-[44px] text-sm px-3.5 rounded-[8px] border border-[#CBD5E1] bg-white text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#2F80ED] focus:ring-2 focus:ring-[#EAF3FF]"
+                  placeholder="e.g. Afreen"
+                  className="touch-target w-full h-[46px] text-sm px-4 rounded-full border border-[#EFEAE1] bg-[#FAF7F2] text-[#2D2545] placeholder:text-[#988EA8] focus:bg-white focus:outline-none focus:border-[#FF6138] focus:ring-2 focus:ring-[#FFF0EB]"
                 />
               </div>
 
               <div>
-                <label htmlFor="intake-preferred" className="block text-xs font-semibold text-[#334155] mb-1">
+                <label htmlFor="intake-preferred" className="block text-xs font-bold text-[#40365D] mb-1">
                   Preferred / Friendly Greeting
                 </label>
                 <input
@@ -727,12 +727,12 @@ export const OnboardingWizard: React.FC = () => {
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-3 mt-6 pt-4 border-t border-[#E2E8F0]">
+        <div className="flex items-center justify-between gap-3 mt-6 pt-4 border-t border-[#EFEAE1]">
           {step > 1 && step < 7 ? (
             <button
               type="button"
               onClick={handleBack}
-              className="touch-target flex items-center gap-1.5 px-4 py-2 rounded-[8px] bg-white border border-[#CBD5E1] text-[#334155] font-semibold text-xs hover:bg-[#F8FAFC] transition cursor-pointer"
+              className="touch-target flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-white border border-[#EFEAE1] text-[#40365D] font-bold text-xs hover:bg-[#FAF7F2] transition cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back</span>
@@ -745,7 +745,7 @@ export const OnboardingWizard: React.FC = () => {
             type="button"
             onClick={handleNext}
             disabled={isCalibrating}
-            className="touch-target flex items-center gap-2 px-5 py-2.5 rounded-[8px] bg-[#2F80ED] hover:bg-[#2563D9] text-white font-semibold text-sm shadow-sm transition active:scale-[0.98] ml-auto disabled:opacity-50 cursor-pointer"
+            className="touch-target flex items-center gap-2 px-6 py-3 rounded-full bg-[#FF6138] hover:bg-[#E84E27] text-white font-bold text-sm shadow-[0_4px_14px_rgba(255,97,56,0.3)] transition active:scale-[0.98] ml-auto disabled:opacity-50 cursor-pointer"
           >
             <span>
               {step === 6

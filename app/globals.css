@@ -2,56 +2,74 @@
 
 @layer base {
   :root {
-    --color-primary: #2F80ED;
-    --color-primary-hover: #2563D9;
-    --color-primary-active: #1D4ED8;
-    --color-primary-soft: #EAF3FF;
-    --color-primary-subtle: #F4F8FF;
+    /* Headspace Core Signature Color Tokens */
+    --color-primary: #FF6138;
+    --color-primary-hover: #E84E27;
+    --color-primary-active: #D43F1B;
+    --color-primary-soft: #FFF0EB;
+    --color-primary-subtle: #FFF7F5;
 
-    --color-bg: #F7F9FC;
+    /* Headspace Warm Sand & Oat Background Tokens */
+    --color-bg: #F7F4EE;
     --color-surface: #FFFFFF;
-    --color-gray-50: #F8FAFC;
-    --color-gray-100: #F1F5F9;
-    --color-gray-200: #E2E8F0;
-    --color-gray-300: #CBD5E1;
-    --color-gray-400: #94A3B8;
-    --color-gray-500: #64748B;
-    --color-gray-600: #475569;
-    --color-gray-700: #334155;
-    --color-gray-800: #1E293B;
-    --color-gray-900: #0F172A;
+    --color-surface-soft: #FAF7F2;
+    --color-border-warm: #EFEAE1;
+    --color-border-subtle: #E5DFC8;
 
-    --color-success: #16A34A;
-    --color-success-soft: #DCFCE7;
-    --color-warning: #F59E0B;
-    --color-warning-soft: #FEF3C7;
-    --color-error: #DC2626;
-    --color-error-soft: #FEE2E2;
-    --color-info: #0284C7;
-    --color-info-soft: #E0F2FE;
+    /* Headspace Midnight Plum Typography Tokens */
+    --color-text-main: #2D2545;
+    --color-text-body: #40365D;
+    --color-text-muted: #6B6282;
+    --color-text-subtle: #988EA8;
 
-    --radius-sm: 6px;
-    --radius-md: 8px;
-    --radius-lg: 12px;
-    --radius-xl: 16px;
+    /* Headspace Wellness Palette Accents */
+    --color-sunshine: #FFBE53;
+    --color-sunshine-soft: #FFF8E7;
+    --color-sunshine-text: #8C5A00;
+
+    --color-sky: #4E89FF;
+    --color-sky-soft: #EBF2FF;
+    --color-sky-text: #1D5BD8;
+
+    --color-sage: #1E824C;
+    --color-sage-soft: #EAF8F0;
+    --color-sage-text: #136B3B;
+
+    --color-lavender: #7952EC;
+    --color-lavender-soft: #F2EDFF;
+    --color-lavender-text: #5B31D8;
+
+    --color-coral-alert: #E53E3E;
+    --color-coral-alert-soft: #FFF0F0;
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 22px;
     --radius-pill: 999px;
 
-    --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.08);
-    --shadow-card-elevated: 0 4px 12px rgba(15, 23, 42, 0.08);
-    --shadow-modal: 0 12px 32px rgba(15, 23, 42, 0.14);
+    --shadow-headspace: 0 4px 20px rgba(45, 37, 69, 0.05);
+    --shadow-headspace-sm: 0 2px 8px rgba(45, 37, 69, 0.04);
+    --shadow-headspace-lg: 0 12px 36px rgba(45, 37, 69, 0.09);
   }
 
   body {
     background-color: var(--color-bg);
-    color: var(--color-gray-900);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
+    color: var(--color-text-main);
+    font-family: 'Plus Jakarta Sans', 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14.5px;
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     margin: 0;
     padding: 0;
-    transition: background-color 0.2s ease, color 0.2s ease, font-size 0.15s ease;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+    color: var(--color-text-main);
+    letter-spacing: -0.02em;
   }
 }
 
@@ -65,29 +83,29 @@ html.text-size-sm, body.text-size-sm {
 html.zoom-100, body.zoom-100,
 html.text-size-md, body.text-size-md {
   zoom: 1.0;
-  font-size: 14px;
+  font-size: 14.5px;
 }
 
 html.zoom-105, body.zoom-105,
 html.text-size-lg, body.text-size-lg {
   zoom: 1.05;
-  font-size: 14.8px;
+  font-size: 15.2px;
 }
 
 html.zoom-110, body.zoom-110,
 html.text-size-xl, body.text-size-xl {
   zoom: 1.10;
-  font-size: 15.6px;
+  font-size: 16px;
 }
 
 body.extra-large-text {
-  font-size: 15.6px;
-  line-height: 1.6;
+  font-size: 16px;
+  line-height: 1.65;
 }
 
-/* HIGH CONTRAST & ACCESSIBILITY MODE OVERRIDES */
+/* HIGH CONTRAST & ACCESSIBILITY MODE OVERRIDES (Headspace Midnight Navy) */
 body.high-contrast {
-  background-color: #030712 !important;
+  background-color: #161324 !important;
   color: #FFFFFF !important;
 }
 
@@ -99,9 +117,9 @@ body.high-contrast div.bg-\[\#F7F9FC\],
 body.high-contrast div.bg-\[\#F8FAFC\],
 body.high-contrast div.bg-\[\#F1F5F9\],
 body.high-contrast section {
-  background-color: #111827 !important;
+  background-color: #221D38 !important;
   color: #FFFFFF !important;
-  border-color: #374151 !important;
+  border-color: #3D355C !important;
 }
 
 body.high-contrast h1,

@@ -105,46 +105,44 @@ export const LoginPage: React.FC = () => {
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center py-6 px-4">
-      <div className="max-w-md w-full bg-white border border-[#E2E8F0] rounded-[14px] p-6 sm:p-8 shadow-[0_4px_16px_rgba(15,23,42,0.08)] animate-fade-in">
+      <div className="max-w-md w-full bg-white border border-[#EFEAE1] rounded-[20px] p-6 sm:p-8 shadow-[0_8px_30px_rgba(45,37,69,0.06)] animate-fade-in">
         {/* Brand Header */}
         <div className="text-center space-y-2 mb-6">
-          <div className="w-12 h-12 rounded-[10px] bg-[#2F80ED] text-white flex items-center justify-center mx-auto shadow-sm">
+          <div className="w-12 h-12 rounded-[14px] bg-gradient-to-tr from-[#FF6138] to-[#FF8C6B] text-white flex items-center justify-center mx-auto shadow-[0_4px_12px_rgba(255,97,56,0.3)]">
             <Activity className="w-7 h-7" />
           </div>
           <div>
             <div className="flex items-center justify-center gap-1.5">
-              <h1 className="text-2xl font-bold text-[#0F172A]">AegisCare</h1>
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#EAF3FF] text-[#2F80ED] font-semibold border border-[#CBD5E1]/40">
-                Clinical Portal
+              <h1 className="text-2xl font-extrabold text-[#2D2545] font-['Outfit']">AegisCare</h1>
+              <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#FFF0EB] text-[#FF6138] font-bold border border-[#FF6138]/20">
+                Clinical Companion
               </span>
             </div>
-            <p className="text-xs text-[#64748B] mt-0.5">
+            <p className="text-xs text-[#6B6282] font-medium mt-0.5">
               Evidence-Grounded Medication Adherence Companion
             </p>
           </div>
         </div>
 
         {/* Primary Auth Mode Switcher: Log In (Existing) vs Sign In / Register (New User) */}
-        <div className="grid grid-cols-2 gap-1 p-1 bg-[#F1F5F9] rounded-[10px] mb-5 border border-[#E2E8F0]">
+        <div className="grid grid-cols-2 gap-1 p-1 bg-[#FAF7F2] rounded-full mb-5 border border-[#EFEAE1]">
           <button
             type="button"
             onClick={() => {
               setAuthMode('login');
               setErrorMessage(null);
             }}
-            className={`touch-target flex flex-col items-center justify-center py-2 px-3 rounded-[8px] transition cursor-pointer ${
+            className={`touch-target flex flex-col items-center justify-center py-2 px-3 rounded-full transition cursor-pointer ${
               authMode === 'login'
-                ? 'bg-white text-[#2F80ED] shadow-xs font-bold'
-                : 'text-[#64748B] hover:text-[#0F172A] font-semibold'
+                ? 'bg-white text-[#FF6138] shadow-xs font-bold'
+                : 'text-[#6B6282] hover:text-[#2D2545] font-semibold'
             }`}
           >
             <div className="flex items-center gap-1.5 text-xs">
               <LogIn className="w-3.5 h-3.5" />
               <span>Log In</span>
             </div>
-            <span className="text-[10px] text-[#94A3B8] font-normal mt-0.5">
-              Already have an account
-            </span>
+            <span className="text-[10px] opacity-80">Existing Profile</span>
           </button>
 
           <button
@@ -153,19 +151,17 @@ export const LoginPage: React.FC = () => {
               setAuthMode('register');
               setErrorMessage(null);
             }}
-            className={`touch-target flex flex-col items-center justify-center py-2 px-3 rounded-[8px] transition cursor-pointer ${
+            className={`touch-target flex flex-col items-center justify-center py-2 px-3 rounded-full transition cursor-pointer ${
               authMode === 'register'
-                ? 'bg-white text-[#2F80ED] shadow-xs font-bold'
-                : 'text-[#64748B] hover:text-[#0F172A] font-semibold'
+                ? 'bg-white text-[#FF6138] shadow-xs font-bold'
+                : 'text-[#6B6282] hover:text-[#2D2545] font-semibold'
             }`}
           >
             <div className="flex items-center gap-1.5 text-xs">
               <UserPlus className="w-3.5 h-3.5" />
-              <span>Sign In / Register</span>
+              <span>Sign Up</span>
             </div>
-            <span className="text-[10px] text-[#94A3B8] font-normal mt-0.5">
-              For new users
-            </span>
+            <span className="text-[10px] opacity-80">New Intake</span>
           </button>
         </div>
 
@@ -173,7 +169,7 @@ export const LoginPage: React.FC = () => {
         {authMode === 'login' && (
           <div className="space-y-4">
             {/* Email vs Phone Sub-switcher */}
-            <div className="flex items-center gap-1 p-1 bg-[#F8FAFC] rounded-[8px] border border-[#E2E8F0]">
+            <div className="flex items-center gap-1 p-1 bg-[#FAF7F2] rounded-full border border-[#EFEAE1]">
               <button
                 type="button"
                 onClick={() => {
@@ -181,10 +177,10 @@ export const LoginPage: React.FC = () => {
                   setIdentifier('afreen@example.com');
                   setPassword('afreen123');
                 }}
-                className={`touch-target flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-[6px] text-xs font-semibold transition cursor-pointer ${
+                className={`touch-target flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-full text-xs font-bold transition cursor-pointer ${
                   loginMethod === 'email'
-                    ? 'bg-white text-[#2F80ED] shadow-2xs border border-[#CBD5E1]/40'
-                    : 'text-[#64748B] hover:text-[#0F172A]'
+                    ? 'bg-white text-[#FF6138] shadow-xs border border-[#EFEAE1]'
+                    : 'text-[#6B6282] hover:text-[#2D2545]'
                 }`}
               >
                 <Mail className="w-3.5 h-3.5" />
@@ -198,10 +194,10 @@ export const LoginPage: React.FC = () => {
                   setIdentifier('+91 98765 43210');
                   setPassword('afreen123');
                 }}
-                className={`touch-target flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-[6px] text-xs font-semibold transition cursor-pointer ${
+                className={`touch-target flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-full text-xs font-bold transition cursor-pointer ${
                   loginMethod === 'phone'
-                    ? 'bg-white text-[#2F80ED] shadow-2xs border border-[#CBD5E1]/40'
-                    : 'text-[#64748B] hover:text-[#0F172A]'
+                    ? 'bg-white text-[#FF6138] shadow-xs border border-[#EFEAE1]'
+                    : 'text-[#6B6282] hover:text-[#2D2545]'
                 }`}
               >
                 <Phone className="w-3.5 h-3.5" />
@@ -214,15 +210,15 @@ export const LoginPage: React.FC = () => {
               <div>
                 <label
                   htmlFor="login-identifier"
-                  className="block text-xs font-bold text-[#334155] mb-1"
+                  className="block text-xs font-bold text-[#40365D] mb-1"
                 >
                   {loginMethod === 'email' ? 'Registered Email or Name' : 'Mobile / Telegram Number'}
                 </label>
                 <div className="relative">
                   {loginMethod === 'email' ? (
-                    <Mail className="w-4 h-4 absolute left-3 top-3.5 text-[#94A3B8]" />
+                    <Mail className="w-4 h-4 absolute left-3.5 top-3.5 text-[#988EA8]" />
                   ) : (
-                    <Phone className="w-4 h-4 absolute left-3 top-3.5 text-[#94A3B8]" />
+                    <Phone className="w-4 h-4 absolute left-3.5 top-3.5 text-[#988EA8]" />
                   )}
                   <input
                     id="login-identifier"
@@ -231,7 +227,7 @@ export const LoginPage: React.FC = () => {
                     onChange={(e) => setIdentifier(e.target.value)}
                     placeholder={loginMethod === 'email' ? 'e.g. afreen@example.com or Afreen' : 'e.g. +91 98765 43210'}
                     required
-                    className="touch-target w-full h-[44px] pl-9 pr-3.5 rounded-[8px] border border-[#CBD5E1] bg-white text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#2F80ED] focus:ring-2 focus:ring-[#EAF3FF]"
+                    className="touch-target w-full h-[46px] pl-10 pr-3.5 rounded-full border border-[#EFEAE1] bg-[#FAF7F2] text-sm text-[#2D2545] placeholder:text-[#988EA8] focus:bg-white focus:outline-none focus:border-[#FF6138] focus:ring-2 focus:ring-[#FFF0EB]"
                   />
                 </div>
               </div>
@@ -239,12 +235,12 @@ export const LoginPage: React.FC = () => {
               <div>
                 <label
                   htmlFor="login-password"
-                  className="block text-xs font-bold text-[#334155] mb-1"
+                  className="block text-xs font-bold text-[#40365D] mb-1"
                 >
                   Password
                 </label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 absolute left-3 top-3.5 text-[#94A3B8]" />
+                  <Lock className="w-4 h-4 absolute left-3.5 top-3.5 text-[#988EA8]" />
                   <input
                     id="login-password"
                     type={showPassword ? 'text' : 'password'}
@@ -252,12 +248,12 @@ export const LoginPage: React.FC = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password..."
                     required
-                    className="touch-target w-full h-[44px] pl-9 pr-10 rounded-[8px] border border-[#CBD5E1] bg-white text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#2F80ED] focus:ring-2 focus:ring-[#EAF3FF]"
+                    className="touch-target w-full h-[46px] pl-10 pr-10 rounded-full border border-[#EFEAE1] bg-[#FAF7F2] text-sm text-[#2D2545] placeholder:text-[#988EA8] focus:bg-white focus:outline-none focus:border-[#FF6138] focus:ring-2 focus:ring-[#FFF0EB]"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="touch-target absolute right-2 top-2 p-1 text-[#64748B] hover:text-[#0F172A] cursor-pointer"
+                    className="touch-target absolute right-3 top-2.5 p-1 text-[#988EA8] hover:text-[#2D2545] cursor-pointer"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -266,7 +262,7 @@ export const LoginPage: React.FC = () => {
               </div>
 
               {errorMessage && (
-                <div className="p-2.5 rounded-[8px] bg-[#FEE2E2] border border-[#DC2626]/30 text-xs text-[#DC2626] font-medium">
+                <div className="p-3 rounded-[12px] bg-[#FFF0F0] border border-[#E53E3E]/30 text-xs text-[#E53E3E] font-bold">
                   {errorMessage}
                 </div>
               )}
@@ -274,7 +270,7 @@ export const LoginPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="touch-target w-full h-[44px] rounded-[8px] bg-[#2F80ED] hover:bg-[#2563D9] text-white font-semibold text-sm shadow-sm transition active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                className="touch-target w-full h-[46px] rounded-full bg-[#FF6138] hover:bg-[#E84E27] text-white font-bold text-sm shadow-[0_4px_14px_rgba(255,97,56,0.3)] transition active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer mt-2"
               >
                 <span>{isLoading ? 'Signing In...' : 'Log In to AegisCare'}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -282,8 +278,8 @@ export const LoginPage: React.FC = () => {
             </form>
 
             {/* Quick 1-Tap Pre-configured Account (Afreen) */}
-            <div className="mt-5 pt-4 border-t border-[#E2E8F0] space-y-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B] block text-center">
+            <div className="mt-5 pt-4 border-t border-[#F4EFE6] space-y-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B6282] block text-center">
                 1-Tap Quick Log In Profile:
               </span>
 
@@ -291,20 +287,20 @@ export const LoginPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => handleQuickDemo('afreen@example.com', 'afreen123')}
-                className="touch-target w-full p-2.5 rounded-[8px] bg-[#EAF3FF] hover:bg-[#D4E8FF] border border-[#2F80ED]/30 text-left transition flex items-center justify-between cursor-pointer group"
+                className="touch-target w-full p-3 rounded-[14px] bg-[#FFF0EB] hover:bg-[#FFE5DC] border border-[#FF6138]/25 text-left transition flex items-center justify-between cursor-pointer group shadow-2xs"
               >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-full bg-[#2F80ED] text-white flex items-center justify-center text-xs font-bold">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-[#FF6138] text-white flex items-center justify-center text-xs font-black shadow-xs">
                     AF
                   </div>
                   <div>
-                    <span className="text-xs font-bold text-[#0F172A] block group-hover:text-[#2F80ED]">
+                    <span className="text-xs font-extrabold text-[#2D2545] block group-hover:text-[#FF6138]">
                       Afreen (Patient Account)
                     </span>
-                    <span className="text-[11px] text-[#64748B]">Password: afreen123</span>
+                    <span className="text-[11px] text-[#6B6282]">Password: afreen123</span>
                   </div>
                 </div>
-                <UserCheck className="w-4 h-4 text-[#2F80ED]" />
+                <UserCheck className="w-4 h-4 text-[#FF6138]" />
               </button>
             </div>
           </div>
@@ -313,11 +309,11 @@ export const LoginPage: React.FC = () => {
         {/* ================= MODE 2: SIGN IN / REGISTER FOR NEW USERS ================= */}
         {authMode === 'register' && (
           <div className="space-y-4">
-            <div className="p-3 bg-[#EAF3FF] border border-[#2F80ED]/20 rounded-[8px] text-xs text-[#0F172A] space-y-1">
-              <span className="font-bold text-[#2F80ED] flex items-center gap-1">
+            <div className="p-3.5 bg-[#FFF0EB] border border-[#FF6138]/20 rounded-[14px] text-xs text-[#2D2545] space-y-1">
+              <span className="font-bold text-[#FF6138] flex items-center gap-1">
                 <Sparkles className="w-3.5 h-3.5" /> Welcome New Patient!
               </span>
-              <p className="text-[#475569]">
+              <p className="text-[#5D5570]">
                 Create your account below. You will be guided through a gentle 7-step clinical intake assessment to personalize your adherence routine.
               </p>
             </div>
@@ -326,7 +322,7 @@ export const LoginPage: React.FC = () => {
               <div>
                 <label
                   htmlFor="reg-name"
-                  className="block text-xs font-bold text-[#334155] mb-1"
+                  className="block text-xs font-bold text-[#40365D] mb-1"
                 >
                   Full Name / Patient Name
                 </label>
@@ -337,20 +333,20 @@ export const LoginPage: React.FC = () => {
                   onChange={(e) => setRegName(e.target.value)}
                   placeholder="e.g. Afreen"
                   required
-                  className="touch-target w-full h-[44px] px-3.5 rounded-[8px] border border-[#CBD5E1] bg-white text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#2F80ED] focus:ring-2 focus:ring-[#EAF3FF]"
+                  className="touch-target w-full h-[46px] px-4 rounded-full border border-[#EFEAE1] bg-[#FAF7F2] text-sm text-[#2D2545] placeholder:text-[#988EA8] focus:bg-white focus:outline-none focus:border-[#FF6138] focus:ring-2 focus:ring-[#FFF0EB]"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="reg-phone"
-                  className="block text-xs font-bold text-[#334155] mb-1 flex items-center justify-between"
+                  className="block text-xs font-bold text-[#40365D] mb-1 flex items-center justify-between"
                 >
                   <span>Mobile Phone Number (Compulsory for Telegram)</span>
-                  <span className="text-[10px] text-[#DC2626] font-bold uppercase">Required</span>
+                  <span className="text-[10px] text-[#E53E3E] font-bold uppercase">Required</span>
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-3 text-xs font-bold text-[#2F80ED]">🇮🇳</span>
+                  <span className="absolute left-3.5 top-3.5 text-xs font-bold text-[#FF6138]">🇮🇳</span>
                   <input
                     id="reg-phone"
                     type="tel"
@@ -364,10 +360,10 @@ export const LoginPage: React.FC = () => {
                     }}
                     placeholder="+91 98765 43210"
                     required
-                    className="touch-target w-full h-[44px] pl-9 pr-3.5 rounded-[8px] border border-[#CBD5E1] bg-white text-sm text-[#0F172A] font-semibold placeholder:text-[#94A3B8] placeholder:font-normal focus:outline-none focus:border-[#2F80ED] focus:ring-2 focus:ring-[#EAF3FF]"
+                    className="touch-target w-full h-[46px] pl-10 pr-3.5 rounded-full border border-[#EFEAE1] bg-[#FAF7F2] text-sm text-[#2D2545] font-bold placeholder:text-[#988EA8] placeholder:font-normal focus:bg-white focus:outline-none focus:border-[#FF6138] focus:ring-2 focus:ring-[#FFF0EB]"
                   />
                 </div>
-                <p className="text-[11px] text-[#64748B] mt-0.5">
+                <p className="text-[11px] text-[#6B6282] mt-0.5">
                   Used by @BversityCareBot to dispatch automated interactive medication reminders.
                 </p>
               </div>
@@ -375,12 +371,12 @@ export const LoginPage: React.FC = () => {
               <div>
                 <label
                   htmlFor="reg-identifier"
-                  className="block text-xs font-bold text-[#334155] mb-1"
+                  className="block text-xs font-bold text-[#40365D] mb-1"
                 >
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 absolute left-3 top-3.5 text-[#94A3B8]" />
+                  <Mail className="w-4 h-4 absolute left-3.5 top-3.5 text-[#988EA8]" />
                   <input
                     id="reg-identifier"
                     type="email"
@@ -388,7 +384,7 @@ export const LoginPage: React.FC = () => {
                     onChange={(e) => setRegIdentifier(e.target.value)}
                     placeholder="e.g. afreen@example.com"
                     required
-                    className="touch-target w-full h-[44px] pl-9 pr-3.5 rounded-[8px] border border-[#CBD5E1] bg-white text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#2F80ED] focus:ring-2 focus:ring-[#EAF3FF]"
+                    className="touch-target w-full h-[46px] pl-10 pr-3.5 rounded-full border border-[#EFEAE1] bg-[#FAF7F2] text-sm text-[#2D2545] placeholder:text-[#988EA8] focus:bg-white focus:outline-none focus:border-[#FF6138] focus:ring-2 focus:ring-[#FFF0EB]"
                   />
                 </div>
               </div>
@@ -396,12 +392,12 @@ export const LoginPage: React.FC = () => {
               <div>
                 <label
                   htmlFor="reg-password"
-                  className="block text-xs font-bold text-[#334155] mb-1"
+                  className="block text-xs font-bold text-[#40365D] mb-1"
                 >
                   Create Password
                 </label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 absolute left-3 top-3.5 text-[#94A3B8]" />
+                  <Lock className="w-4 h-4 absolute left-3.5 top-3.5 text-[#988EA8]" />
                   <input
                     id="reg-password"
                     type={showRegPassword ? 'text' : 'password'}
@@ -409,12 +405,12 @@ export const LoginPage: React.FC = () => {
                     onChange={(e) => setRegPassword(e.target.value)}
                     placeholder="Create a password (e.g. afreen123)"
                     required
-                    className="touch-target w-full h-[44px] pl-9 pr-10 rounded-[8px] border border-[#CBD5E1] bg-white text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#2F80ED] focus:ring-2 focus:ring-[#EAF3FF]"
+                    className="touch-target w-full h-[46px] pl-10 pr-10 rounded-full border border-[#EFEAE1] bg-[#FAF7F2] text-sm text-[#2D2545] placeholder:text-[#988EA8] focus:bg-white focus:outline-none focus:border-[#FF6138] focus:ring-2 focus:ring-[#FFF0EB]"
                   />
                   <button
                     type="button"
                     onClick={() => setShowRegPassword(!showRegPassword)}
-                    className="touch-target absolute right-2 top-2 p-1 text-[#64748B] hover:text-[#0F172A] cursor-pointer"
+                    className="touch-target absolute right-3 top-2.5 p-1 text-[#988EA8] hover:text-[#2D2545] cursor-pointer"
                     aria-label={showRegPassword ? 'Hide password' : 'Show password'}
                   >
                     {showRegPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -425,12 +421,12 @@ export const LoginPage: React.FC = () => {
               <div>
                 <label
                   htmlFor="reg-confirm-password"
-                  className="block text-xs font-bold text-[#334155] mb-1"
+                  className="block text-xs font-bold text-[#40365D] mb-1"
                 >
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 absolute left-3 top-3.5 text-[#94A3B8]" />
+                  <Lock className="w-4 h-4 absolute left-3.5 top-3.5 text-[#988EA8]" />
                   <input
                     id="reg-confirm-password"
                     type="password"
@@ -438,13 +434,13 @@ export const LoginPage: React.FC = () => {
                     onChange={(e) => setRegConfirmPassword(e.target.value)}
                     placeholder="Re-enter your password..."
                     required
-                    className="touch-target w-full h-[44px] pl-9 pr-3.5 rounded-[8px] border border-[#CBD5E1] bg-white text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#2F80ED] focus:ring-2 focus:ring-[#EAF3FF]"
+                    className="touch-target w-full h-[46px] pl-10 pr-3.5 rounded-full border border-[#EFEAE1] bg-[#FAF7F2] text-sm text-[#2D2545] placeholder:text-[#988EA8] focus:bg-white focus:outline-none focus:border-[#FF6138] focus:ring-2 focus:ring-[#FFF0EB]"
                   />
                 </div>
               </div>
 
               {errorMessage && (
-                <div className="p-2.5 rounded-[8px] bg-[#FEE2E2] border border-[#DC2626]/30 text-xs text-[#DC2626] font-medium">
+                <div className="p-3 rounded-[12px] bg-[#FFF0F0] border border-[#E53E3E]/30 text-xs text-[#E53E3E] font-bold">
                   {errorMessage}
                 </div>
               )}
@@ -452,7 +448,7 @@ export const LoginPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="touch-target w-full h-[44px] rounded-[8px] bg-[#16A34A] hover:bg-[#15803D] text-white font-semibold text-sm shadow-sm transition active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer mt-2"
+                className="touch-target w-full h-[46px] rounded-full bg-[#1E824C] hover:bg-[#156B3D] text-white font-bold text-sm shadow-[0_4px_14px_rgba(30,130,76,0.3)] transition active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer mt-2"
               >
                 <span>{isLoading ? 'Creating Account...' : 'Sign In / Register New Account'}</span>
                 <ArrowRight className="w-4 h-4" />

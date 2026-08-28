@@ -322,25 +322,25 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-[650px] bg-white border border-[#E2E8F0] rounded-[12px] shadow-[0_1px_3px_rgba(15,23,42,0.06)] overflow-hidden">
+    <div className="flex flex-col md:flex-row min-h-[650px] bg-white border border-[#EFEAE1] rounded-[16px] shadow-[0_4px_20px_rgba(45,37,69,0.04)] overflow-hidden">
       {/* ================= LEFT SIDEBAR: CHAT HISTORY LIST ================= */}
-      <div className={`w-full md:w-64 lg:w-72 bg-[#F8FAFC] border-b md:border-b-0 md:border-r border-[#E2E8F0] flex flex-col ${showHistoryMobile ? 'block' : 'hidden md:flex'}`}>
+      <div className={`w-full md:w-64 lg:w-72 bg-[#FAF7F2] border-b md:border-b-0 md:border-r border-[#EFEAE1] flex flex-col ${showHistoryMobile ? 'block' : 'hidden md:flex'}`}>
         {/* Top Action: + New Chat */}
-        <div className="p-3.5 border-b border-[#E2E8F0] space-y-2">
+        <div className="p-3.5 border-b border-[#EFEAE1] space-y-2">
           <button
             type="button"
             onClick={handleCreateNewChat}
-            className="touch-target w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-[8px] bg-[#2F80ED] hover:bg-[#2563D9] text-white font-semibold text-xs shadow-xs transition active:scale-[0.98] cursor-pointer"
+            className="touch-target w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-[#FF6138] hover:bg-[#E84E27] text-white font-bold text-xs shadow-[0_2px_8px_rgba(255,97,56,0.3)] transition active:scale-[0.98] cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>+ New Chat Consultation</span>
           </button>
 
-          <div className="flex items-center justify-between px-1 text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+          <div className="flex items-center justify-between px-1 text-[11px] font-bold uppercase tracking-wider text-[#6B6282]">
             <span className="flex items-center gap-1">
               <History className="w-3.5 h-3.5" /> Past Chat History
             </span>
-            <span className="bg-[#E2E8F0] text-[#334155] px-1.5 py-0.2 rounded-full text-[10px]">
+            <span className="bg-[#EFEAE1] text-[#2D2545] px-2 py-0.2 rounded-full text-[10px] font-bold">
               {sessions.length}
             </span>
           </div>
@@ -357,16 +357,16 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
                   setActiveSessionId(sess.id);
                   setShowHistoryMobile(false);
                 }}
-                className={`group relative p-2.5 rounded-[8px] border text-left transition cursor-pointer ${
+                className={`group relative p-3 rounded-[12px] border text-left transition cursor-pointer ${
                   isActive
-                    ? 'bg-white border-[#2F80ED] ring-1 ring-[#2F80ED]/30 shadow-xs'
-                    : 'bg-transparent border-transparent hover:bg-white hover:border-[#CBD5E1] text-[#475569]'
+                    ? 'bg-white border-[#FF6138] ring-2 ring-[#FF6138]/15 shadow-xs'
+                    : 'bg-transparent border-transparent hover:bg-white hover:border-[#EFEAE1] text-[#5D5570]'
                 }`}
               >
                 <div className="flex items-start justify-between gap-1.5">
                   <div className="flex items-center gap-1.5 overflow-hidden">
-                    <MessageSquare className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-[#2F80ED]' : 'text-[#94A3B8]'}`} />
-                    <h4 className={`text-xs truncate font-bold ${isActive ? 'text-[#0F172A]' : 'text-[#334155]'}`}>
+                    <MessageSquare className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-[#FF6138]' : 'text-[#988EA8]'}`} />
+                    <h4 className={`text-xs truncate font-bold font-['Outfit'] ${isActive ? 'text-[#2D2545]' : 'text-[#40365D]'}`}>
                       {sess.title}
                     </h4>
                   </div>
@@ -374,15 +374,15 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
                     type="button"
                     title="Delete this chat history"
                     onClick={(e) => handleDeleteSession(e, sess.id)}
-                    className="opacity-0 group-hover:opacity-100 p-1 text-[#94A3B8] hover:text-[#DC2626] rounded transition"
+                    className="opacity-0 group-hover:opacity-100 p-1 text-[#988EA8] hover:text-[#E53E3E] rounded transition"
                   >
                     <Trash2 className="w-3 h-3" />
                   </button>
                 </div>
 
-                <div className="flex items-center justify-between text-[10px] text-[#64748B] mt-1.5">
+                <div className="flex items-center justify-between text-[10px] text-[#6B6282] mt-1.5">
                   <span className="truncate max-w-[130px]">{sess.last_snippet || 'Consultation record'}</span>
-                  <span className="font-semibold text-[9px] px-1.5 py-0.2 rounded bg-[#E2E8F0]/70 text-[#475569] shrink-0">
+                  <span className="font-bold text-[9px] px-2 py-0.2 rounded-full bg-[#EFEAE1] text-[#2D2545] shrink-0">
                     {sess.date_label}
                   </span>
                 </div>
@@ -394,31 +394,31 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
 
       {/* ================= RIGHT MAIN: ACTIVE CONVERSATION ================= */}
       <div className="flex-1 flex flex-col min-w-0 bg-white">
-        <div className="px-5 py-3.5 bg-white border-b border-[#E2E8F0] flex items-center justify-between">
+        <div className="px-5 py-3.5 bg-white border-b border-[#EFEAE1] flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* Mobile History Toggle */}
             <button
               type="button"
               onClick={() => setShowHistoryMobile(!showHistoryMobile)}
-              className="md:hidden touch-target p-1.5 rounded-[6px] border border-[#CBD5E1] text-[#334155] hover:bg-[#F1F5F9]"
+              className="md:hidden touch-target p-1.5 rounded-[8px] border border-[#EFEAE1] text-[#40365D] hover:bg-[#FAF7F2]"
               title="Toggle Chat History Sidebar"
             >
-              <History className="w-4 h-4 text-[#2F80ED]" />
+              <History className="w-4 h-4 text-[#FF6138]" />
             </button>
 
-            <div className="w-9 h-9 rounded-[8px] bg-[#2F80ED] text-white flex items-center justify-center shadow-sm shrink-0">
+            <div className="w-9 h-9 rounded-[10px] bg-[#FF6138] text-white flex items-center justify-center shadow-xs shrink-0">
               <Bot className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-base text-[#0F172A]">
+                <h3 className="font-extrabold text-base text-[#2D2545] font-['Outfit']">
                   Clinical Adherence Companion
                 </h3>
-                <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#DCFCE7] text-[#16A34A] font-semibold border border-[#16A34A]/30">
+                <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#EAF8F0] text-[#136B3B] font-bold border border-[#1E824C]/25">
                   Verified Assistant
                 </span>
               </div>
-              <p className="text-xs text-[#64748B] font-medium">
+              <p className="text-xs text-[#6B6282] font-medium">
                 Grounded in official {profile.primary_medication.name} Monograph & Clinical Guidelines
               </p>
             </div>
@@ -427,15 +427,15 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
           <button
             onClick={() => setIsEmergencyModalOpen(true)}
             aria-label="Open emergency care team contact"
-            className="touch-target hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] bg-[#FEF3C7] text-[#D97706] font-semibold text-xs hover:bg-[#FDE68A] transition cursor-pointer"
+            className="touch-target hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFF8E7] text-[#8C5A00] font-bold text-xs hover:bg-[#FFECC2] border border-[#FFBE53]/30 transition cursor-pointer"
           >
-            <ShieldAlert className="w-4 h-4 text-[#D97706]" />
+            <ShieldAlert className="w-4 h-4 text-[#8C5A00]" />
             <span>Care Team Hub</span>
           </button>
         </div>
 
         {/* Sticky Scenario Options Bar - always visible when scrolling up and down */}
-        <div className="sticky top-0 z-20 px-4 py-2.5 bg-white/95 backdrop-blur-md border-b border-[#E2E8F0] shadow-2xs">
+        <div className="sticky top-0 z-20 px-4 py-2.5 bg-white/95 backdrop-blur-md border-b border-[#EFEAE1] shadow-2xs">
           <DemoScenarioBar onSelectScenario={handleScenarioTrigger} isLoading={isLoading} />
         </div>
 
@@ -443,7 +443,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
         <div
           tabIndex={0}
           aria-label="Conversation messages"
-          className="flex-1 p-4 sm:p-5 space-y-4 bg-[#F7F9FC] focus:outline-none min-h-[400px]"
+          className="flex-1 p-4 sm:p-5 space-y-4 bg-[#F7F4EE] focus:outline-none min-h-[400px]"
         >
           {messages.map((msg) => {
             const isUser = msg.sender === 'user';
@@ -455,41 +455,41 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
                 className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} animate-fade-in`}
               >
                 <div
-                  className={`max-w-[92%] sm:max-w-[82%] rounded-[12px] p-4 shadow-sm ${
+                  className={`max-w-[92%] sm:max-w-[82%] rounded-[16px] p-4 shadow-xs ${
                     isUser
-                      ? 'bg-[#2F80ED] text-white rounded-br-[2px]'
-                      : 'bg-white text-[#0F172A] border border-[#E2E8F0] rounded-bl-[2px]'
+                      ? 'bg-[#FF6138] text-white rounded-br-[3px]'
+                      : 'bg-white text-[#2D2545] border border-[#EFEAE1] rounded-bl-[3px]'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-3 mb-1.5">
                     <div className="flex items-center gap-1.5">
                       {isUser ? (
-                        <span className="text-xs font-semibold text-white/90 flex items-center gap-1">
+                        <span className="text-xs font-bold text-white/90 flex items-center gap-1">
                           <User className="w-3.5 h-3.5" /> You
                         </span>
                       ) : (
-                        <span className="text-xs font-bold text-[#2F80ED] flex items-center gap-1">
+                        <span className="text-xs font-bold text-[#FF6138] flex items-center gap-1">
                           <Bot className="w-3.5 h-3.5" /> AegisCare Clinical AI
                         </span>
                       )}
                     </div>
                     <span
                       className={`text-[10px] ${
-                        isUser ? 'text-white/70' : 'text-[#64748B]'
+                        isUser ? 'text-white/70' : 'text-[#988EA8]'
                       }`}
                     >
                       {msg.timestamp}
                     </span>
                   </div>
 
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap font-medium">
                     {msg.text}
                   </p>
 
                   {/* Sources citation link for assistant replies */}
                   {!isUser && msg.sources && msg.sources.length > 0 && (
-                    <div className="mt-3 pt-2.5 border-t border-[#E2E8F0] flex flex-wrap items-center gap-2">
-                      <span className="text-[11px] font-semibold text-[#64748B]">
+                    <div className="mt-3 pt-2.5 border-t border-[#EFEAE1] flex flex-wrap items-center gap-2">
+                      <span className="text-[11px] font-bold text-[#6B6282]">
                         Verified Grounding:
                       </span>
                       {msg.sources.map((src, sIdx) => (
@@ -497,7 +497,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
                           key={sIdx}
                           onClick={() => setSelectedCitation(src)}
                           aria-label={`View clinical citation for ${src.document}`}
-                          className="touch-target inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] bg-[#EAF3FF] hover:bg-[#D4E8FF] text-[#2F80ED] text-xs font-medium transition cursor-pointer"
+                          className="touch-target inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#F2EDFF] hover:bg-[#E4D9FF] text-[#5B31D8] text-xs font-bold border border-[#7952EC]/20 transition cursor-pointer"
                         >
                           <BookOpen className="w-3 h-3" />
                           <span>{src.section}</span>
@@ -508,14 +508,14 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
 
                   {/* Urgent escalation alert banner */}
                   {!isUser && isEscalate && (
-                    <div className="mt-3 p-2.5 rounded-[8px] bg-[#FEE2E2] border border-[#DC2626]/30 text-xs text-[#DC2626] font-semibold flex items-center justify-between gap-2">
+                    <div className="mt-3 p-3 rounded-[12px] bg-[#FFF0F0] border border-[#E53E3E]/30 text-xs text-[#E53E3E] font-bold flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <ShieldAlert className="w-4 h-4 text-[#DC2626] shrink-0" />
+                        <ShieldAlert className="w-4 h-4 text-[#E53E3E] shrink-0" />
                         <span>Care Team Alert Triggered</span>
                       </div>
                       <button
                         onClick={() => setIsEmergencyModalOpen(true)}
-                        className="touch-target px-2 py-1 rounded bg-[#DC2626] text-white text-[11px] font-bold hover:bg-[#B91C1C]"
+                        className="touch-target px-3 py-1 rounded-full bg-[#E53E3E] text-white text-[11px] font-bold hover:bg-[#C53030]"
                       >
                         View Alert
                       </button>
@@ -528,14 +528,14 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
 
           {isLoading && (
             <div className="flex items-start gap-2.5">
-              <div className="w-8 h-8 rounded-[8px] bg-[#2F80ED] text-white flex items-center justify-center">
+              <div className="w-8 h-8 rounded-[10px] bg-[#FF6138] text-white flex items-center justify-center">
                 <Bot className="w-4 h-4" />
               </div>
-              <div className="bg-white border border-[#E2E8F0] rounded-[12px] p-3.5 text-xs text-[#64748B] flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-[#2F80ED] animate-bounce" />
-                <div className="w-2 h-2 rounded-full bg-[#2F80ED] animate-bounce [animation-delay:0.2s]" />
-                <div className="w-2 h-2 rounded-full bg-[#2F80ED] animate-bounce [animation-delay:0.4s]" />
-                <span>Checking verified product monograph...</span>
+              <div className="bg-white border border-[#EFEAE1] rounded-[14px] p-3.5 text-xs text-[#6B6282] font-semibold flex items-center gap-2 shadow-xs">
+                <div className="w-2 h-2 rounded-full bg-[#FF6138] animate-bounce" />
+                <div className="w-2 h-2 rounded-full bg-[#FF6138] animate-bounce [animation-delay:0.2s]" />
+                <div className="w-2 h-2 rounded-full bg-[#FF6138] animate-bounce [animation-delay:0.4s]" />
+                <span>Consulting verified product monograph...</span>
               </div>
             </div>
           )}
@@ -544,7 +544,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
         </div>
 
         {/* Sticky Message Input Bar */}
-        <div className="sticky bottom-0 z-20 p-3.5 bg-white/95 backdrop-blur-md border-t border-[#E2E8F0]">
+        <div className="sticky bottom-0 z-20 p-3.5 bg-white/95 backdrop-blur-md border-t border-[#EFEAE1]">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -566,14 +566,14 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
               onChange={(e) => setInputText(e.target.value)}
               placeholder="Type your message or select an option above..."
               disabled={isLoading}
-              className="touch-target flex-1 h-[44px] px-3.5 rounded-[8px] border border-[#CBD5E1] bg-white text-[#0F172A] text-sm placeholder:text-[#94A3B8] focus:outline-none focus:border-[#2F80ED] focus:ring-2 focus:ring-[#EAF3FF]"
+              className="touch-target flex-1 h-[46px] px-4 rounded-full border border-[#EFEAE1] bg-white text-[#2D2545] text-sm font-medium placeholder:text-[#988EA8] focus:outline-none focus:border-[#FF6138] focus:ring-2 focus:ring-[#FFF0EB]"
             />
 
             <button
               type="submit"
               disabled={!inputText.trim() || isLoading}
               aria-label="Send message to assistant"
-              className="touch-target w-[44px] h-[44px] rounded-[8px] bg-[#2F80ED] hover:bg-[#2563D9] text-white flex items-center justify-center shadow-sm transition active:scale-[0.98] disabled:opacity-40 cursor-pointer shrink-0"
+              className="touch-target w-[46px] h-[46px] rounded-full bg-[#FF6138] hover:bg-[#E84E27] text-white flex items-center justify-center shadow-[0_2px_8px_rgba(255,97,56,0.3)] transition active:scale-[0.98] disabled:opacity-40 cursor-pointer shrink-0"
             >
               <Send className="w-4 h-4" />
             </button>

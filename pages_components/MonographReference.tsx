@@ -196,54 +196,57 @@ export const MonographReference: React.FC = () => {
   const getSectionBadgeColor = (sec: string) => {
     switch (sec) {
       case 'missed_dose':
-        return 'bg-[#FEE2E2] text-[#DC2626] border-[#DC2626]/30';
+        return 'bg-[#FFF0F0] text-[#E53E3E] border-[#E53E3E]/20';
       case 'administration_with_food':
-        return 'bg-[#DCFCE7] text-[#16A34A] border-[#16A34A]/30';
+        return 'bg-[#EAF8F0] text-[#136B3B] border-[#1E824C]/20';
       case 'adverse_reactions':
-        return 'bg-[#FEF3C7] text-[#D97706] border-[#D97706]/30';
+        return 'bg-[#FFF8E7] text-[#8C5A00] border-[#FFBE53]/30';
       case 'dosage_and_administration':
-        return 'bg-[#EAF3FF] text-[#2F80ED] border-[#CBD5E1]';
+        return 'bg-[#EBF2FF] text-[#1D5BD8] border-[#4E89FF]/20';
       default:
-        return 'bg-[#F1F5F9] text-[#475569] border-[#E2E8F0]';
+        return 'bg-[#FAF7F2] text-[#6B6282] border-[#EFEAE1]';
     }
   };
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="bg-white border border-[#E2E8F0] rounded-[12px] p-5 sm:p-6 shadow-[0_1px_3px_rgba(15,23,42,0.06)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-[8px] bg-[#2F80ED] text-white flex items-center justify-center font-bold">
-              <BookOpen className="w-5 h-5" />
-            </div>
-            <h1 className="text-2xl font-bold text-[#0F172A]">
-              Knowledge Base & Clinical Document Inventory
-            </h1>
+      <div className="bg-white border border-[#EFEAE1] rounded-[20px] p-5 sm:p-6 shadow-[0_4px_20px_rgba(45,37,69,0.04)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-[14px] bg-[#FFF0EB] text-[#FF6138] flex items-center justify-center text-2xl shrink-0 shadow-xs">
+            <BookOpen className="w-6 h-6" />
           </div>
-          <p className="text-sm text-[#475569] mt-1 font-medium">
-            Managed by Document Knowledge Agent • Grounded in official Product Monographs and BPSD Clinical Guidelines
-          </p>
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#FF6138]">
+              Grounding & Safety Subsystem
+            </span>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-[#2D2545] font-['Outfit'] mt-0.5">
+              Verified Product Monographs
+            </h1>
+            <p className="text-xs text-[#6B6282] font-medium">
+              Official Prescribing Guidelines • Donepezil, Rivastigmine, Galantamine, Memantine
+            </p>
+          </div>
         </div>
 
         <button
           type="button"
           onClick={handleReindex}
           disabled={isReindexing}
-          className="touch-target flex items-center gap-2 px-4 py-2 rounded-[8px] bg-[#EAF3FF] hover:bg-[#D4E8FF] text-[#2F80ED] font-semibold text-xs border border-[#CBD5E1]/60 transition active:scale-[0.98] cursor-pointer"
+          className="touch-target flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#FFF0EB] hover:bg-[#FFE5DC] text-[#FF6138] font-bold text-xs border border-[#FF6138]/20 transition active:scale-[0.98] cursor-pointer"
         >
           <RefreshCw className={`w-4 h-4 ${isReindexing ? 'animate-spin' : ''}`} />
           <span>{isReindexing ? 'Synchronizing...' : reindexSuccess ? '✓ Synchronized' : 'Re-Index Knowledge Base'}</span>
         </button>
       </div>
 
-      <div className="flex items-center gap-2 border-b border-[#E2E8F0] pb-2">
+      <div className="flex flex-wrap items-center gap-2 border-b border-[#EFEAE1] pb-2">
         <button
           type="button"
           onClick={() => setActiveSubTab('inventory')}
-          className={`touch-target px-4 py-2 rounded-[8px] text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
+          className={`touch-target px-4 py-2 rounded-full text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
             activeSubTab === 'inventory'
-              ? 'bg-[#2F80ED] text-white shadow-sm'
-              : 'bg-white text-[#64748B] hover:text-[#0F172A] border border-[#CBD5E1]'
+              ? 'bg-[#FF6138] text-white shadow-xs'
+              : 'bg-white text-[#6B6282] hover:text-[#2D2545] border border-[#EFEAE1] hover:bg-[#FAF7F2]'
           }`}
         >
           <FileText className="w-4 h-4" />
@@ -253,10 +256,10 @@ export const MonographReference: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveSubTab('chunks')}
-          className={`touch-target px-4 py-2 rounded-[8px] text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
+          className={`touch-target px-4 py-2 rounded-full text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
             activeSubTab === 'chunks'
-              ? 'bg-[#2F80ED] text-white shadow-sm'
-              : 'bg-white text-[#64748B] hover:text-[#0F172A] border border-[#CBD5E1]'
+              ? 'bg-[#FF6138] text-white shadow-xs'
+              : 'bg-white text-[#6B6282] hover:text-[#2D2545] border border-[#EFEAE1] hover:bg-[#FAF7F2]'
           }`}
         >
           <Layers className="w-4 h-4" />
@@ -266,10 +269,10 @@ export const MonographReference: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveSubTab('upload')}
-          className={`touch-target px-4 py-2 rounded-[8px] text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
+          className={`touch-target px-4 py-2 rounded-full text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
             activeSubTab === 'upload'
-              ? 'bg-[#2F80ED] text-white shadow-sm'
-              : 'bg-white text-[#64748B] hover:text-[#0F172A] border border-[#CBD5E1]'
+              ? 'bg-[#FF6138] text-white shadow-xs'
+              : 'bg-white text-[#6B6282] hover:text-[#2D2545] border border-[#EFEAE1] hover:bg-[#FAF7F2]'
           }`}
         >
           <UploadCloud className="w-4 h-4" />
@@ -283,30 +286,30 @@ export const MonographReference: React.FC = () => {
             {documents.map((doc) => (
               <div
                 key={doc.document_id}
-                className="bg-white border border-[#E2E8F0] rounded-[12px] p-5 shadow-[0_1px_3px_rgba(15,23,42,0.06)] space-y-3 flex flex-col justify-between"
+                className="bg-white border border-[#EFEAE1] rounded-[16px] p-5 shadow-xs space-y-3 flex flex-col justify-between"
               >
                 <div className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <FileText className="w-5 h-5 text-[#2F80ED] shrink-0" />
-                      <span className="font-bold text-sm text-[#0F172A] leading-tight">
+                      <FileText className="w-5 h-5 text-[#FF6138] shrink-0" />
+                      <span className="font-extrabold text-sm text-[#2D2545] font-['Outfit'] leading-tight">
                         {doc.title}
                       </span>
                     </div>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#DCFCE7] text-[#16A34A] shrink-0">
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#EAF8F0] text-[#136B3B] border border-[#1E824C]/20 shrink-0">
                       ✓ RAG Indexed
                     </span>
                   </div>
 
-                  <div className="text-xs text-[#64748B] space-y-1">
+                  <div className="text-xs text-[#6B6282] space-y-1">
                     <div>
-                      <strong className="text-[#334155]">Filename:</strong> {doc.filename}
+                      <strong className="text-[#40365D]">Filename:</strong> {doc.filename}
                     </div>
                     <div>
-                      <strong className="text-[#334155]">Source:</strong> {doc.source}
+                      <strong className="text-[#40365D]">Source:</strong> {doc.source}
                     </div>
                     <div>
-                      <strong className="text-[#334155]">Pages Indexed:</strong> {doc.pages_covered.join(', ')}
+                      <strong className="text-[#40365D]">Pages Indexed:</strong> {doc.pages_covered.join(', ')}
                     </div>
                   </div>
 
@@ -314,7 +317,7 @@ export const MonographReference: React.FC = () => {
                     {doc.topics.map((t, idx) => (
                       <span
                         key={idx}
-                        className="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0]"
+                        className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#FAF7F2] text-[#5D5570] border border-[#EFEAE1]"
                       >
                         {t}
                       </span>
@@ -322,7 +325,7 @@ export const MonographReference: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-[#E2E8F0] text-[11px] text-[#475569] italic">
+                <div className="pt-3 border-t border-[#F4EFE6] text-[11px] text-[#5D5570] italic">
                   "{doc.sample_excerpt}"
                 </div>
               </div>
@@ -333,7 +336,7 @@ export const MonographReference: React.FC = () => {
 
       {activeSubTab === 'chunks' && (
         <div className="space-y-4">
-          <div className="bg-white border border-[#E2E8F0] rounded-[12px] p-4 shadow-[0_1px_3px_rgba(15,23,42,0.06)] space-y-3">
+          <div className="bg-white border border-[#EFEAE1] rounded-[16px] p-4 shadow-xs space-y-3">
             <div className="flex flex-wrap gap-2">
               {[
                 { id: 'all', label: 'All Medications' },
@@ -347,10 +350,10 @@ export const MonographReference: React.FC = () => {
                   key={med.id}
                   type="button"
                   onClick={() => setSelectedMedication(med.id)}
-                  className={`touch-target px-3.5 py-1.5 rounded-[8px] text-xs font-semibold border transition cursor-pointer ${
+                  className={`touch-target px-4 py-1.5 rounded-full text-xs font-bold border transition cursor-pointer ${
                     selectedMedication === med.id
-                      ? 'bg-[#2F80ED] text-white border-[#2F80ED] shadow-sm'
-                      : 'bg-white text-[#334155] border-[#CBD5E1] hover:bg-[#F8FAFC]'
+                      ? 'bg-[#FF6138] text-white border-[#FF6138] shadow-xs'
+                      : 'bg-white text-[#5D5570] border-[#EFEAE1] hover:bg-[#FAF7F2]'
                   }`}
                 >
                   {med.label}
@@ -359,14 +362,14 @@ export const MonographReference: React.FC = () => {
             </div>
 
             <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-3 text-[#94A3B8]" />
+              <Search className="w-4 h-4 absolute left-3.5 top-3 text-[#988EA8]" />
               <input
                 id="search-monographs"
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search monograph chunks (e.g., 'missed dose', 'nausea', 'food', 'page 12')..."
-                className="touch-target w-full h-[40px] pl-9 pr-3.5 rounded-[8px] border border-[#CBD5E1] bg-white text-xs text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#2F80ED] focus:ring-2 focus:ring-[#EAF3FF]"
+                className="touch-target w-full h-[42px] pl-10 pr-3.5 rounded-full border border-[#EFEAE1] bg-[#FAF7F2] text-xs text-[#2D2545] placeholder:text-[#988EA8] focus:bg-white focus:outline-none focus:border-[#FF6138] focus:ring-2 focus:ring-[#FFF0EB]"
               />
             </div>
           </div>
@@ -375,19 +378,19 @@ export const MonographReference: React.FC = () => {
             {filteredChunks.map((chunk) => (
               <div
                 key={chunk.chunk_id}
-                className="bg-white border border-[#E2E8F0] rounded-[12px] p-5 shadow-[0_1px_3px_rgba(15,23,42,0.06)] space-y-3"
+                className="bg-white border border-[#EFEAE1] rounded-[16px] p-5 shadow-xs space-y-3"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <span className="text-xs font-bold text-[#0F172A] block">
+                    <span className="text-xs font-extrabold text-[#2D2545] font-['Outfit'] block">
                       {chunk.document}
                     </span>
-                    <span className="text-[11px] text-[#64748B]">
+                    <span className="text-[11px] text-[#6B6282]">
                       {chunk.medication.toUpperCase()} ({chunk.brand_name}) • Page {chunk.page_number}
                     </span>
                   </div>
                   <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wider ${getSectionBadgeColor(
+                    className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${getSectionBadgeColor(
                       chunk.section
                     )}`}
                   >
@@ -395,7 +398,7 @@ export const MonographReference: React.FC = () => {
                   </span>
                 </div>
 
-                <p className="text-xs text-[#334155] leading-relaxed bg-[#F8FAFC] p-3 rounded-[8px] border border-[#E2E8F0]">
+                <p className="text-xs text-[#40365D] leading-relaxed bg-[#FAF7F2] p-3.5 rounded-[12px] border border-[#EFEAE1] font-medium">
                   "{chunk.content}"
                 </p>
               </div>
@@ -405,25 +408,25 @@ export const MonographReference: React.FC = () => {
       )}
 
       {activeSubTab === 'upload' && (
-        <div className="max-w-xl mx-auto bg-white border border-[#E2E8F0] rounded-[12px] p-6 shadow-[0_1px_3px_rgba(15,23,42,0.06)] space-y-4">
+        <div className="max-w-xl mx-auto bg-white border border-[#EFEAE1] rounded-[20px] p-6 shadow-xs space-y-4">
           <div className="space-y-1">
-            <h2 className="text-base font-bold text-[#0F172A]">
+            <h2 className="text-base font-extrabold text-[#2D2545] font-['Outfit']">
               Upload New Clinical Monograph or Guideline
             </h2>
-            <p className="text-xs text-[#64748B]">
+            <p className="text-xs text-[#6B6282]">
               Ingests document into the Document Discovery Agent for RAG chunking and indexing.
             </p>
           </div>
 
           {uploadMsg && (
-            <div className="p-3 bg-[#DCFCE7] text-[#16A34A] text-xs font-bold rounded-[8px] border border-[#16A34A]/30">
+            <div className="p-3.5 bg-[#EAF8F0] text-[#136B3B] text-xs font-bold rounded-[14px] border border-[#1E824C]/30">
               ✓ {uploadMsg}
             </div>
           )}
 
-          <form onSubmit={handleUploadSubmit} className="space-y-3">
+          <form onSubmit={handleUploadSubmit} className="space-y-3.5">
             <div>
-              <label className="block text-xs font-bold text-[#334155] mb-1">
+              <label className="block text-xs font-bold text-[#40365D] mb-1">
                 Document Filename (PDF)
               </label>
               <input
@@ -432,12 +435,12 @@ export const MonographReference: React.FC = () => {
                 onChange={(e) => setUploadFilename(e.target.value)}
                 placeholder="e.g. memantine_guidelines_2026.pdf"
                 required
-                className="touch-target w-full h-[40px] px-3 rounded-[8px] border border-[#CBD5E1] text-xs text-[#0F172A] focus:outline-none focus:border-[#2F80ED]"
+                className="touch-target w-full h-[42px] px-4 rounded-full border border-[#EFEAE1] bg-[#FAF7F2] text-xs text-[#2D2545] placeholder:text-[#988EA8] focus:bg-white focus:outline-none focus:border-[#FF6138] focus:ring-2 focus:ring-[#FFF0EB]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#334155] mb-1">
+              <label className="block text-xs font-bold text-[#40365D] mb-1">
                 Medication Name
               </label>
               <input
@@ -446,12 +449,12 @@ export const MonographReference: React.FC = () => {
                 onChange={(e) => setUploadMedName(e.target.value)}
                 placeholder="e.g. Memantine / Namenda"
                 required
-                className="touch-target w-full h-[40px] px-3 rounded-[8px] border border-[#CBD5E1] text-xs text-[#0F172A] focus:outline-none focus:border-[#2F80ED]"
+                className="touch-target w-full h-[42px] px-4 rounded-full border border-[#EFEAE1] bg-[#FAF7F2] text-xs text-[#2D2545] placeholder:text-[#988EA8] focus:bg-white focus:outline-none focus:border-[#FF6138] focus:ring-2 focus:ring-[#FFF0EB]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#334155] mb-1">
+              <label className="block text-xs font-bold text-[#40365D] mb-1">
                 Clinical Monograph Text Content
               </label>
               <textarea
@@ -460,13 +463,13 @@ export const MonographReference: React.FC = () => {
                 rows={4}
                 placeholder="Paste verbatim excerpt from official prescribing information..."
                 required
-                className="w-full p-3 rounded-[8px] border border-[#CBD5E1] text-xs text-[#0F172A] focus:outline-none focus:border-[#2F80ED]"
+                className="w-full p-3.5 rounded-[14px] border border-[#EFEAE1] bg-[#FAF7F2] text-xs text-[#2D2545] placeholder:text-[#988EA8] focus:bg-white focus:outline-none focus:border-[#FF6138] focus:ring-2 focus:ring-[#FFF0EB]"
               />
             </div>
 
             <button
               type="submit"
-              className="touch-target w-full h-[44px] rounded-[8px] bg-[#2F80ED] hover:bg-[#2563D9] text-white font-semibold text-xs shadow-sm transition cursor-pointer"
+              className="touch-target w-full h-[46px] rounded-full bg-[#FF6138] hover:bg-[#E84E27] text-white font-bold text-xs shadow-[0_4px_14px_rgba(255,97,56,0.3)] transition cursor-pointer"
             >
               Parse, Chunk & Index Document
             </button>
