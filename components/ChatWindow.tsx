@@ -205,7 +205,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
   };
 
   return (
-    <div className="flex flex-col h-[750px] max-h-[85vh] bg-white border border-[#E2E8F0] rounded-[12px] shadow-[0_1px_3px_rgba(15,23,42,0.06)] overflow-hidden">
+    <div className="flex flex-col min-h-[600px] bg-white border border-[#E2E8F0] rounded-[12px] shadow-[0_1px_3px_rgba(15,23,42,0.06)]">
       <div className="px-5 py-3.5 bg-white border-b border-[#E2E8F0] flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-[8px] bg-[#2F80ED] text-white flex items-center justify-center shadow-sm">
@@ -216,12 +216,12 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
               <h3 className="font-bold text-base text-[#0F172A]">
                 Clinical Adherence Companion
               </h3>
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#EAF3FF] text-[#2F80ED] font-semibold border border-[#CBD5E1]/40">
-                4-Agent Pipeline
+              <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#DCFCE7] text-[#16A34A] font-semibold border border-[#16A34A]/30">
+                Verified Assistant
               </span>
             </div>
             <p className="text-xs text-[#64748B] font-medium">
-              Referencing {profile.primary_medication.name} Monograph & BPSD Guidelines
+              Grounded in official {profile.primary_medication.name} Monograph & Clinical Guidelines
             </p>
           </div>
         </div>
@@ -236,14 +236,16 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
         </button>
       </div>
 
-      <div className="px-4 py-2 bg-[#F8FAFC] border-b border-[#E2E8F0]">
+      {/* Sticky Scenario Options Bar - always visible when scrolling up and down */}
+      <div className="sticky top-0 z-20 px-4 py-2.5 bg-white/95 backdrop-blur-md border-b border-[#E2E8F0] shadow-2xs">
         <DemoScenarioBar onSelectScenario={handleScenarioTrigger} isLoading={isLoading} />
       </div>
 
+      {/* Single-scroll natural messages container */}
       <div
         tabIndex={0}
         aria-label="Conversation messages"
-        className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 bg-[#F7F9FC] focus:outline-none"
+        className="flex-1 p-4 sm:p-5 space-y-4 bg-[#F7F9FC] focus:outline-none"
       >
         {messages.map((msg) => {
           const isUser = msg.sender === 'user';
@@ -328,10 +330,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
                     ))}
                   </div>
                 )}
-
-                {!isUser && (
-                  <AgentStatusPanel events={msg.ai_pipeline_events} />
-                )}
               </div>
             </div>
           );
@@ -341,14 +339,15 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
           <div className="flex items-center gap-2 p-3.5 bg-white border border-[#E2E8F0] rounded-[10px] w-fit shadow-sm animate-pulse">
             <Bot className="w-4 h-4 text-[#2F80ED] animate-spin" />
             <span className="text-xs font-semibold text-[#475569]">
-              Agents reasoning: Clinical Guardrail ➔ RAG ➔ Adherence ➔ Empathy...
+              Consulting clinical knowledge base...
             </span>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-3 bg-white border-t border-[#E2E8F0]">
+      {/* Sticky Bottom Input Bar */}
+      <div className="sticky bottom-0 z-20 p-3 bg-white/95 backdrop-blur-md border-t border-[#E2E8F0] shadow-xs">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -363,7 +362,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
             type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            placeholder="Type your message or click a scenario chip..."
+            placeholder="Type your message or select an option above..."
             disabled={isLoading}
             className="touch-target flex-1 h-[44px] px-3.5 rounded-[8px] border border-[#CBD5E1] bg-white text-[#0F172A] text-sm placeholder:text-[#94A3B8] focus:outline-none focus:border-[#2F80ED] focus:ring-2 focus:ring-[#EAF3FF]"
           />

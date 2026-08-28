@@ -257,11 +257,15 @@ export const OnboardingWizard: React.FC = () => {
                 <input
                   id="intake-age"
                   type="number"
-                  min={18}
+                  min={1}
                   max={120}
-                  value={age}
-                  onChange={(e) => setAge(Number(e.target.value))}
-                  className="touch-target w-full h-[44px] text-lg font-bold px-3.5 rounded-[8px] border border-[#CBD5E1] bg-white text-[#0F172A] focus:outline-none focus:border-[#2F80ED] focus:ring-2 focus:ring-[#EAF3FF]"
+                  value={age === 0 || age === '0' ? '' : age}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setAge(val === '' ? '' : Math.max(0, parseInt(val, 10) || 0) || '');
+                  }}
+                  placeholder="e.g. 65"
+                  className="touch-target w-full h-[44px] text-lg font-bold px-3.5 rounded-[8px] border border-[#CBD5E1] bg-white text-[#0F172A] placeholder:text-[#94A3B8] placeholder:font-normal placeholder:text-sm focus:outline-none focus:border-[#2F80ED] focus:ring-2 focus:ring-[#EAF3FF]"
                 />
               </div>
 
@@ -306,11 +310,15 @@ export const OnboardingWizard: React.FC = () => {
                 <input
                   id="intake-height"
                   type="number"
-                  min={100}
+                  min={50}
                   max={250}
-                  value={heightCm}
-                  onChange={(e) => setHeightCm(Number(e.target.value))}
-                  className="touch-target w-full h-[44px] text-sm font-bold px-3.5 rounded-[8px] border border-[#CBD5E1] bg-white text-[#0F172A] focus:outline-none focus:border-[#2F80ED] focus:ring-2 focus:ring-[#EAF3FF]"
+                  value={heightCm === 0 || heightCm === '0' ? '' : heightCm}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setHeightCm(val === '' ? '' : Math.max(0, parseInt(val, 10) || 0) || '');
+                  }}
+                  placeholder="e.g. 160"
+                  className="touch-target w-full h-[44px] text-sm font-bold px-3.5 rounded-[8px] border border-[#CBD5E1] bg-white text-[#0F172A] placeholder:text-[#94A3B8] placeholder:font-normal focus:outline-none focus:border-[#2F80ED] focus:ring-2 focus:ring-[#EAF3FF]"
                 />
               </div>
 
@@ -321,11 +329,15 @@ export const OnboardingWizard: React.FC = () => {
                 <input
                   id="intake-weight"
                   type="number"
-                  min={30}
-                  max={200}
-                  value={weightKg}
-                  onChange={(e) => setWeightKg(Number(e.target.value))}
-                  className="touch-target w-full h-[44px] text-sm font-bold px-3.5 rounded-[8px] border border-[#CBD5E1] bg-white text-[#0F172A] focus:outline-none focus:border-[#2F80ED] focus:ring-2 focus:ring-[#EAF3FF]"
+                  min={20}
+                  max={250}
+                  value={weightKg === 0 || weightKg === '0' ? '' : weightKg}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setWeightKg(val === '' ? '' : Math.max(0, parseInt(val, 10) || 0) || '');
+                  }}
+                  placeholder="e.g. 60"
+                  className="touch-target w-full h-[44px] text-sm font-bold px-3.5 rounded-[8px] border border-[#CBD5E1] bg-white text-[#0F172A] placeholder:text-[#94A3B8] placeholder:font-normal focus:outline-none focus:border-[#2F80ED] focus:ring-2 focus:ring-[#EAF3FF]"
                 />
               </div>
             </div>
@@ -336,11 +348,11 @@ export const OnboardingWizard: React.FC = () => {
                   Calculated Body Mass Index (BMI)
                 </span>
                 <span className="text-lg font-bold text-[#0F172A]">
-                  {bmi} kg/m²
+                  {numHeight > 0 && numWeight > 0 ? `${bmi} kg/m²` : '-- kg/m²'}
                 </span>
               </div>
               <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${bmiCat.color}`}>
-                {bmiCat.label}
+                {numHeight > 0 && numWeight > 0 ? bmiCat.label : 'Pending Inputs'}
               </span>
             </div>
           </div>

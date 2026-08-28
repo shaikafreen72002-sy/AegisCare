@@ -101,7 +101,7 @@ body.high-contrast div.bg-\[\#F1F5F9\],
 body.high-contrast section {
   background-color: #111827 !important;
   color: #FFFFFF !important;
-  border-color: #4B5563 !important;
+  border-color: #374151 !important;
 }
 
 body.high-contrast h1,
@@ -119,8 +119,9 @@ body.high-contrast strong {
 body.high-contrast p,
 body.high-contrast span,
 body.high-contrast .text-\[\#64748B\],
-body.high-contrast .text-\[\#94A3B8\] {
-  color: #E5E7EB !important;
+body.high-contrast .text-\[\#94A3B8\],
+body.high-contrast label {
+  color: #E2E8F0 !important;
 }
 
 body.high-contrast input,
@@ -128,7 +129,7 @@ body.high-contrast select,
 body.high-contrast textarea {
   background-color: #1F2937 !important;
   color: #FFFFFF !important;
-  border-color: #6B7280 !important;
+  border-color: #4B5563 !important;
 }
 
 body.high-contrast .border,
@@ -137,13 +138,37 @@ body.high-contrast .border-b,
 body.high-contrast .border-\[\#E2E8F0\],
 body.high-contrast .border-\[\#CBD5E1\],
 body.high-contrast .border-\[\#F1F5F9\] {
+  border-color: #374151 !important;
+}
+
+/* Caregiver badge in high contrast */
+body.high-contrast .bg-\[\#F0FDF4\],
+body.high-contrast div.bg-\[\#F0FDF4\] {
+  background-color: #064E3B !important;
+  color: #FFFFFF !important;
+  border-color: #34D399 !important;
+}
+body.high-contrast .bg-\[\#F0FDF4\] span {
+  color: #A7F3D0 !important;
+}
+
+/* Chips & Scenario Buttons */
+body.high-contrast .bg-white button,
+body.high-contrast button.bg-white,
+body.high-contrast div.bg-white button {
+  background-color: #1F2937 !important;
+  color: #FFFFFF !important;
   border-color: #4B5563 !important;
+}
+body.high-contrast button.bg-white:hover {
+  background-color: #374151 !important;
+  border-color: #60A5FA !important;
 }
 
 body.high-contrast .bg-\[\#EAF3FF\],
 body.high-contrast .hover\:bg-\[\#EAF3FF\]:hover {
   background-color: #1E3A8A !important;
-  color: #93C5FD !important;
+  color: #BFDBFE !important;
   border-color: #3B82F6 !important;
 }
 
@@ -167,20 +192,20 @@ body.high-contrast .bg-\[\#FEF2F2\] {
 }
 
 body.high-contrast .text-\[\#2F80ED\] {
-  color: #60A5FA !important;
+  color: #93C5FD !important;
 }
 
 body.high-contrast .text-\[\#16A34A\] {
-  color: #34D399 !important;
+  color: #4ADE80 !important;
 }
 
 body.high-contrast .text-\[\#D97706\],
 body.high-contrast .text-\[\#F59E0B\] {
-  color: #FBBF24 !important;
+  color: #FDE047 !important;
 }
 
 body.high-contrast .text-\[\#DC2626\] {
-  color: #F87171 !important;
+  color: #FCA5A5 !important;
 }
 
 .touch-target {
