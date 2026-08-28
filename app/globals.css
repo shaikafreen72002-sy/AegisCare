@@ -55,29 +55,33 @@
   }
 }
 
-/* ================= DYNAMIC TEXT SIZE SCALING ================= */
+/* ================= DYNAMIC TEXT SIZE & ZOOM SCALING (100% -> 105% -> 110%) ================= */
+html.zoom-95, body.zoom-95,
 html.text-size-sm, body.text-size-sm {
-  font-size: 12.5px;
-  zoom: 0.92;
+  zoom: 0.95;
+  font-size: 13.5px;
 }
 
+html.zoom-100, body.zoom-100,
 html.text-size-md, body.text-size-md {
-  font-size: 14px;
   zoom: 1.0;
+  font-size: 14px;
 }
 
+html.zoom-105, body.zoom-105,
 html.text-size-lg, body.text-size-lg {
-  font-size: 16px;
-  zoom: 1.15;
+  zoom: 1.05;
+  font-size: 14.8px;
 }
 
+html.zoom-110, body.zoom-110,
 html.text-size-xl, body.text-size-xl {
-  font-size: 18px;
-  zoom: 1.28;
+  zoom: 1.10;
+  font-size: 15.6px;
 }
 
 body.extra-large-text {
-  font-size: 16px;
+  font-size: 15.6px;
   line-height: 1.6;
 }
 

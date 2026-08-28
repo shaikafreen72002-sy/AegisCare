@@ -26,6 +26,10 @@ interface PatientContextType {
   largeText: boolean;
   setLargeText: (val: boolean) => void;
   toggleLargeText: () => void;
+  zoomScale: 95 | 100 | 105 | 110;
+  setZoomScale: (val: 95 | 100 | 105 | 110) => void;
+  increaseZoom: () => void;
+  decreaseZoom: () => void;
   textSizeLevel: 'sm' | 'md' | 'lg' | 'xl';
   setTextSizeLevel: (level: 'sm' | 'md' | 'lg' | 'xl') => void;
   increaseTextSize: () => void;
@@ -136,6 +140,7 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [highContrast, setHighContrast] = useState<boolean>(false);
   const [largeText, setLargeText] = useState<boolean>(false);
+  const [zoomScale, setZoomScale] = useState<95 | 100 | 105 | 110>(100);
   const [textSizeLevel, setTextSizeLevel] = useState<'sm' | 'md' | 'lg' | 'xl'>('md');
   const [audioAutoSpeak, setAudioAutoSpeak] = useState<boolean>(false);
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState<boolean>(false);
@@ -145,10 +150,11 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
   useEffect(() => {
     const init = async () => {
       if (typeof window !== 'undefined') {
-        const savedSize = localStorage.getItem('aegiscare_text_size') as 'sm' | 'md' | 'lg' | 'xl' | null;
-        if (savedSize && ['sm', 'md', 'lg', 'xl'].includes(savedSize)) {
-          setTextSizeLevel(savedSize);
-          setLargeText(savedSize === 'lg' || savedSize === 'xl');
+        const savedZoom = localStorage.getItem('aegiscare_zoom_scale');
+        if (savedZoom && ['95', '100', '105', '110'].includes(savedZoom)) {
+          const z = Number(savedZoom) as 95 | 100 | 105 | 110;
+          setZoomScale(z);
+          setLargeText(z >= 105);
         }
       }
       const p = await apiService.getProfile();
@@ -176,13 +182,16 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const root = document.documentElement;
       const body = document.body;
 
-      root.classList.remove('text-size-sm', 'text-size-md', 'text-size-lg', 'text-size-xl');
-      body.classList.remove('text-size-sm', 'text-size-md', 'text-size-lg', 'text-size-xl');
+      root.classList.remove('zoom-95', 'zoom-100', 'zoom-105', 'zoom-110', 'text-size-sm', 'text-size-md', 'text-size-lg', 'text-size-xl');
+      body.classList.remove('zoom-95', 'zoom-100', 'zoom-105', 'zoom-110', 'text-size-sm', 'text-size-md', 'text-size-lg', 'text-size-xl');
 
-      root.classList.add(`text-size-${textSizeLevel}`);
-      body.classList.add(`text-size-${textSizeLevel}`);
+      root.classList.add(`zoom-${zoomScale}`);
+      body.classList.add(`zoom-${zoomScale}`);
 
-      if (textSizeLevel === 'lg' || textSizeLevel === 'xl') {
+      const mappedLevel = zoomScale === 95 ? 'sm' : zoomScale === 100 ? 'md' : zoomScale === 105 ? 'lg' : 'xl';
+      setTextSizeLevel(mappedLevel);
+
+      if (zoomScale >= 105) {
         body.classList.add('extra-large-text');
         setLargeText(true);
       } else {
@@ -191,10 +200,10 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
 
       try {
-        localStorage.setItem('aegiscare_text_size', textSizeLevel);
+        localStorage.setItem('aegiscare_zoom_scale', String(zoomScale));
       } catch {}
     }
-  }, [textSizeLevel]);
+  }, [zoomScale]);
 
   const login = async (identifier: string, password?: string): Promise<AuthUser> => {
     const user = await apiService.login(identifier, password);
@@ -258,30 +267,32 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const toggleHighContrast = () => setHighContrast((prev) => !prev);
 
-  const increaseTextSize = () => {
-    setTextSizeLevel((curr) => {
-      if (curr === 'sm') return 'md';
-      if (curr === 'md') return 'lg';
-      if (curr === 'lg') return 'xl';
-      return 'xl';
+  const increaseZoom = () => {
+    setZoomScale((curr) => {
+      if (curr === 95) return 100;
+      if (curr === 100) return 105;
+      if (curr === 105) return 110;
+      return 110;
     });
   };
 
-  const decreaseTextSize = () => {
-    setTextSizeLevel((curr) => {
-      if (curr === 'xl') return 'lg';
-      if (curr === 'lg') return 'md';
-      if (curr === 'md') return 'sm';
-      return 'sm';
+  const decreaseZoom = () => {
+    setZoomScale((curr) => {
+      if (curr === 110) return 105;
+      if (curr === 105) return 100;
+      if (curr === 100) return 95;
+      return 95;
     });
   };
+
+  const increaseTextSize = increaseZoom;
+  const decreaseTextSize = decreaseZoom;
 
   const toggleLargeText = () => {
-    setTextSizeLevel((curr) => {
-      if (curr === 'md') return 'lg';
-      if (curr === 'lg') return 'xl';
-      if (curr === 'xl') return 'sm';
-      return 'md';
+    setZoomScale((curr) => {
+      if (curr === 100) return 105;
+      if (curr === 105) return 110;
+      return 100;
     });
   };
 
@@ -330,6 +341,10 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
         largeText,
         setLargeText,
         toggleLargeText,
+        zoomScale,
+        setZoomScale,
+        increaseZoom,
+        decreaseZoom,
         textSizeLevel,
         setTextSizeLevel,
         increaseTextSize,

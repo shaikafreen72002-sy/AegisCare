@@ -17,44 +17,68 @@ import {
   Scale,
   Calendar,
   Activity,
-  CheckCircle2
+  CheckCircle2,
+  Plus,
+  Trash2
 } from 'lucide-react';
+
+export interface MedicationTimingSlot {
+  id: string;
+  label: string;
+  time: string;
+  instructions?: string;
+}
 
 export const OnboardingWizard: React.FC = () => {
   const { profile, currentUser, updateProfileData, setActiveTab, calibrateIntakeWithAI } = usePatient();
   const [step, setStep] = useState(1);
 
-  const initialName = currentUser?.name || (profile.name && !profile.name.includes('Lakshmi') ? profile.name : '');
-  const initialPrefName = currentUser?.preferred_name || (profile.preferred_name && !profile.preferred_name.includes('Lakshmi') ? profile.preferred_name : initialName);
-
-  const [name, setName] = useState(initialName);
-  const [preferredName, setPreferredName] = useState(initialPrefName);
-  const [age, setAge] = useState<number | string>((profile.age || 0) > 0 ? profile.age! : '');
-  const [gender, setGender] = useState<string>(profile.gender && profile.gender !== 'Not specified' ? profile.gender : 'Female');
-  const [heightCm, setHeightCm] = useState<number | string>((profile.height_cm || 0) > 0 ? profile.height_cm! : 160);
-  const [weightKg, setWeightKg] = useState<number | string>((profile.weight_kg || 0) > 0 ? profile.weight_kg! : 60);
-  const [conditionSeverity, setConditionSeverity] = useState<string>(
-    profile.condition_severity && !profile.condition_severity.includes('Assessment')
-      ? profile.condition_severity
-      : "Mild Cognitive Impairment / Early Support"
-  );
-  const [diagnosisDate, setDiagnosisDate] = useState<string>(
-    profile.diagnosis_date && !profile.diagnosis_date.includes('Pending')
-      ? profile.diagnosis_date
-      : new Date().toISOString().slice(0, 7)
-  );
+  // Keep fields completely blank on new intake assessment
+  const [name, setName] = useState('');
+  const [preferredName, setPreferredName] = useState('');
+  const [age, setAge] = useState<number | string>('');
+  const [gender, setGender] = useState<string>('Female');
+  const [heightCm, setHeightCm] = useState<number | string>('');
+  const [weightKg, setWeightKg] = useState<number | string>('');
+  const [conditionSeverity, setConditionSeverity] = useState<string>("Mild Cognitive Impairment / Early Support");
+  const [diagnosisDate, setDiagnosisDate] = useState<string>(new Date().toISOString().slice(0, 7));
   const [selectedMedId, setSelectedMedId] = useState<string>('donepezil');
   const [selectedDose, setSelectedDose] = useState<string>('10 mg');
-  const [caregiverName, setCaregiverName] = useState<string>(
-    profile.caregiver?.name && !profile.caregiver.name.includes('Priya') ? profile.caregiver.name : ''
-  );
-  const [caregiverPhone, setCaregiverPhone] = useState<string>(
-    profile.caregiver?.phone && !profile.caregiver.phone.includes('(555)') ? profile.caregiver.phone : ''
-  );
-  const [caregiverRelation, setCaregiverRelation] = useState<string>(
-    profile.caregiver?.relation && !profile.caregiver.relation.includes('Daughter') ? profile.caregiver.relation : 'Primary Caregiver'
-  );
-  const [eveningTime, setEveningTime] = useState<string>('20:00');
+  const [caregiverName, setCaregiverName] = useState<string>('');
+  const [caregiverRelation, setCaregiverRelation] = useState<string>('');
+  const [caregiverPhone, setCaregiverPhone] = useState<string>('+91 ');
+
+  // Multi-dose medication timings with Indian Standard Time (IST)
+  const [medicationTimings, setMedicationTimings] = useState<MedicationTimingSlot[]>([
+    { id: 't_1', label: 'Morning Dose (Breakfast)', time: '08:00', instructions: 'Take with water after morning tea or breakfast' },
+    { id: 't_2', label: 'Evening Maintenance Dose', time: '20:00', instructions: 'Take with dinner or before retiring' }
+  ]);
+
+  const addMedicationTiming = () => {
+    const nextNum = medicationTimings.length + 1;
+    const defaultTime = nextNum === 3 ? '13:00' : nextNum === 4 ? '22:00' : '16:00';
+    const defaultLabel = nextNum === 3 ? 'Afternoon Dose (Lunch)' : nextNum === 4 ? 'Night Dose (Bedtime)' : `Medication Timing ${nextNum}`;
+    setMedicationTimings((prev) => [
+      ...prev,
+      {
+        id: `t_${Date.now()}_${nextNum}`,
+        label: defaultLabel,
+        time: defaultTime,
+        instructions: 'Take as prescribed with a glass of water'
+      }
+    ]);
+  };
+
+  const removeMedicationTiming = (id: string) => {
+    if (medicationTimings.length <= 1) return;
+    setMedicationTimings((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const updateMedicationTiming = (id: string, field: keyof MedicationTimingSlot, val: string) => {
+    setMedicationTimings((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, [field]: val } : t))
+    );
+  };
 
   const [isCalibrating, setIsCalibrating] = useState(false);
   const [calibrationPlan, setCalibrationPlan] = useState<any>(null);
@@ -83,8 +107,8 @@ export const OnboardingWizard: React.FC = () => {
       setStep(7);
       try {
         const result = await calibrateIntakeWithAI({
-          name,
-          preferred_name: preferredName,
+          name: name || 'Patient',
+          preferred_name: preferredName || name || 'Patient',
           age: numAge,
           gender,
           height_cm: numHeight,
@@ -95,6 +119,7 @@ export const OnboardingWizard: React.FC = () => {
           caregiver_name: caregiverName,
           caregiver_phone: caregiverPhone,
           caregiver_relation: caregiverRelation,
+          medication_timings: medicationTimings,
           physician_name: profile.physician.name,
           physician_phone: profile.physician.phone
         });
@@ -116,13 +141,14 @@ export const OnboardingWizard: React.FC = () => {
   };
 
   const handleComplete = async () => {
+    const primaryTiming = medicationTimings[0]?.time || '20:00';
     await updateProfileData({
-      name,
-      preferred_name: preferredName,
-      age: Number(age),
+      name: name || 'Patient',
+      preferred_name: preferredName || name || 'Patient',
+      age: Number(age) || 0,
       gender,
-      height_cm: Number(heightCm),
-      weight_kg: Number(weightKg),
+      height_cm: Number(heightCm) || 0,
+      weight_kg: Number(weightKg) || 0,
       bmi,
       condition: conditionSeverity,
       condition_severity: conditionSeverity,
@@ -131,8 +157,8 @@ export const OnboardingWizard: React.FC = () => {
         name: currentMed.name,
         brand: currentMed.brand_name,
         dosage: selectedDose,
-        schedule_time: eveningTime,
-        instructions: `Take at ${eveningTime} with water. ${currentMed.with_food_rule}`
+        schedule_time: primaryTiming,
+        instructions: `Take as prescribed with water (${medicationTimings.map((t) => `${t.label}: ${t.time}`).join(', ')}). ${currentMed.with_food_rule}`
       },
       caregiver: {
         ...profile.caregiver,
@@ -449,14 +475,14 @@ export const OnboardingWizard: React.FC = () => {
             </div>
             <div>
               <h2 className="text-xl font-bold text-[#0F172A]">
-                Caregiver Contact & Preferred Evening Time
+                Caregiver Contact & Medication Timings (IST)
               </h2>
               <p className="text-xs text-[#64748B] mt-0.5">
-                Instant Telegram verification alerts (@BversityCareBot) and reminder timing.
+                Instant Telegram verification alerts (@BversityCareBot) and India Standard Time (IST • UTC+5:30) dosing schedule.
               </p>
             </div>
 
-            <div className="space-y-3 pt-1">
+            <div className="space-y-3.5 pt-1">
               <div>
                 <label htmlFor="intake-caregiver-name" className="block text-xs font-semibold text-[#334155] mb-1">
                   Caregiver's Name & Relation
@@ -483,29 +509,110 @@ export const OnboardingWizard: React.FC = () => {
 
               <div>
                 <label htmlFor="intake-caregiver-phone" className="block text-xs font-semibold text-[#334155] mb-1">
-                  Caregiver Mobile / Telegram Number
+                  Caregiver Mobile Number (India +91)
                 </label>
-                <input
-                  id="intake-caregiver-phone"
-                  type="tel"
-                  value={caregiverPhone}
-                  onChange={(e) => setCaregiverPhone(e.target.value)}
-                  placeholder="e.g. +1 (555) 234-5678"
-                  className="touch-target w-full h-[44px] text-sm px-3.5 rounded-[8px] border border-[#CBD5E1] bg-white text-[#0F172A] focus:outline-none focus:border-[#2F80ED] focus:ring-2 focus:ring-[#EAF3FF]"
-                />
+                <div className="relative">
+                  <input
+                    id="intake-caregiver-phone"
+                    type="tel"
+                    value={caregiverPhone}
+                    onChange={(e) => {
+                      let val = e.target.value;
+                      if (!val.startsWith('+91')) {
+                        val = '+91 ' + val.replace(/^\+91\s*/, '');
+                      }
+                      setCaregiverPhone(val);
+                    }}
+                    placeholder="+91 98765 43210"
+                    className="touch-target w-full h-[44px] text-sm font-medium px-3.5 rounded-[8px] border border-[#CBD5E1] bg-white text-[#0F172A] focus:outline-none focus:border-[#2F80ED] focus:ring-2 focus:ring-[#EAF3FF]"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-[#16A34A] bg-[#DCFCE7] px-2 py-0.5 rounded border border-[#16A34A]/20">
+                    🇮🇳 India +91
+                  </span>
+                </div>
               </div>
 
-              <div>
-                <label htmlFor="intake-evening-time" className="block text-xs font-semibold text-[#334155] mb-1 flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-[#2F80ED]" /> Preferred Evening Medication Time
-                </label>
-                <input
-                  id="intake-evening-time"
-                  type="time"
-                  value={eveningTime}
-                  onChange={(e) => setEveningTime(e.target.value)}
-                  className="touch-target w-full h-[44px] text-base font-bold px-3.5 rounded-[8px] border border-[#CBD5E1] bg-white text-[#0F172A] focus:outline-none focus:border-[#2F80ED] focus:ring-2 focus:ring-[#EAF3FF]"
-                />
+              {/* Multiple Medication Timings List with Plus button */}
+              <div className="pt-2 border-t border-[#E2E8F0] space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="text-xs font-bold text-[#0F172A] flex items-center gap-1.5">
+                      <Clock className="w-4 h-4 text-[#2F80ED]" /> Prescribed Medication Dosing Times
+                    </label>
+                    <span className="text-[11px] text-[#64748B]">
+                      Add all times throughout the day for this medication (India Standard Time).
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#EAF3FF] text-[#2F80ED] border border-[#2F80ED]/30">
+                    IST (UTC+5:30)
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  {medicationTimings.map((slot, idx) => (
+                    <div
+                      key={slot.id}
+                      className="p-3 bg-[#F8FAFC] border border-[#CBD5E1] rounded-[8px] space-y-2 relative transition hover:border-[#2F80ED]/50"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-bold text-[#2F80ED] uppercase tracking-wider flex items-center gap-1">
+                          <Pill className="w-3 h-3" /> Timing #{idx + 1}
+                        </span>
+                        {medicationTimings.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeMedicationTiming(slot.id)}
+                            aria-label={`Remove dose timing ${idx + 1}`}
+                            title="Remove this timing"
+                            className="p-1 text-[#64748B] hover:text-[#DC2626] hover:bg-[#FEE2E2] rounded transition cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[10px] font-bold text-[#64748B] uppercase mb-0.5">
+                            Dose Label / Context
+                          </label>
+                          <input
+                            type="text"
+                            value={slot.label}
+                            onChange={(e) => updateMedicationTiming(slot.id, 'label', e.target.value)}
+                            placeholder="e.g. Morning Dose, Night Dose"
+                            className="w-full h-[38px] text-xs px-2.5 rounded-[6px] border border-[#CBD5E1] bg-white text-[#0F172A] focus:outline-none focus:border-[#2F80ED]"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-bold text-[#64748B] uppercase mb-0.5 flex items-center justify-between">
+                            <span>Time (IST)</span>
+                            <span className="text-[#2F80ED] font-bold lowercase">
+                              {parseInt(slot.time.split(':')[0] || '0', 10) >= 12 ? 'pm' : 'am'}
+                            </span>
+                          </label>
+                          <input
+                            type="time"
+                            value={slot.time}
+                            onChange={(e) => updateMedicationTiming(slot.id, 'time', e.target.value)}
+                            className="w-full h-[38px] text-sm font-bold px-2.5 rounded-[6px] border border-[#CBD5E1] bg-white text-[#0F172A] focus:outline-none focus:border-[#2F80ED]"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Prominent Plus Button to Add Another Medication Timing */}
+                <button
+                  type="button"
+                  onClick={addMedicationTiming}
+                  className="touch-target w-full py-2.5 rounded-[8px] bg-[#EAF3FF] hover:bg-[#D4E8FF] border border-dashed border-[#2F80ED] text-[#2F80ED] font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.99] cursor-pointer shadow-2xs"
+                >
+                  <Plus className="w-4 h-4 text-[#2F80ED]" />
+                  <span>+ Add Another Medication Time</span>
+                </button>
               </div>
             </div>
           </div>
@@ -552,7 +659,7 @@ export const OnboardingWizard: React.FC = () => {
                     <ShieldCheck className="w-4 h-4 text-[#16A34A]" /> Tailored Adherence Rules:
                   </span>
                   <ul className="space-y-1 text-[#475569] pl-4 list-disc">
-                    <li>Take your dose at {eveningTime} every evening with a glass of water.</li>
+                    <li>Dose timings scheduled at: {medicationTimings.map((t) => `${t.label} (${t.time} IST)`).join(', ')}.</li>
                     <li>Strict rule: Never double-dose if a pill was forgotten yesterday.</li>
                     <li>Report severe dizziness or slow heartbeat to Dr. Mehta immediately.</li>
                   </ul>
