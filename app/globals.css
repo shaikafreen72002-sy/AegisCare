@@ -103,127 +103,254 @@ body.extra-large-text {
   line-height: 1.65;
 }
 
-/* HIGH CONTRAST & ACCESSIBILITY MODE OVERRIDES (Headspace Midnight Navy) */
+/* =========================================================================
+   HIGH CONTRAST & ACCESSIBILITY DARK MODE OVERRIDES (Headspace Midnight)
+   ========================================================================= */
 body.high-contrast {
-  background-color: #161324 !important;
+  background-color: #141122 !important;
   color: #FFFFFF !important;
 }
 
+/* Base structural surfaces */
 body.high-contrast header,
 body.high-contrast nav,
 body.high-contrast main,
 body.high-contrast div.bg-white,
-body.high-contrast div.bg-\[\#F7F9FC\],
+body.high-contrast div.bg-\[\#FAF7F2\],
+body.high-contrast div.bg-\[\#F7F4EE\],
 body.high-contrast div.bg-\[\#F8FAFC\],
+body.high-contrast div.bg-\[\#F7F9FC\],
 body.high-contrast div.bg-\[\#F1F5F9\],
 body.high-contrast section {
-  background-color: #221D38 !important;
+  background-color: #211B35 !important;
   color: #FFFFFF !important;
-  border-color: #3D355C !important;
+  border-color: #382F54 !important;
 }
 
+/* Headings and bold titles - Pure luminous white */
 body.high-contrast h1,
 body.high-contrast h2,
 body.high-contrast h3,
 body.high-contrast h4,
+body.high-contrast h5,
+body.high-contrast h6,
+body.high-contrast strong,
+body.high-contrast .text-\[\#2D2545\],
 body.high-contrast .text-\[\#0F172A\],
 body.high-contrast .text-\[\#1E293B\],
-body.high-contrast .text-\[\#334155\],
-body.high-contrast .text-\[\#475569\],
-body.high-contrast strong {
+body.high-contrast .text-\[\#334155\] {
   color: #FFFFFF !important;
 }
 
+/* Body copy, paragraphs, and labels - Bright, clear, readable soft lavender-white */
 body.high-contrast p,
 body.high-contrast span,
+body.high-contrast label,
+body.high-contrast .text-\[\#40365D\],
+body.high-contrast .text-\[\#5D5570\],
+body.high-contrast .text-\[\#6B6282\],
+body.high-contrast .text-\[\#988EA8\],
 body.high-contrast .text-\[\#64748B\],
 body.high-contrast .text-\[\#94A3B8\],
-body.high-contrast label {
-  color: #E2E8F0 !important;
+body.high-contrast .text-\[\#475569\] {
+  color: #E0DAF2 !important;
 }
 
-body.high-contrast input,
-body.high-contrast select,
-body.high-contrast textarea {
-  background-color: #1F2937 !important;
+/* Inactive navigation buttons & pills */
+body.high-contrast nav button.text-\[\#5D5570\],
+body.high-contrast nav button:not(.bg-\[\#FF6138\]) {
+  color: #D6CEF0 !important;
+  background-color: transparent !important;
+}
+body.high-contrast nav button.text-\[\#5D5570\]:hover,
+body.high-contrast nav button:not(.bg-\[\#FF6138\]):hover {
   color: #FFFFFF !important;
-  border-color: #4B5563 !important;
+  background-color: #2E2548 !important;
 }
 
-body.high-contrast .border,
-body.high-contrast .border-t,
-body.high-contrast .border-b,
-body.high-contrast .border-\[\#E2E8F0\],
-body.high-contrast .border-\[\#CBD5E1\],
-body.high-contrast .border-\[\#F1F5F9\] {
-  border-color: #374151 !important;
-}
-
-/* Caregiver badge in high contrast */
-body.high-contrast .bg-\[\#F0FDF4\],
-body.high-contrast div.bg-\[\#F0FDF4\] {
+/* Top Navbar Caregiver & Doctor pills in dark mode */
+body.high-contrast .bg-\[\#EAF8F0\],
+body.high-contrast div.bg-\[\#EAF8F0\] {
   background-color: #064E3B !important;
-  color: #FFFFFF !important;
-  border-color: #34D399 !important;
-}
-body.high-contrast .bg-\[\#F0FDF4\] span {
-  color: #A7F3D0 !important;
-}
-
-/* Chips & Scenario Buttons */
-body.high-contrast .bg-white button,
-body.high-contrast button.bg-white,
-body.high-contrast div.bg-white button {
-  background-color: #1F2937 !important;
-  color: #FFFFFF !important;
-  border-color: #4B5563 !important;
-}
-body.high-contrast button.bg-white:hover {
-  background-color: #374151 !important;
-  border-color: #60A5FA !important;
-}
-
-body.high-contrast .bg-\[\#EAF3FF\],
-body.high-contrast .hover\:bg-\[\#EAF3FF\]:hover {
-  background-color: #1E3A8A !important;
-  color: #BFDBFE !important;
-  border-color: #3B82F6 !important;
-}
-
-body.high-contrast .bg-\[\#DCFCE7\] {
-  background-color: #064E3B !important;
-  color: #A7F3D0 !important;
   border-color: #10B981 !important;
+  color: #A7F3D0 !important;
+}
+body.high-contrast .bg-\[\#EAF8F0\] span.text-\[\#136B3B\],
+body.high-contrast .bg-\[\#EAF8F0\] .text-\[\#1E824C\] {
+  color: #6EE7B7 !important;
+}
+body.high-contrast .bg-\[\#EAF8F0\] span.text-\[\#2D2545\] {
+  color: #FFFFFF !important;
 }
 
-body.high-contrast .bg-\[\#FEF3C7\] {
-  background-color: #78350F !important;
-  color: #FDE68A !important;
-  border-color: #F59E0B !important;
+body.high-contrast .bg-\[\#F2EDFF\],
+body.high-contrast div.bg-\[\#F2EDFF\] {
+  background-color: #2E1065 !important;
+  border-color: #8B5CF6 !important;
+  color: #DDD6FE !important;
+}
+body.high-contrast .bg-\[\#F2EDFF\] span.text-\[\#5B31D8\],
+body.high-contrast .bg-\[\#F2EDFF\] .text-\[\#7952EC\] {
+  color: #C4B5FD !important;
+}
+body.high-contrast .bg-\[\#F2EDFF\] span.text-\[\#2D2545\] {
+  color: #FFFFFF !important;
 }
 
-body.high-contrast .bg-\[\#FEE2E2\],
-body.high-contrast .bg-\[\#FEF2F2\] {
-  background-color: #7F1D1D !important;
-  color: #FECACA !important;
-  border-color: #EF4444 !important;
+/* Navbar zoom stepper & utility buttons */
+body.high-contrast div.border-\[\#EFEAE1\].bg-white {
+  background-color: #211B35 !important;
+  border-color: #382F54 !important;
+}
+body.high-contrast button.text-\[\#5D5570\],
+body.high-contrast button.text-\[\#6B6282\] {
+  color: #D6CEF0 !important;
+}
+body.high-contrast button.text-\[\#5D5570\]:hover,
+body.high-contrast button.text-\[\#6B6282\]:hover {
+  color: #FFFFFF !important;
 }
 
-body.high-contrast .text-\[\#2F80ED\] {
-  color: #93C5FD !important;
+/* Brand Coral Accent Overrides (Glow) */
+body.high-contrast .text-\[\#FF6138\] {
+  color: #FFA085 !important;
+}
+body.high-contrast .bg-\[\#FFF0EB\] {
+  background-color: #3F1B15 !important;
+  color: #FFBDB0 !important;
+  border-color: #FF6138 !important;
+}
+body.high-contrast .bg-\[\#FFF0EB\] span,
+body.high-contrast .bg-\[\#FFF0EB\] p {
+  color: #FFBDB0 !important;
 }
 
+/* Sage Green Overrides (Healthy / Done) */
+body.high-contrast .text-\[\#1E824C\],
+body.high-contrast .text-\[\#136B3B\],
 body.high-contrast .text-\[\#16A34A\] {
-  color: #4ADE80 !important;
+  color: #6EE7B7 !important;
 }
 
+/* Sunshine Yellow Overrides (Morning / Milestones / Warning) */
+body.high-contrast .text-\[\#FFBE53\],
+body.high-contrast .text-\[\#8C5A00\],
 body.high-contrast .text-\[\#D97706\],
 body.high-contrast .text-\[\#F59E0B\] {
   color: #FDE047 !important;
 }
+body.high-contrast .bg-\[\#FFF8E7\],
+body.high-contrast .bg-\[\#FEF3C7\] {
+  background-color: #3D2406 !important;
+  color: #FEF08A !important;
+  border-color: #F59E0B !important;
+}
+body.high-contrast .bg-\[\#FFF8E7\] span,
+body.high-contrast .bg-\[\#FFF8E7\] p {
+  color: #FEF08A !important;
+}
 
+/* Sky Blue Overrides (Midday / Information) */
+body.high-contrast .text-\[\#4E89FF\],
+body.high-contrast .text-\[\#1D5BD8\],
+body.high-contrast .text-\[\#2F80ED\] {
+  color: #93C5FD !important;
+}
+body.high-contrast .bg-\[\#EBF2FF\],
+body.high-contrast .bg-\[\#EAF3FF\] {
+  background-color: #172554 !important;
+  color: #BFDBFE !important;
+  border-color: #3B82F6 !important;
+}
+body.high-contrast .bg-\[\#EBF2FF\] span,
+body.high-contrast .bg-\[\#EBF2FF\] p {
+  color: #BFDBFE !important;
+}
+
+/* Alert Red Overrides (Emergency / Escalation / Critical) */
+body.high-contrast .text-\[\#E53E3E\],
 body.high-contrast .text-\[\#DC2626\] {
   color: #FCA5A5 !important;
+}
+body.high-contrast .bg-\[\#FFF0F0\],
+body.high-contrast .bg-\[\#FEE2E2\],
+body.high-contrast .bg-\[\#FEF2F2\] {
+  background-color: #450A0A !important;
+  color: #FECACA !important;
+  border-color: #EF4444 !important;
+}
+body.high-contrast .bg-\[\#FFF0F0\] span,
+body.high-contrast .bg-\[\#FFF0F0\] p {
+  color: #FECACA !important;
+}
+
+/* Streak Milestones Road in Dark Mode */
+body.high-contrast .bg-\[\#FAF7F2\] {
+  background-color: #2A2144 !important;
+  color: #FFFFFF !important;
+  border-color: #3E335C !important;
+}
+body.high-contrast .bg-\[\#FAF7F2\] span,
+body.high-contrast .bg-\[\#FAF7F2\] p {
+  color: #E2DCF2 !important;
+}
+
+/* Target badge inside milestone cards */
+body.high-contrast .bg-\[\#EFEAE1\] {
+  background-color: #3B2E60 !important;
+  color: #FFFFFF !important;
+  border-color: #4F3F7A !important;
+}
+
+/* Motivational quote box in dark mode */
+body.high-contrast .bg-\[\#FAF7F2\].italic,
+body.high-contrast div.bg-\[\#FAF7F2\] p.italic {
+  color: #FEF08A !important;
+}
+
+/* Inputs, Textareas, and Dropdowns */
+body.high-contrast input,
+body.high-contrast select,
+body.high-contrast textarea {
+  background-color: #1A152B !important;
+  color: #FFFFFF !important;
+  border-color: #463968 !important;
+}
+body.high-contrast input::placeholder,
+body.high-contrast textarea::placeholder {
+  color: #9387B4 !important;
+}
+
+/* Borders */
+body.high-contrast .border,
+body.high-contrast .border-t,
+body.high-contrast .border-b,
+body.high-contrast .border-r,
+body.high-contrast .border-l,
+body.high-contrast .border-\[\#EFEAE1\],
+body.high-contrast .border-\[\#F4EFE6\],
+body.high-contrast .border-\[\#E2E8F0\],
+body.high-contrast .border-\[\#CBD5E1\],
+body.high-contrast .border-\[\#F1F5F9\] {
+  border-color: #382F54 !important;
+}
+
+/* Tables in Caregiver Portal */
+body.high-contrast table th {
+  color: #D1C7EB !important;
+  border-color: #382F54 !important;
+}
+body.high-contrast table td {
+  color: #FFFFFF !important;
+  border-color: #2D2545 !important;
+}
+body.high-contrast tr.hover\:bg-\[\#FAF7F2\]:hover {
+  background-color: #2B2346 !important;
+}
+
+/* Chat window specific overrides */
+body.high-contrast .bg-\[\#F7F4EE\] {
+  background-color: #161324 !important;
 }
 
 .touch-target {
