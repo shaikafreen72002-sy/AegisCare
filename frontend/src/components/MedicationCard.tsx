@@ -11,7 +11,6 @@ interface MedicationCardProps {
 export const MedicationCard: React.FC<MedicationCardProps> = ({ dose, onOpenChatWithTopic }) => {
   const { markDoseAsTaken, setActiveTab } = usePatient();
   const [isMarking, setIsMarking] = useState(false);
-  const [showMissedHelp, setShowMissedHelp] = useState(dose.status === 'MISSED');
 
   const handleMarkTaken = async () => {
     setIsMarking(true);
@@ -22,9 +21,10 @@ export const MedicationCard: React.FC<MedicationCardProps> = ({ dose, onOpenChat
     }
   };
 
-  const handleTalkToAssistant = () => {
+  const handleTalkToAssistant = (customTopic?: string) => {
+    const topic = customTopic || `I have a question about my ${dose.time_slot} dose of ${dose.medication_name}. What should I do?`;
     if (onOpenChatWithTopic) {
-      onOpenChatWithTopic(`I missed my ${dose.time_slot} dose of ${dose.medication_name}. What should I do?`);
+      onOpenChatWithTopic(topic);
     } else {
       setActiveTab('chat');
     }
@@ -33,7 +33,7 @@ export const MedicationCard: React.FC<MedicationCardProps> = ({ dose, onOpenChat
   const isTaken = dose.status === 'TAKEN';
   const isSnoozed = dose.status === 'SNOOZED';
   const isUnsure = dose.status === 'UNSURE';
-  const isMissed = dose.status === 'MISSED' || showMissedHelp;
+  const isMissed = dose.status === 'MISSED';
   const isDue = dose.status === 'DUE';
 
   const getMealTag = () => {
@@ -53,7 +53,7 @@ export const MedicationCard: React.FC<MedicationCardProps> = ({ dose, onOpenChat
 
   return (
     <div
-      className={`rounded-[18px] border transition-all duration-300 p-5 sm:p-6 shadow-[0_4px_20px_rgba(45,37,69,0.04)] ${
+      className={`rounded-[20px] border transition-all duration-300 p-5 sm:p-6 shadow-[0_4px_20px_rgba(45,37,69,0.04)] ${
         isTaken
           ? 'border-[#1E824C] bg-[#EAF8F0] ring-2 ring-[#1E824C]/25 shadow-[0_8px_25px_rgba(30,130,76,0.15)]'
           : isSnoozed
@@ -61,7 +61,7 @@ export const MedicationCard: React.FC<MedicationCardProps> = ({ dose, onOpenChat
           : isUnsure
           ? 'border-[#4E89FF] bg-[#EBF2FF] ring-2 ring-[#4E89FF]/25'
           : isMissed
-          ? 'border-[#E53E3E] bg-[#FFF0F0] ring-2 ring-[#E53E3E]/20'
+          ? 'border-[#E53E3E] bg-[#FFF0F0] ring-2 ring-[#E53E3E]/25'
           : isDue
           ? 'border-[#FF6138] bg-white ring-2 ring-[#FF6138]/15'
           : 'border-[#EFEAE1] bg-white'
@@ -69,17 +69,18 @@ export const MedicationCard: React.FC<MedicationCardProps> = ({ dose, onOpenChat
     >
       <div className="flex flex-col justify-between gap-4 h-full">
         <div className="space-y-3">
+          {/* Header Row */}
           <div className="flex items-center justify-between gap-2">
             <div
               className={`w-11 h-11 rounded-[12px] flex items-center justify-center shrink-0 transition-colors ${
                 isTaken
                   ? 'bg-white text-[#1E824C] shadow-xs'
                   : isSnoozed
-                  ? 'bg-white text-[#B37400]'
+                  ? 'bg-white text-[#B37400] shadow-xs'
                   : isUnsure
-                  ? 'bg-white text-[#1D5BD8]'
+                  ? 'bg-white text-[#1D5BD8] shadow-xs'
                   : isMissed
-                  ? 'bg-white text-[#C53030]'
+                  ? 'bg-white text-[#C53030] shadow-xs'
                   : isDue
                   ? 'bg-[#FFF0EB] text-[#FF6138]'
                   : 'bg-[#FAF7F2] text-[#6B6282]'
@@ -117,17 +118,16 @@ export const MedicationCard: React.FC<MedicationCardProps> = ({ dose, onOpenChat
                 {isTaken
                   ? '✓ Taken & Recorded'
                   : isSnoozed
-                  ? '⏰ Snoozed (15m)'
+                  ? '⏰ Snoozed (CareBot)'
                   : isUnsure
-                  ? '❓ Check Organizer'
+                  ? '❓ Unsure (CareBot)'
                   : isMissed
-                  ? '❌ Missed Dose'
+                  ? '❌ Missed Dose (CareBot)'
                   : isDue
                   ? 'Due Now'
                   : 'Upcoming'}
               </span>
 
-              {/* Meal Context Tag */}
               <span
                 className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
                   isTaken ? 'bg-white text-[#136B3B] border-[#1E824C]/30' : mealTag.color
@@ -138,6 +138,7 @@ export const MedicationCard: React.FC<MedicationCardProps> = ({ dose, onOpenChat
             </div>
           </div>
 
+          {/* Medication Info */}
           <div>
             <span
               className={`text-xs font-bold flex items-center gap-1 ${
@@ -154,7 +155,15 @@ export const MedicationCard: React.FC<MedicationCardProps> = ({ dose, onOpenChat
             >
               <Clock
                 className={`w-3.5 h-3.5 ${
-                  isTaken ? 'text-[#1E824C]' : isSnoozed ? 'text-[#B37400]' : isMissed ? 'text-[#C53030]' : 'text-[#988EA8]'
+                  isTaken
+                    ? 'text-[#1E824C]'
+                    : isSnoozed
+                    ? 'text-[#B37400]'
+                    : isMissed
+                    ? 'text-[#C53030]'
+                    : isUnsure
+                    ? 'text-[#1D5BD8]'
+                    : 'text-[#988EA8]'
                 }`}
               />
               {dose.time_slot} ({dose.scheduled_time || 'Daily'})
@@ -204,104 +213,136 @@ export const MedicationCard: React.FC<MedicationCardProps> = ({ dose, onOpenChat
             >
               {dose.instructions}
             </p>
-
-            {isTaken && (
-              <p className="text-xs font-black text-[#1E824C] mt-2.5 flex items-center gap-1.5 bg-white/80 py-1 px-2.5 rounded-[10px] w-fit border border-[#1E824C]/25">
-                <Sparkles className="w-3.5 h-3.5 text-[#1E824C]" /> Recorded at {dose.taken_at || '11:27 AM'} • Logged in Adherence History
-              </p>
-            )}
-
-            {isSnoozed && (
-              <p className="text-xs font-bold text-[#8C5A00] mt-2.5 flex items-center gap-1.5 bg-white/80 py-1 px-2.5 rounded-[10px] w-fit border border-[#FFBE53]/40">
-                <Timer className="w-3.5 h-3.5 text-[#B37400]" /> Snoozed from Telegram • Next prompt pending
-              </p>
-            )}
-
-            {isUnsure && (
-              <p className="text-xs font-bold text-[#1D5BD8] mt-2.5 flex items-center gap-1.5 bg-white/80 py-1 px-2.5 rounded-[10px] w-fit border border-[#4E89FF]/30">
-                <HelpCircle className="w-3.5 h-3.5 text-[#1D5BD8]" /> Safety Rule: Never double-dose if uncertain
-              </p>
-            )}
-
-            {isMissed && (
-              <p className="text-xs font-bold text-[#C53030] mt-2.5 flex items-center gap-1.5 bg-white/80 py-1 px-2.5 rounded-[10px] w-fit border border-[#E53E3E]/30">
-                <ShieldAlert className="w-3.5 h-3.5 text-[#C53030]" /> Missed dose recorded • Resume next scheduled time
-              </p>
-            )}
           </div>
+
+          {/* FRONT-AND-CENTER STATUS & MONOGRAPH GUIDELINES */}
+          {isTaken && (
+            <div className="p-3 bg-white/80 border border-[#1E824C]/25 rounded-[12px] space-y-0.5 shadow-2xs">
+              <p className="text-xs font-black text-[#1E824C] flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-[#1E824C]" /> Recorded at {dose.taken_at || '11:27 AM'} • Verified in History
+              </p>
+              <p className="text-[11px] text-[#2E7D32]">
+                Adherence recorded and locked. Great consistency! 🌸
+              </p>
+            </div>
+          )}
+
+          {isSnoozed && (
+            <div className="p-3 bg-white/90 border border-[#FFBE53]/50 rounded-[12px] space-y-1 shadow-2xs">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-[#8C5A00]">
+                <Timer className="w-4 h-4 text-[#B37400]" />
+                <span>Snoozed via Telegram @BversityCareBot</span>
+              </div>
+              <p className="text-[11px] text-[#5D5570] leading-relaxed">
+                Take your time with a fresh glass of water. A gentle follow-up prompt will arrive.
+              </p>
+            </div>
+          )}
+
+          {isUnsure && (
+            <div className="p-3.5 bg-white/95 border border-[#4E89FF]/30 rounded-[12px] space-y-1.5 shadow-2xs">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-[#1D5BD8]">
+                <HelpCircle className="w-4 h-4 text-[#1D5BD8]" />
+                <span>Monograph Safety Rule:</span>
+              </div>
+              <p className="text-[11px] text-[#334155] leading-relaxed">
+                <strong>Never double up or take extra tablets if unsure.</strong> Please check your daily pill organizer or blister pack.
+              </p>
+            </div>
+          )}
+
+          {isMissed && (
+            <div className="p-3.5 bg-white/95 border border-[#E53E3E]/30 rounded-[12px] space-y-1.5 shadow-2xs">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-[#C53030]">
+                <ShieldAlert className="w-4 h-4 text-[#C53030]" />
+                <span>Clinical Monograph Rule for Missed Dose:</span>
+              </div>
+              <p className="text-[11px] text-[#334155] leading-relaxed">
+                Skip this missed dose completely. <strong>Strictly do NOT take a double dose tomorrow.</strong> Resume your regular schedule at your next normal timing.
+              </p>
+            </div>
+          )}
         </div>
 
-        <div className="pt-2 border-t border-[#F4EFE6]/60 flex items-center justify-between gap-2">
-          {!isTaken ? (
+        {/* BOTTOM ACTION AREA */}
+        <div className="pt-2 border-t border-[#F4EFE6]/60 space-y-2">
+          {isTaken ? (
+            <div
+              title="Medication intake is recorded and locked into clinical adherence history."
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-[#1E824C] text-white font-bold text-sm shadow-xs select-none"
+            >
+              <CheckCircle2 className="w-4 h-4 text-white" />
+              <span>✓ Recorded & Locked in History</span>
+            </div>
+          ) : isMissed ? (
+            <div className="space-y-1.5">
+              <button
+                type="button"
+                onClick={() => handleTalkToAssistant(`I missed my ${dose.time_slot} dose of ${dose.medication_name}. What is the official monograph safety guidance?`)}
+                className="touch-target w-full flex items-center justify-center gap-1.5 py-2.5 rounded-full font-bold text-xs bg-[#C53030] hover:bg-[#9B2C2C] text-white shadow-xs transition active:scale-[0.98] cursor-pointer"
+              >
+                <MessageSquareHeart className="w-4 h-4" />
+                <span>Talk with Companion about Missed Dose</span>
+              </button>
+
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={handleMarkTaken}
+                  disabled={isMarking}
+                  className="text-[11px] text-[#6B6282] hover:text-[#2D2545] font-semibold underline cursor-pointer"
+                >
+                  If you actually took it, click here to mark as taken
+                </button>
+              </div>
+            </div>
+          ) : isUnsure ? (
+            <div className="space-y-1.5">
+              <button
+                type="button"
+                onClick={() => handleTalkToAssistant(`I am not sure if I took my ${dose.time_slot} dose of ${dose.medication_name}. Can you help me check safely?`)}
+                className="touch-target w-full flex items-center justify-center gap-1.5 py-2.5 rounded-full font-bold text-xs bg-[#1D5BD8] hover:bg-[#1546B0] text-white shadow-xs transition active:scale-[0.98] cursor-pointer"
+              >
+                <MessageSquareHeart className="w-4 h-4" />
+                <span>Talk with Companion for Guidance</span>
+              </button>
+
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={handleMarkTaken}
+                  disabled={isMarking}
+                  className="text-[11px] text-[#1D5BD8] hover:underline font-bold cursor-pointer"
+                >
+                  ✓ I checked my organizer and took it now
+                </button>
+              </div>
+            </div>
+          ) : isSnoozed ? (
+            <div className="space-y-1.5">
+              <button
+                onClick={handleMarkTaken}
+                disabled={isMarking}
+                aria-label={`Mark ${dose.medication_name} as taken`}
+                className="touch-target w-full flex items-center justify-center gap-1.5 py-2.5 rounded-full font-bold text-xs bg-[#B37400] hover:bg-[#8C5A00] text-white shadow-xs transition active:scale-[0.98] cursor-pointer"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                <span>✓ Take & Mark as Taken Now</span>
+              </button>
+            </div>
+          ) : (
             <button
               onClick={handleMarkTaken}
               disabled={isMarking}
               aria-label={`Mark ${dose.medication_name} as taken`}
-              className={`touch-target w-full flex items-center justify-center gap-1.5 py-2.5 rounded-full font-bold text-sm text-white shadow-xs transition active:scale-[0.98] disabled:opacity-50 cursor-pointer ${
-                isSnoozed
-                  ? 'bg-[#B37400] hover:bg-[#8C5A00]'
-                  : isUnsure
-                  ? 'bg-[#1D5BD8] hover:bg-[#1546B0]'
-                  : isMissed
-                  ? 'bg-[#C53030] hover:bg-[#9B2C2C]'
-                  : 'bg-[#FF6138] hover:bg-[#E84E27] shadow-[0_2px_10px_rgba(255,97,56,0.3)]'
-              }`}
+              className="touch-target w-full flex items-center justify-center gap-1.5 py-3 rounded-full font-bold text-sm bg-[#FF6138] hover:bg-[#E84E27] text-white shadow-[0_2px_10px_rgba(255,97,56,0.3)] transition active:scale-[0.98] disabled:opacity-50 cursor-pointer"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Mark as Taken</span>
             </button>
-          ) : (
-            <div
-              title="Medication intake is recorded and locked into clinical adherence history."
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full bg-[#1E824C] text-white font-bold text-xs shadow-xs select-none"
-            >
-              <CheckCircle2 className="w-4 h-4 text-white" />
-              <span>✓ Dose Taken & Logged</span>
-            </div>
-          )}
-
-          {!isTaken && !showMissedHelp && (
-            <button
-              onClick={() => setShowMissedHelp(true)}
-              aria-label={`Need help with ${dose.medication_name}?`}
-              className="text-xs font-bold text-[#6B6282] hover:text-[#FF6138] hover:underline flex items-center gap-1 py-1 px-2 shrink-0 cursor-pointer"
-            >
-              <HelpCircle className="w-3.5 h-3.5" />
-            </button>
           )}
         </div>
       </div>
-
-      {showMissedHelp && !isTaken && (
-        <div className="mt-3.5 pt-3.5 border-t border-[#FFBE53]/40 bg-[#FFF8E7] rounded-[12px] p-3.5 space-y-2">
-          <div className="flex items-start gap-2.5">
-            <AlertCircle className="w-5 h-5 text-[#8C5A00] shrink-0 mt-0.5" />
-            <div className="space-y-1.5 flex-1">
-              <h4 className="text-xs font-bold text-[#2D2545]">
-                Your medicine was not recorded. Would you like some guidance?
-              </h4>
-              <p className="text-[11px] text-[#5D5570]">
-                Never double up your dose. We can check your medication monograph guidance.
-              </p>
-              <div className="flex flex-wrap items-center gap-2 pt-1">
-                <button
-                  onClick={handleTalkToAssistant}
-                  className="touch-target flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FF6138] hover:bg-[#E84E27] text-white font-bold text-xs shadow-xs transition"
-                >
-                  <MessageSquareHeart className="w-3.5 h-3.5" />
-                  <span>Talk with Companion</span>
-                </button>
-                <button
-                  onClick={() => setShowMissedHelp(false)}
-                  className="text-xs text-[#6B6282] hover:underline px-2 py-1 cursor-pointer"
-                >
-                  Dismiss
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
