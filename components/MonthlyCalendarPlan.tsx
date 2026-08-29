@@ -16,7 +16,11 @@ import {
   X,
   Pill,
   CalendarDays,
-  Check
+  Check,
+  HeartHandshake,
+  Quote,
+  Award,
+  Flame
 } from 'lucide-react';
 
 interface DayPlan {
@@ -50,7 +54,7 @@ export const MonthlyCalendarPlan: React.FC<MonthlyCalendarPlanProps> = ({
   const [isOpen, setIsOpen] = useState(initiallyExpanded);
   const [selectedDay, setSelectedDay] = useState<DayPlan | null>(null);
 
-  // Completed days set by user interaction / localStorage
+  // Completed days tracked from adherence history or current state
   const [completedDays, setCompletedDays] = useState<number[]>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -62,7 +66,7 @@ export const MonthlyCalendarPlan: React.FC<MonthlyCalendarPlanProps> = ({
   });
 
   const today = new Date();
-  const currentDayNum = today.getDate(); // e.g. 29
+  const currentDayNum = today.getDate();
   const monthName = today.toLocaleString('en-US', { month: 'long' });
   const year = today.getFullYear();
 
@@ -82,37 +86,7 @@ export const MonthlyCalendarPlan: React.FC<MonthlyCalendarPlanProps> = ({
     }
   }, [isTodayFullyTaken, currentDayNum]);
 
-  // Toggle or mark a day completed
-  const handleToggleDayCompleted = (dayNum: number) => {
-    let next: number[];
-    if (completedDays.includes(dayNum)) {
-      next = completedDays.filter((d) => d !== dayNum);
-    } else {
-      next = [...completedDays, dayNum].sort((a, b) => a - b);
-    }
-    setCompletedDays(next);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('aegiscare_completed_days_set', JSON.stringify(next));
-      window.dispatchEvent(new CustomEvent('aegiscare_days_updated', { detail: next }));
-    }
-
-    // Update selectedDay modal view in real time
-    if (selectedDay && selectedDay.dayNumber === dayNum) {
-      const isNowCompleted = next.includes(dayNum);
-      setSelectedDay({
-        ...selectedDay,
-        status: isNowCompleted ? 'COMPLETED' : 'UPCOMING',
-        dosesTaken: isNowCompleted ? selectedDay.totalDoses : 0,
-        doses: selectedDay.doses.map((d) => ({
-          ...d,
-          status: isNowCompleted ? 'TAKEN' : 'DUE',
-          takenAt: isNowCompleted ? 'Recorded' : undefined
-        }))
-      });
-    }
-  };
-
-  // Generate 30-Day Plan for the Month (Starting from 0)
+  // Generate 30-Day Plan for the Month
   const days: DayPlan[] = Array.from({ length: 30 }, (_, idx) => {
     const dayNum = idx + 1;
     const dateStr = `${year}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
@@ -120,21 +94,20 @@ export const MonthlyCalendarPlan: React.FC<MonthlyCalendarPlanProps> = ({
     const isToday = dayNum === currentDayNum;
 
     // Automated Checkpoints
-    const isCaregiverCheckpoint = dayNum % 3 === 0; // Day 3, 6, 9, 12, 15, 18, 21, 24, 27, 30
+    const isCaregiverCheckpoint = dayNum % 3 === 0; // Day 3, 6, 9...
     const isDoctorCheckpoint = dayNum === 5 || dayNum === 10 || dayNum === 20 || dayNum === 25;
 
     const isExplicitlyCompleted = completedDays.includes(dayNum);
 
     let status: 'COMPLETED' | 'IN_PROGRESS' | 'UPCOMING' | 'MISSED' = 'UPCOMING';
     let dosesTaken = 0;
-    const totalDoses = 3;
 
     if (isExplicitlyCompleted) {
       status = 'COMPLETED';
-      dosesTaken = totalDoses;
+      dosesTaken = 3;
     } else if (isToday) {
       if (todayDosesTaken > 0) {
-        status = 'IN_PROGRESS';
+        status = isTodayFullyTaken ? 'COMPLETED' : 'IN_PROGRESS';
         dosesTaken = todayDosesTaken;
       } else {
         status = 'IN_PROGRESS';
@@ -207,48 +180,105 @@ export const MonthlyCalendarPlan: React.FC<MonthlyCalendarPlanProps> = ({
   const completedDaysCount = completedDays.length;
   const adherencePercentage = Math.round((completedDaysCount / 30) * 100);
 
+  const getDayMotivationQuote = (day: DayPlan, patientName: string) => {
+    const isAllTaken = day.status === 'COMPLETED' || (day.dosesTaken > 0 && day.dosesTaken >= day.totalDoses);
+    const isPartiallyTaken = day.dosesTaken > 0 && day.dosesTaken < day.totalDoses;
+
+    if (isAllTaken) {
+      const quotes = [
+        `🌟 "Outstanding commitment, ${patientName}! Completing all your scheduled doses today is a huge victory for your wellness and memory protection."`,
+        `🏆 "Brilliant consistency, ${patientName}! Your dedication creates steady mental clarity. You and your care team can be truly proud today!"`,
+        `✨ "Every dose taken on time strengthens your daily health foundation. Wonderful job finishing today's routine, ${patientName}!"`
+      ];
+      return {
+        badge: '🌟 Daily Adherence Accomplished',
+        quote: quotes[day.dayNumber % quotes.length],
+        bgColor: 'bg-[#EAF8F0]',
+        borderColor: 'border-[#1E824C]/30',
+        textColor: 'text-[#136B3B]',
+        iconColor: 'text-[#1E824C]'
+      };
+    }
+
+    if (isPartiallyTaken) {
+      return {
+        badge: '🌱 Great Progress Made Today',
+        quote: `“Step by step, you are doing wonderfully, ${patientName}! You have already logged ${day.dosesTaken} dose(s) today. Stay gentle with yourself and continue your routine!”`,
+        bgColor: 'bg-[#FFF8E7]',
+        borderColor: 'border-[#FFBE53]/40',
+        textColor: 'text-[#8C5A00]',
+        iconColor: 'text-[#D97706]'
+      };
+    }
+
+    if (day.isToday) {
+      return {
+        badge: "🌸 Today's Gentle Encouragement",
+        quote: `“Good day, ${patientName}! Taking your medicine at your scheduled time gives you the peace of mind to enjoy each day with clarity and strength.”`,
+        bgColor: 'bg-[#FFF0EB]',
+        borderColor: 'border-[#FF6138]/30',
+        textColor: 'text-[#A03518]',
+        iconColor: 'text-[#FF6138]'
+      };
+    }
+
+    // Future / Other Days
+    const generalQuotes = [
+      `“Consistency is the kindest gift you can give your mind and body. One day at a time, ${patientName}! 🌿”`,
+      `“Small daily healthy habits create great long-term wellness. Your care team is right beside you! 💖”`,
+      `“Every single step in your routine helps protect your memory and keeps your loved ones smiling! 🌟”`
+    ];
+
+    return {
+      badge: `🌱 Day ${day.dayNumber} Care Motivation`,
+      quote: generalQuotes[day.dayNumber % generalQuotes.length],
+      bgColor: 'bg-[#F8FAFC]',
+      borderColor: 'border-[#CBD5E1]',
+      textColor: 'text-[#334155]',
+      iconColor: 'text-[#4E89FF]'
+    };
+  };
+
   return (
     <div id="monthly-plan-section" className="bg-white border border-[#EFEAE1] rounded-[20px] p-4 sm:p-5 shadow-[0_4px_20px_rgba(45,37,69,0.04)] space-y-4 animate-fade-in transition-all">
-      {/* Sleek Compact Header & Dropdown Trigger */}
-      <div
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer select-none group"
-      >
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-[12px] bg-gradient-to-tr from-[#FF6138] to-[#FF8C6B] text-white flex items-center justify-center font-bold shadow-xs shrink-0 group-hover:scale-105 transition">
+          <div className="w-10 h-10 rounded-[12px] bg-[#FFF0EB] text-[#FF6138] flex items-center justify-center shadow-xs shrink-0">
             <CalendarDays className="w-5 h-5" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-base sm:text-lg font-extrabold text-[#2D2545] font-['Outfit'] group-hover:text-[#FF6138] transition">
-                30-Day Medication Plan
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="text-lg font-extrabold text-[#2D2545] font-['Outfit']">
+                30-Day Monthly Medication Adherence Plan
               </h2>
-              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#EAF8F0] text-[#136B3B] border border-[#1E824C]/25">
-                {completedDaysCount}/30 Days Done ({adherencePercentage}%)
+              <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#EAF8F0] text-[#1E824C] font-bold border border-[#1E824C]/20">
+                Month of {monthName} {year}
               </span>
             </div>
             <p className="text-xs text-[#6B6282] font-medium mt-0.5">
-              {monthName} {year} • Automated Day 3 Caregiver & Day 5/10 Doctor Safeguards
+              Automated 30-day tracking • Telemetry checkpoints for Caregiver Priya & Dr. Mehta
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-center">
-          <div className="hidden md:flex items-center gap-1.5 text-xs text-[#6B6282]">
-            <span className="px-2 py-0.5 rounded-full bg-[#FFF8E7] text-[#8C5A00] font-bold text-[10px] border border-[#FFBE53]/30">
-              Caregiver (Day 3)
+        {/* Adherence Rate & Dropdown Toggle */}
+        <div className="flex items-center gap-2.5 self-end sm:self-auto">
+          <div className="text-right hidden xs:block">
+            <span className="text-[10px] uppercase font-bold text-[#988EA8] block leading-none">
+              30-Day Progress
             </span>
-            <span className="px-2 py-0.5 rounded-full bg-[#F2EDFF] text-[#5B31D8] font-bold text-[10px] border border-[#7952EC]/30">
-              Doctor (Day 5 & 10)
+            <span className="text-sm font-extrabold text-[#1E824C] font-['Outfit']">
+              {completedDaysCount}/30 Days ({adherencePercentage}%)
             </span>
           </div>
 
           <button
             type="button"
-            aria-expanded={isOpen}
-            className="touch-target flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FAF7F2] hover:bg-[#FFF0EB] text-[#2D2545] hover:text-[#FF6138] border border-[#EFEAE1] font-bold text-xs shadow-2xs transition"
+            onClick={() => setIsOpen(!isOpen)}
+            className="touch-target flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#FAF7F2] hover:bg-[#F0EBE0] text-[#40365D] border border-[#EFEAE1] font-bold text-xs shadow-2xs transition active:scale-[0.98] cursor-pointer"
           >
-            <span>{isOpen ? 'Hide Calendar' : 'View 30-Day Dropdown'}</span>
+            <span>{isOpen ? 'Collapse Calendar' : 'View Full 30-Day Log'}</span>
             {isOpen ? <ChevronUp className="w-4 h-4 text-[#FF6138]" /> : <ChevronDown className="w-4 h-4 text-[#FF6138]" />}
           </button>
         </div>
@@ -260,9 +290,9 @@ export const MonthlyCalendarPlan: React.FC<MonthlyCalendarPlanProps> = ({
           {/* Automated Safeguards Explanation */}
           <div className="p-3 bg-[#FAF7F2] border border-[#EFEAE1] rounded-[12px] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#FF6138] shrink-0" />
+              <Sparkles className="w-4 h-4 text-[#FF6138]" />
               <span className="text-[#40365D] font-medium leading-relaxed">
-                <strong>Interactive 30-Day Calendar:</strong> Click on any Day (Day 1, Day 2, Day 3...) to view doses or mark that day as taken. If 3 consecutive days are missed, Day 3 automatically alerts Caregiver <strong>Priya</strong> on Telegram. If missed through Day 5, clinical telemetry escalates directly to <strong>Dr. Aarav Mehta (Physician)</strong>.
+                <strong>Interactive 30-Day Medication Log:</strong> Click on any Day (Day 1, Day 2...) to inspect your logged doses and read daily health motivation quotes. Doses are tracked individually as you take them. If 3 consecutive days are missed, Day 3 automatically alerts Caregiver <strong>Priya</strong> on Telegram. If missed through Day 5, clinical telemetry escalates directly to <strong>Dr. Aarav Mehta (Physician)</strong>.
               </span>
             </div>
             <span className="shrink-0 text-[10px] font-bold text-[#1E824C] bg-[#EAF8F0] px-2.5 py-0.5 rounded-full border border-[#1E824C]/20">
@@ -285,52 +315,57 @@ export const MonthlyCalendarPlan: React.FC<MonthlyCalendarPlanProps> = ({
                     isDone
                       ? 'bg-[#EAF8F0] border-[#1E824C]/35 hover:border-[#1E824C]'
                       : isToday
-                      ? 'bg-white border-[#FF6138] ring-2 ring-[#FF6138]/20 shadow-xs'
-                      : 'bg-[#FAF7F2] border-[#EFEAE1] hover:border-[#CBD5E1]'
+                      ? 'bg-[#FFF0EB] border-[#FF6138] ring-2 ring-[#FF6138]/20 shadow-xs'
+                      : 'bg-[#FAF7F2] border-[#EFEAE1] hover:border-[#FF6138]/40 hover:bg-white'
                   }`}
                 >
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-black text-[#2D2545] font-['Outfit']">
-                        Day {day.dayNumber}
-                      </span>
-                      <span className="text-[9px] font-semibold text-[#6B6282]">
-                        {day.displayDate}
-                      </span>
-                    </div>
+                  {/* Top Day Header */}
+                  <div className="flex items-center justify-between w-full">
+                    <span className={`text-xs font-black font-['Outfit'] ${isToday ? 'text-[#FF6138]' : isDone ? 'text-[#1E824C]' : 'text-[#2D2545]'}`}>
+                      Day {day.dayNumber}
+                    </span>
 
-                    <div className="my-0.5">
-                      {isDone ? (
-                        <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#1E824C] text-white shadow-2xs">
-                          <CheckCircle2 className="w-2.5 h-2.5" /> {day.dosesTaken}/{day.totalDoses} Done
+                    {isDone ? (
+                      <span className="w-4 h-4 rounded-full bg-[#1E824C] text-white flex items-center justify-center text-[10px]">
+                        ✓
+                      </span>
+                    ) : isToday ? (
+                      <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-[#FF6138] text-white uppercase tracking-wider">
+                        Today
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-[#988EA8]">
+                        {day.dosesTaken}/{day.totalDoses}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Date & Checkpoint Badges */}
+                  <div className="mt-1.5 space-y-1">
+                    <span className="text-[10px] text-[#6B6282] block">
+                      {day.displayDate}
+                    </span>
+
+                    <div className="flex flex-wrap gap-1">
+                      {day.isCaregiverCheckpoint && (
+                        <span className="text-[8px] font-extrabold px-1.5 py-0.2 rounded-full bg-[#FFF8E7] text-[#8C5A00] border border-[#FFBE53]/40" title="Caregiver Priya Telemetry Checkpoint">
+                          Priya
                         </span>
-                      ) : isToday ? (
-                        <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#FFF0EB] text-[#FF6138] border border-[#FF6138]/25">
-                          <Clock className="w-2.5 h-2.5" /> Today ({day.dosesTaken}/{day.totalDoses})
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#EFEAE1] text-[#6B6282]">
-                          Scheduled
+                      )}
+                      {day.isDoctorCheckpoint && (
+                        <span className="text-[8px] font-extrabold px-1.5 py-0.2 rounded-full bg-[#F2EDFF] text-[#5B31D8] border border-[#7952EC]/30" title="Dr. Aarav Mehta Clinical Checkpoint">
+                          Dr. Mehta
                         </span>
                       )}
                     </div>
                   </div>
 
-                  <div className="mt-1.5 pt-1 border-t border-[#EFEAE1]/60 flex items-center justify-between text-[8.5px] font-bold">
-                    {day.isCaregiverCheckpoint && (
-                      <span className="text-[#8C5A00] flex items-center gap-0.5" title="Day 3 Safeguard: 2-Day Missed Alert to Caregiver">
-                        <ShieldAlert className="w-2.5 h-2.5 text-[#FFBE53]" /> Caregiver
-                      </span>
-                    )}
-                    {day.isDoctorCheckpoint && (
-                      <span className="text-[#5B31D8] flex items-center gap-0.5" title="Day 5 / 10 Safeguard: Physician Telemetry Alert">
-                        <Stethoscope className="w-2.5 h-2.5 text-[#7952EC]" /> Doctor
-                      </span>
-                    )}
-                    {!day.isCaregiverCheckpoint && !day.isDoctorCheckpoint && (
-                      <span className="text-[#988EA8]">Daily 3 Doses</span>
-                    )}
-                    <ChevronRight className="w-2.5 h-2.5 text-[#988EA8] opacity-0 group-hover:opacity-100 transition" />
+                  {/* Bottom Status Tag */}
+                  <div className="mt-2 pt-1 border-t border-black/5 flex items-center justify-between text-[10px]">
+                    <span className={`font-bold ${isDone ? 'text-[#1E824C]' : isToday ? 'text-[#FF6138]' : 'text-[#988EA8]'}`}>
+                      {isDone ? '✓ Logged' : isToday ? `${day.dosesTaken}/${day.totalDoses} Taken` : 'Scheduled'}
+                    </span>
+                    <ChevronRight className="w-3 h-3 text-[#988EA8] opacity-0 group-hover:opacity-100 transition" />
                   </div>
                 </button>
               );
@@ -339,20 +374,21 @@ export const MonthlyCalendarPlan: React.FC<MonthlyCalendarPlanProps> = ({
         </div>
       )}
 
-      {/* Selected Day Inspector Modal */}
+      {/* Day Inspector & Appreciation Modal */}
       {selectedDay && (
-        <div className="fixed inset-0 z-55 flex items-center justify-center p-4 bg-[#1E1A2E]/60 backdrop-blur-xs animate-fade-in">
-          <div className="bg-white border border-[#EFEAE1] rounded-[20px] p-6 max-w-md w-full shadow-[0_20px_50px_rgba(45,37,69,0.25)] space-y-4 animate-scale-up">
-            <div className="flex items-center justify-between border-b border-[#F4EFE6] pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-[20px] max-w-md w-full p-5 sm:p-6 space-y-4 shadow-[0_20px_60px_rgba(45,37,69,0.2)] border border-[#EFEAE1] max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-[#F4EFE6]">
               <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-[12px] bg-[#FFF0EB] text-[#FF6138] flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-[12px] bg-[#FFF0EB] text-[#FF6138] flex items-center justify-center shadow-xs shrink-0">
                   <Calendar className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-extrabold text-[#2D2545] font-['Outfit']">
+                  <h3 className="font-extrabold text-base text-[#2D2545] font-['Outfit']">
                     Day {selectedDay.dayNumber} Adherence Log
                   </h3>
-                  <p className="text-xs text-[#6B6282] font-medium">
+                  <p className="text-xs text-[#6B6282]">
                     {selectedDay.displayDate}, {year} • {selectedDay.dosesTaken}/{selectedDay.totalDoses} Doses Recorded
                   </p>
                 </div>
@@ -411,27 +447,25 @@ export const MonthlyCalendarPlan: React.FC<MonthlyCalendarPlanProps> = ({
               ))}
             </div>
 
-            {/* Mark Day Completed / Due Action Button */}
-            <div className="pt-1">
-              {completedDays.includes(selectedDay.dayNumber) ? (
-                <button
-                  type="button"
-                  onClick={() => handleToggleDayCompleted(selectedDay.dayNumber)}
-                  className="touch-target w-full py-2.5 rounded-full bg-[#FAF7F2] hover:bg-[#F0EBE0] text-[#6B6282] border border-[#EFEAE1] font-bold text-xs shadow-2xs transition active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <span>↩️ Mark Day {selectedDay.dayNumber} as Incomplete / Due</span>
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => handleToggleDayCompleted(selectedDay.dayNumber)}
-                  className="touch-target w-full py-2.5 rounded-full bg-[#1E824C] hover:bg-[#166E3F] text-white font-bold text-xs shadow-xs transition active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <Check className="w-4 h-4" />
-                  <span>Mark Day {selectedDay.dayNumber} Done (All 3 Doses Taken)</span>
-                </button>
-              )}
-            </div>
+            {/* Daily Appreciation & Motivational Quote Card */}
+            {(() => {
+              const motivation = getDayMotivationQuote(selectedDay, profile.preferred_name || profile.name || 'Friend');
+              return (
+                <div className={`p-4 rounded-[16px] border ${motivation.bgColor} ${motivation.borderColor} space-y-2 relative overflow-hidden shadow-xs`}>
+                  <div className="flex items-center justify-between">
+                    <span className={`text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${motivation.textColor}`}>
+                      <Sparkles className={`w-3.5 h-3.5 ${motivation.iconColor}`} />
+                      {motivation.badge}
+                    </span>
+                    <HeartHandshake className={`w-4 h-4 ${motivation.iconColor} opacity-70`} />
+                  </div>
+
+                  <p className={`text-xs ${motivation.textColor} font-medium leading-relaxed italic`}>
+                    {motivation.quote}
+                  </p>
+                </div>
+              );
+            })()}
 
             {/* Safeguard Telemetry Status */}
             <div className="p-3 bg-[#FAF7F2] rounded-[12px] border border-[#EFEAE1] text-xs space-y-1">
@@ -441,7 +475,7 @@ export const MonthlyCalendarPlan: React.FC<MonthlyCalendarPlanProps> = ({
               </div>
               <p className="text-[11px] text-[#6B6282] leading-relaxed">
                 {selectedDay.isCaregiverCheckpoint
-                  ? '⚠️ Caregiver Checkpoint (Day 3, 6, 9...): If 3 consecutive days were missed, Telegram notification dispatches automatically to Priya.'
+                  ? '⚠️ Caregiver Checkpoint (Day 3, 6, 9...): If 3 consecutive days are missed, Telegram notification dispatches automatically to Priya.'
                   : selectedDay.isDoctorCheckpoint
                   ? '🚨 Physician Telemetry Checkpoint (Day 5, 10...): Adherence summary escalates directly to Dr. Aarav Mehta.'
                   : '✓ Normal Routine Monitored: Patient is maintaining consistent adherence.'}
