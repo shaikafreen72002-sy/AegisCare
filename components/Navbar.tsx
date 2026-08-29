@@ -2,8 +2,11 @@
 
 import React from 'react';
 import { usePatient, ActiveTab } from '@/lib/context/PatientContext';
+import { DeMentorLogo } from './DeMentorLogo';
 import {
   Home,
+  Calendar,
+  MessageSquare,
   MessageSquareText,
   ShieldAlert,
   Users,
@@ -47,7 +50,7 @@ export const Navbar: React.FC = () => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(
-        `Hello ${profile.preferred_name || profile.name}. This is your AegisCare medication reminder call. It is time to take your ${profile.primary_medication?.name || 'prescribed medication'} ${profile.primary_medication?.dosage || '10 mg'} with a fresh glass of water.`
+        `Hello ${profile.preferred_name || profile.name}. This is your DeMentor medication reminder call. It is time to take your ${profile.primary_medication?.name || 'prescribed medication'} ${profile.primary_medication?.dosage || '10 mg'} with a fresh glass of water.`
       );
       utterance.rate = 0.92;
       utterance.pitch = 1.0;
@@ -60,14 +63,14 @@ export const Navbar: React.FC = () => {
     {
       id: 'dashboard',
       label: "Today's Routine",
-      icon: <Home className="w-5 h-5" aria-hidden="true" />,
-      ariaLabel: "Go to Today's Routine Dashboard"
+      icon: <Calendar className="w-5 h-5" aria-hidden="true" />,
+      ariaLabel: "Go to Today's Medication Routine Dashboard"
     },
     {
       id: 'chat',
       label: 'AI Companion',
-      icon: <MessageSquareText className="w-5 h-5" aria-hidden="true" />,
-      ariaLabel: 'Go to Conversational Medication Assistant'
+      icon: <MessageSquare className="w-5 h-5" aria-hidden="true" />,
+      ariaLabel: 'Open AI Clinical Chat Companion'
     },
     {
       id: 'caregiver',
@@ -87,24 +90,11 @@ export const Navbar: React.FC = () => {
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#EFEAE1] shadow-[0_2px_12px_rgba(45,37,69,0.04)]">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between py-3 border-b border-[#F4EFE6] gap-2">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-[12px] bg-gradient-to-tr from-[#FF6138] to-[#FF8C6B] flex items-center justify-center text-white shadow-[0_2px_8px_rgba(255,97,56,0.3)] font-bold text-lg shrink-0">
-              <Activity className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-xl tracking-tight text-[#2D2545] font-['Outfit']">
-                  AegisCare
-                </span>
-                <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#FFF0EB] text-[#FF6138] font-bold border border-[#FF6138]/20 hidden sm:inline-block">
-                  Verified Clinical AI
-                </span>
-              </div>
-              <p className="text-xs text-[#6B6282] font-medium">
-                Medication Adherence Companion • {profile.preferred_name || profile.name}
-              </p>
-            </div>
-          </div>
+          {/* Innovative DeMentor Brand Logo */}
+          <DeMentorLogo
+            size="md"
+            subtitle={`Medication Adherence Companion • ${profile.preferred_name || profile.name}`}
+          />
 
           <div className="hidden xl:flex items-center gap-2">
             {/* Caregiver Badge */}

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { usePatient } from '@/lib/context/PatientContext';
+import { DeMentorLogo } from '@/components/DeMentorLogo';
 import {
   Activity,
   Mail,
@@ -106,22 +107,9 @@ export const LoginPage: React.FC = () => {
   return (
     <div className="min-h-[85vh] flex items-center justify-center py-6 px-4">
       <div className="max-w-md w-full bg-white border border-[#EFEAE1] rounded-[20px] p-6 sm:p-8 shadow-[0_8px_30px_rgba(45,37,69,0.06)] animate-fade-in">
-        {/* Brand Header */}
-        <div className="text-center space-y-2 mb-6">
-          <div className="w-12 h-12 rounded-[14px] bg-gradient-to-tr from-[#FF6138] to-[#FF8C6B] text-white flex items-center justify-center mx-auto shadow-[0_4px_12px_rgba(255,97,56,0.3)]">
-            <Activity className="w-7 h-7" />
-          </div>
-          <div>
-            <div className="flex items-center justify-center gap-1.5">
-              <h1 className="text-2xl font-extrabold text-[#2D2545] font-['Outfit']">AegisCare</h1>
-              <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#FFF0EB] text-[#FF6138] font-bold border border-[#FF6138]/20">
-                Clinical Companion
-              </span>
-            </div>
-            <p className="text-xs text-[#6B6282] font-medium mt-0.5">
-              Evidence-Grounded Medication Adherence Companion
-            </p>
-          </div>
+        {/* DeMentor Brand Header */}
+        <div className="flex justify-center mb-6">
+          <DeMentorLogo size="lg" subtitle="Evidence-Grounded Dementia Adherence Coach" />
         </div>
 
         {/* Primary Auth Mode Switcher: Log In (Existing) vs Sign In / Register (New User) */}
@@ -272,7 +260,7 @@ export const LoginPage: React.FC = () => {
                 disabled={isLoading}
                 className="touch-target w-full h-[46px] rounded-full bg-[#FF6138] hover:bg-[#E84E27] text-white font-bold text-sm shadow-[0_4px_14px_rgba(255,97,56,0.3)] transition active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer mt-2"
               >
-                <span>{isLoading ? 'Signing In...' : 'Log In to AegisCare'}</span>
+                <span>{isLoading ? 'Signing In...' : 'Log In to DeMentor'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>

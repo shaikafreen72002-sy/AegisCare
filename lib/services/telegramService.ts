@@ -166,7 +166,7 @@ export class TelegramService {
 
       if (!welcomedChats.has(chatId) && (text.startsWith('/start') || text.toLowerCase().includes('hello') || text.toLowerCase().includes('hi'))) {
         welcomedChats.add(chatId);
-        const welcomeText = `🌸 *Welcome to AegisCare Medication Coach!* 🌸\n\nI am your personalized clinical adherence companion for *Donepezil / Memory Care*.\n\n✅ *Telegram Connected Successfully!*\nChat ID: \`${chatId}\`\n\nWhen it is time for your medication (e.g. 8:00 PM), I will send you interactive reminders with quick confirmation buttons right here.`;
+        const welcomeText = `🌸 *Welcome to DeMentor Medication Coach!* 🌸\n\nI am your personalized clinical adherence companion for *Donepezil / Memory Care*.\n\n✅ *Telegram Connected Successfully!*\nChat ID: \`${chatId}\`\n\nWhen it is time for your medication (e.g. 8:00 PM), I will send you interactive reminders with quick confirmation buttons right here.`;
 
         await fetch(`${TELEGRAM_API_BASE}/sendMessage`, {
           method: 'POST',

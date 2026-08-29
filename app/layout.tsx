@@ -3,7 +3,7 @@ import './globals.css';
 import { PatientProvider } from '@/lib/context/PatientContext';
 
 export const metadata: Metadata = {
-  title: 'AegisCare — Patient Medication Adherence Coach',
+  title: 'DeMentor — AI Dementia Medication & Memory Companion',
   description: 'Evidence-grounded, accessible, multi-agent AI medication adherence coach for dementia and memory care.'
 };
 

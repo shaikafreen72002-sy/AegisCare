@@ -195,7 +195,7 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
             </span>
           </div>
           <p className="text-xs text-[#2D503C] leading-relaxed">
-            <strong>Dementia Care Automation:</strong> Because patients often forget to set alarms or open apps, AegisCare dispatches reminders <strong>automatically every single day</strong> to Telegram at <strong>8:00 AM</strong>, <strong>1:00 PM</strong>, and <strong>8:00 PM</strong>. No daily app setup is required!
+            <strong>Dementia Care Automation:</strong> Because patients often forget to set alarms or open apps, DeMentor dispatches reminders <strong>automatically every single day</strong> to Telegram at <strong>8:00 AM</strong>, <strong>1:00 PM</strong>, and <strong>8:00 PM</strong>. No daily app setup is required!
           </p>
         </div>
 

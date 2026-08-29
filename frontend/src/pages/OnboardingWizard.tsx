@@ -609,7 +609,7 @@ export const OnboardingWizard: React.FC = () => {
               {step === 6
                 ? 'Generate Agentic Care Plan'
                 : step === 7
-                ? 'Enter AegisCare Dashboard'
+                ? 'Enter DeMentor Dashboard'
                 : 'Next Step'}
             </span>
             <ArrowRight className="w-4 h-4" />

@@ -422,7 +422,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
                         </span>
                       ) : (
                         <span className="text-xs font-bold text-[#FF6138] flex items-center gap-1">
-                          <Bot className="w-3.5 h-3.5" /> AegisCare Clinical AI
+                          <Bot className="w-3.5 h-3.5" /> DeMentor Clinical AI
                         </span>
                       )}
                     </div>

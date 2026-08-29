@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { usePatient } from '../context/PatientContext';
+import { DeMentorLogo } from '../components/DeMentorLogo';
 import { Activity, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, Sparkles, UserCheck, ShieldCheck } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
@@ -44,21 +45,8 @@ export const LoginPage: React.FC = () => {
     <div className="min-h-[85vh] flex items-center justify-center py-6 px-4">
       <div className="max-w-md w-full bg-white border border-[#E2E8F0] rounded-[12px] p-6 sm:p-8 shadow-[0_4px_12px_rgba(15,23,42,0.08)] animate-fade-in">
         {/* Brand Header */}
-        <div className="text-center space-y-2 mb-6">
-          <div className="w-12 h-12 rounded-[10px] bg-[#2F80ED] text-white flex items-center justify-center mx-auto shadow-sm">
-            <Activity className="w-7 h-7" />
-          </div>
-          <div>
-            <div className="flex items-center justify-center gap-1.5">
-              <h1 className="text-2xl font-bold text-[#0F172A]">AegisCare</h1>
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#EAF3FF] text-[#2F80ED] font-semibold border border-[#CBD5E1]/40">
-                Clinical Portal
-              </span>
-            </div>
-            <p className="text-xs text-[#64748B] mt-0.5">
-              Evidence-Grounded Medication Adherence Companion
-            </p>
-          </div>
+        <div className="flex justify-center mb-6">
+          <DeMentorLogo size="lg" subtitle="Evidence-Grounded Dementia Adherence Coach" />
         </div>
 
         {/* Method Switcher */}
@@ -163,7 +151,7 @@ export const LoginPage: React.FC = () => {
             disabled={isLoading}
             className="touch-target w-full h-[44px] rounded-[8px] bg-[#2F80ED] hover:bg-[#2563D9] text-white font-semibold text-sm shadow-sm transition active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
           >
-            <span>{isLoading ? 'Signing In...' : 'Sign In to AegisCare'}</span>
+            <span>{isLoading ? 'Signing In...' : 'Sign In to DeMentor'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>

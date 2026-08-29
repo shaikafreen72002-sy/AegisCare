@@ -1,6 +1,7 @@
 import React from 'react';
 import { usePatient } from '../context/PatientContext';
 import type { ActiveTab } from '../context/PatientContext';
+import { DeMentorLogo } from './DeMentorLogo';
 import {
   Home,
   MessageSquareText,
@@ -63,24 +64,10 @@ export const Navbar: React.FC = () => {
         {/* Top Header Row */}
         <div className="flex items-center justify-between py-3 border-b border-[#F1F5F9] gap-2">
           {/* Logo & Brand */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-[8px] bg-[#2F80ED] flex items-center justify-center text-white shadow-sm font-bold text-lg shrink-0">
-              <Activity className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-xl tracking-tight text-[#0F172A]">
-                  AegisCare
-                </span>
-                <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#EAF3FF] text-[#2F80ED] font-semibold border border-[#CBD5E1]/40 hidden sm:inline-block">
-                  Verified Clinical AI
-                </span>
-              </div>
-              <p className="text-xs text-[#64748B] font-medium">
-                Medication Adherence Coach • {profile.preferred_name || profile.name}
-              </p>
-            </div>
-          </div>
+          <DeMentorLogo
+            size="md"
+            subtitle={`Medication Adherence Coach • ${profile.preferred_name || profile.name}`}
+          />
 
           {/* Top Caregiver Banner Badge */}
           <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#F0FDF4] border border-[#16A34A]/30 rounded-[8px]">
