@@ -99,7 +99,24 @@ export class EmpatheticCommunicatorAgent {
     if (llmResp) return llmResp;
 
     // Deterministic Clinical Fallback
-    if (/miss|forgot|skip/.test(qLower)) {
+    if (/dizzy|nausea|side effect|cramp|vomit|headache|tired|insomnia|diarrhea|stomach|appetite|reaction|adverse|symptom/.test(qLower)) {
+      return (
+        `Hello ${patientName} 🌸\n\n` +
+        `When taking Donepezil (5mg), mild dizziness and slight nausea are well-known, temporary reactions as your body gently adjusts over the first 1 to 3 weeks.\n\n` +
+        `📋 **Other Known Monograph Symptoms to Be Aware Of**:\n` +
+        `• **Mild Nausea or Upset Stomach**\n` +
+        `• **Diarrhea or Loose Stools**\n` +
+        `• **Tiredness & Fatigue**\n` +
+        `• **Muscle Cramps & Spasms**\n` +
+        `• **Sleep Changes or Insomnia**\n` +
+        `• **Mild Headache & Decreased Appetite**\n\n` +
+        `💡 **Helpful Comfort Tips**:\n` +
+        `1. Take your tablet with a small evening snack, crackers, or a warm glass of milk to soothe your stomach.\n` +
+        `2. Stand up slowly from sitting or lying down to prevent lightheadedness.\n` +
+        `3. Drink plenty of fresh water throughout the day.\n\n` +
+        `⚠️ **Important Safety Warning**: If you ever experience severe dizziness, a sudden slow heartbeat/pulse, fainting, or chest pain, please sit down immediately and contact Dr. Aarav Mehta and your caregiver Priya right away.`
+      );
+    } else if (/miss|forgot|skip/.test(qLower)) {
       return `Hi ${patientName} 😊\n\nIf you missed your dose, the official guide advises: do NOT take an extra or double dose. Simply skip the missed tablet and resume your normal single dose at the next scheduled time.`;
     } else if (/food|eat|meal/.test(qLower)) {
       return `Hi ${patientName} 😊\n\nYou can take your tablet with or without food. If you ever feel a little stomach sensitivity, taking it with a small evening snack or warm milk helps soothe your stomach.`;
@@ -115,7 +132,34 @@ export class EmpatheticCommunicatorAgent {
     evidenceText: string,
     recommendedAction: string
   ): Promise<string | null> {
-    const prompt = `You are a Senior Clinical Pharmacist and Empathetic Medical Companion for ${patientName} (who is prescribed Donepezil 5mg for dementia/memory care).\nUser Question: '${userQuery}'\nClinical Evidence & Monograph:\n${evidenceText}\nSafety Status: ${status}\nRecommended Action: ${recommendedAction}\n\nInstructions:\n1. Answer like an expert clinical pharmacist and caring doctor: clear, authoritative, comforting, and scientifically accurate.\n2. Keep sentences clear and accessible for a senior/dementia patient (max 3-4 sentences).\n3. Strictly NO double dose recommendations.\n4. Give exactly ONE clear, reassuring action.`;
+    const isSideEffectQuery = /side effect|dizzy|nausea|cramp|vomit|headache|tired|insomnia|diarrhea|stomach|reaction|adverse|symptom/.test(userQuery.toLowerCase());
+
+    const prompt = isSideEffectQuery
+      ? `You are a Senior Clinical Pharmacist and Empathetic Medical Companion for ${patientName} (who is prescribed Donepezil 5mg for dementia/memory care).
+User Question: '${userQuery}'
+Clinical Evidence & Monograph:
+${evidenceText}
+Safety Status: ${status}
+Recommended Action: ${recommendedAction}
+
+Instructions for Side Effects:
+1. Reassure the patient warmly that mild dizziness and slight nausea are common and temporary (often resolving in 1-3 weeks as the body adjusts).
+2. Explicitly outline the other known monograph side effects: mild nausea, diarrhea, fatigue, muscle cramps, sleep changes/insomnia, and decreased appetite.
+3. Provide practical comfort tips: take with a light evening snack/milk, stay hydrated with water, and stand up slowly.
+4. Clearly state red-flag warning signs: any severe dizziness, sudden slow pulse/heart rate, fainting, or chest pain must be reported immediately to Dr. Aarav Mehta.
+5. Keep language warm, comforting, and easily readable for a senior.`
+      : `You are a Senior Clinical Pharmacist and Empathetic Medical Companion for ${patientName} (who is prescribed Donepezil 5mg for dementia/memory care).
+User Question: '${userQuery}'
+Clinical Evidence & Monograph:
+${evidenceText}
+Safety Status: ${status}
+Recommended Action: ${recommendedAction}
+
+Instructions:
+1. Answer like an expert clinical pharmacist and caring doctor: clear, authoritative, comforting, and scientifically accurate.
+2. Keep sentences clear and accessible for a senior/dementia patient (max 3-4 sentences).
+3. Strictly NO double dose recommendations.
+4. Give exactly ONE clear, reassuring action.`;
 
     try {
       const res = await fetch('https://api.mistral.ai/v1/chat/completions', {
@@ -127,11 +171,11 @@ export class EmpatheticCommunicatorAgent {
         body: JSON.stringify({
           model: MISTRAL_MODEL,
           messages: [
-            { role: 'system', content: 'You are a Senior Clinical Pharmacist and Geriatric Doctor Companion. Return only the warm, authoritative medical guidance text.' },
+            { role: 'system', content: 'You are a Senior Clinical Pharmacist and Geriatric Doctor Companion. Return only warm, authoritative, monograph-grounded medical guidance text.' },
             { role: 'user', content: prompt }
           ],
           temperature: 0.1,
-          max_tokens: 250
+          max_tokens: 350
         }),
         signal: AbortSignal.timeout(6000)
       });

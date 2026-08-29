@@ -135,13 +135,31 @@ class EmpatheticCommunicatorAgent:
             return llm_response
 
         # Deterministic Fallback if offline
-        if "miss" in user_query.lower() or "forgot" in user_query.lower():
+        q_lower = user_query.lower()
+        if any(w in q_lower for w in ["dizzy", "nausea", "side effect", "cramp", "vomit", "headache", "tired", "insomnia", "diarrhea", "stomach", "appetite", "reaction", "adverse", "symptom"]):
+            return (
+                f"Hello {patient_name} 🌸\n\n"
+                f"When taking Donepezil (5mg), mild dizziness and slight nausea are well-known, temporary reactions as your body gently adjusts over the first 1 to 3 weeks.\n\n"
+                f"📋 **Other Known Monograph Symptoms to Be Aware Of**:\n"
+                f"• **Mild Nausea or Upset Stomach**\n"
+                f"• **Diarrhea or Loose Stools**\n"
+                f"• **Tiredness & Fatigue**\n"
+                f"• **Muscle Cramps & Spasms**\n"
+                f"• **Sleep Changes or Insomnia**\n"
+                f"• **Mild Headache & Decreased Appetite**\n\n"
+                f"💡 **Helpful Comfort Tips**:\n"
+                f"1. Take your tablet with a small evening snack, crackers, or a warm glass of milk to soothe your stomach.\n"
+                f"2. Stand up slowly from sitting or lying down to prevent lightheadedness.\n"
+                f"3. Drink plenty of fresh water throughout the day.\n\n"
+                f"⚠️ **Important Safety Warning**: If you ever experience severe dizziness, a sudden slow heartbeat/pulse, fainting, or chest pain, please sit down immediately and contact Dr. Aarav Mehta and your caregiver Priya right away."
+            )
+        elif "miss" in q_lower or "forgot" in q_lower:
             return (
                 f"Hi {patient_name} 😊\n\n"
                 f"If you missed your dose, the official guide advises: do NOT take an extra or double dose. "
                 f"Simply skip the missed tablet and resume your normal single dose at the next scheduled time."
             )
-        elif "food" in user_query.lower() or "eat" in user_query.lower():
+        elif "food" in q_lower or "eat" in q_lower:
             return (
                 f"Hi {patient_name} 😊\n\n"
                 f"You can take your tablet with or without food. If you ever feel a little stomach sensitivity, taking it with a small evening snack or warm milk helps soothe your stomach."
@@ -161,18 +179,35 @@ class EmpatheticCommunicatorAgent:
         recommended_action: str
     ) -> Optional[str]:
         api_key = self.mistral_api_key or DEFAULT_MISTRAL_KEY
-        prompt = (
-            f"You are a Senior Clinical Pharmacist and Empathetic Medical Companion for {patient_name} (who is prescribed Donepezil 5mg for dementia/memory care).\n"
-            f"User Question: '{user_query}'\n"
-            f"Clinical Evidence & Monograph:\n{evidence_text}\n"
-            f"Safety Status: {status}\n"
-            f"Recommended Action: {recommended_action}\n\n"
-            f"Instructions:\n"
-            f"1. Answer like an expert clinical pharmacist and caring doctor: clear, authoritative, comforting, and scientifically accurate.\n"
-            f"2. Keep sentences clear and accessible for a senior/dementia patient (max 3-4 sentences).\n"
-            f"3. Strictly NO double dose recommendations. Give clear, reassuring guidance.\n"
-            f"4. Give exactly ONE clear, reassuring action."
-        )
+        is_side_effect_query = any(w in user_query.lower() for w in ["side effect", "dizzy", "nausea", "cramp", "vomit", "headache", "tired", "insomnia", "diarrhea", "stomach", "reaction", "adverse", "symptom"])
+
+        if is_side_effect_query:
+            prompt = (
+                f"You are a Senior Clinical Pharmacist and Empathetic Medical Companion for {patient_name} (who is prescribed Donepezil 5mg for dementia/memory care).\n"
+                f"User Question: '{user_query}'\n"
+                f"Clinical Evidence & Monograph:\n{evidence_text}\n"
+                f"Safety Status: {status}\n"
+                f"Recommended Action: {recommended_action}\n\n"
+                f"Instructions for Side Effects:\n"
+                f"1. Reassure the patient warmly that mild dizziness and slight nausea are common and temporary (often resolving in 1-3 weeks as the body adjusts).\n"
+                f"2. Explicitly outline the other known monograph side effects: mild nausea, diarrhea, fatigue, muscle cramps, sleep changes/insomnia, and decreased appetite.\n"
+                f"3. Provide practical comfort tips: take with a light evening snack/milk, stay hydrated with water, and stand up slowly.\n"
+                f"4. Clearly state red-flag warning signs: any severe dizziness, sudden slow pulse/heart rate, fainting, or chest pain must be reported immediately to Dr. Aarav Mehta.\n"
+                f"5. Keep language warm, comforting, and easily readable for a senior."
+            )
+        else:
+            prompt = (
+                f"You are a Senior Clinical Pharmacist and Empathetic Medical Companion for {patient_name} (who is prescribed Donepezil 5mg for dementia/memory care).\n"
+                f"User Question: '{user_query}'\n"
+                f"Clinical Evidence & Monograph:\n{evidence_text}\n"
+                f"Safety Status: {status}\n"
+                f"Recommended Action: {recommended_action}\n\n"
+                f"Instructions:\n"
+                f"1. Answer like an expert clinical pharmacist and caring doctor: clear, authoritative, comforting, and scientifically accurate.\n"
+                f"2. Keep sentences clear and accessible for a senior/dementia patient (max 3-4 sentences).\n"
+                f"3. Strictly NO double dose recommendations. Give clear, reassuring guidance.\n"
+                f"4. Give exactly ONE clear, reassuring action."
+            )
 
         payload = {
             "model": self.mistral_model,
@@ -181,7 +216,7 @@ class EmpatheticCommunicatorAgent:
                 {"role": "user", "content": prompt}
             ],
             "temperature": 0.1,
-            "max_tokens": 250
+            "max_tokens": 350
         }
 
         try:

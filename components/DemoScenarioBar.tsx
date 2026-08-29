@@ -29,35 +29,19 @@ export const DemoScenarioBar: React.FC<DemoScenarioBarProps> = ({
       badgeColor: 'bg-[#EAF8F0] text-[#136B3B] border border-[#1E824C]/25'
     },
     {
-      id: 'scenario_2_missed_2days',
-      label: '2. Missed 2 Days',
-      prompt: '__STEP_MISSED_DOSE__',
-      icon: <Clock className="w-3.5 h-3.5 text-[#8C5A00]" />,
-      badge: 'Caregiver Flagged',
-      badgeColor: 'bg-[#FFF8E7] text-[#8C5A00] border border-[#FFBE53]/40'
-    },
-    {
-      id: 'scenario_3_missed_3days',
-      label: '3. Missed 3+ Days',
-      prompt: '__STEP_MISSED_DOSE__',
-      icon: <AlertCircle className="w-3.5 h-3.5 text-[#E53E3E]" />,
-      badge: 'Doctor Escalated',
-      badgeColor: 'bg-[#FFF0F0] text-[#E53E3E] border border-[#E53E3E]/30'
-    },
-    {
-      id: 'scenario_4_side_effect',
-      label: '4. Side-Effect Query',
-      prompt: 'I feel dizzy and slightly nauseous after taking my pill.',
+      id: 'scenario_2_side_effect',
+      label: '2. Side-Effect Guidance',
+      prompt: 'I feel dizzy and slightly nauseous after taking my pill. What side effects should I know about?',
       icon: <AlertCircle className="w-3.5 h-3.5 text-[#4E89FF]" />,
-      badge: 'RAG Grounding',
+      badge: 'Comprehensive Monograph RAG',
       badgeColor: 'bg-[#EBF2FF] text-[#1D5BD8] border border-[#4E89FF]/25'
     },
     {
-      id: 'scenario_5_urgent_emergency',
-      label: '5. Urgent Situation',
+      id: 'scenario_3_urgent_emergency',
+      label: '3. Urgent Safety Alert',
       prompt: 'I took my pill, then I fainted and blacked out on the floor.',
       icon: <AlertOctagon className="w-3.5 h-3.5 text-[#E53E3E]" />,
-      badge: 'Emergency Alert',
+      badge: 'Emergency Escalation',
       badgeColor: 'bg-[#FFF0F0] text-[#E53E3E] border border-[#E53E3E]/30'
     }
   ];

@@ -22,41 +22,25 @@ export const DemoScenarioBar: React.FC<DemoScenarioBarProps> = ({
       id: 'scenario_1_adherence',
       label: '1. Normal Adherence',
       prompt: 'I took my evening medicine.',
-      icon: <CheckCircle2 className="w-3.5 h-3.5 text-[#16A34A]" />,
+      icon: <CheckCircle2 className="w-3.5 h-3.5 text-[#1E824C]" />,
       badge: 'Adherence Recorded',
-      badgeColor: 'bg-[#DCFCE7] text-[#16A34A]'
+      badgeColor: 'bg-[#EAF8F0] text-[#136B3B]'
     },
     {
-      id: 'scenario_2_missed_dose',
-      label: '2. Missed Dose (1→5)',
-      prompt: '__STEP_MISSED_DOSE__',
-      icon: <Clock className="w-3.5 h-3.5 text-[#F59E0B]" />,
-      badge: 'Escalation Tree',
-      badgeColor: 'bg-[#FEF3C7] text-[#D97706]'
+      id: 'scenario_2_side_effect',
+      label: '2. Side-Effect Guidance',
+      prompt: 'I feel dizzy and slightly nauseous after taking my pill. What side effects should I know about?',
+      icon: <AlertCircle className="w-3.5 h-3.5 text-[#4E89FF]" />,
+      badge: 'Comprehensive Monograph RAG',
+      badgeColor: 'bg-[#EBF2FF] text-[#1D5BD8]'
     },
     {
-      id: 'scenario_3_side_effect',
-      label: '3. Side-Effect Query',
-      prompt: 'I feel dizzy and slightly nauseous after taking my pill.',
-      icon: <AlertCircle className="w-3.5 h-3.5 text-[#2F80ED]" />,
-      badge: 'RAG Grounding',
-      badgeColor: 'bg-[#EAF3FF] text-[#2F80ED]'
-    },
-    {
-      id: 'scenario_4_unknown_info',
-      label: '4. Unknown Drug Info',
-      prompt: 'Can I take ibuprofen and amoxicillin with my medicine for tooth pain?',
-      icon: <HelpCircle className="w-3.5 h-3.5 text-[#64748B]" />,
-      badge: 'Zero Hallucination',
-      badgeColor: 'bg-[#F1F5F9] text-[#475569]'
-    },
-    {
-      id: 'scenario_5_urgent_emergency',
-      label: '5. Urgent Situation',
+      id: 'scenario_3_urgent_emergency',
+      label: '3. Urgent Safety Alert',
       prompt: 'I took my pill, then I fainted and blacked out on the floor.',
-      icon: <AlertOctagon className="w-3.5 h-3.5 text-[#DC2626]" />,
-      badge: 'Emergency Alert',
-      badgeColor: 'bg-[#FEE2E2] text-[#DC2626]'
+      icon: <AlertOctagon className="w-3.5 h-3.5 text-[#E53E3E]" />,
+      badge: 'Emergency Escalation',
+      badgeColor: 'bg-[#FFF0F0] text-[#E53E3E]'
     }
   ];
 

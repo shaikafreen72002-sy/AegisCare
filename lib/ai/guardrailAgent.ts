@@ -110,6 +110,10 @@ export class ClinicalGuardrailAgent {
 
     // Step 2: Retrieve Monograph Chunks
     let retrieved = documentKnowledgeAgent.retrieveChunksForQuery(query, medicationName, 3);
+    if (/side effect|dizzy|nausea|vomit|headache|cramp|tired|insomnia|diarrhea|stomach|reaction|adverse|symptom/.test(qLower)) {
+      const adverseChunks = documentKnowledgeAgent.retrieveChunksForQuery(`${medicationName} adverse reactions side effects nausea dizziness fatigue muscle cramps diarrhea insomnia`, medicationName, 2);
+      retrieved = [...adverseChunks, ...retrieved.filter((r) => !adverseChunks.some((a) => a.chunk_id === r.chunk_id))].slice(0, 3);
+    }
     if (!retrieved || retrieved.length === 0) {
       retrieved = documentKnowledgeAgent.retrieveChunksForQuery(`${medicationName} dosage indication`, medicationName, 2);
     }
