@@ -285,13 +285,28 @@ class ApiClient {
   public async sendMessage(
     message: string,
     medication: string = 'Donepezil',
-    patientName: string = 'Afreen'
+    patientName: string = 'Afreen',
+    completedDays?: number[]
   ): Promise<ChatApiResponse> {
     const pName = this.user?.preferred_name || this.user?.name || patientName;
+    let daysToSend = completedDays;
+    if (!daysToSend && typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('aegiscare_completed_days_set');
+        if (saved) daysToSend = JSON.parse(saved);
+      } catch {}
+    }
+
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: this.getAuthHeaders(),
-      body: JSON.stringify({ message, medication, patient_name: pName, user_id: this.user?.user_id })
+      body: JSON.stringify({
+        message,
+        medication,
+        patient_name: pName,
+        user_id: this.user?.user_id,
+        completed_days: daysToSend || []
+      })
     });
     if (!res.ok) {
       throw new Error(`Chat API error: ${res.statusText}`);

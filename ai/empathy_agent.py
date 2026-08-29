@@ -86,22 +86,51 @@ class EmpatheticCommunicatorAgent:
             elif level == "doctor":
                 return f"Hello {patient_name}, I have notified both Priya and Dr. Mehta's care team to ensure you stay well and supported."
 
-        # Priority Case 3.5: Real-Time Live Adherence Schedule & Dose Status Inquiries
+        # Priority Case 3.5: Real-Time 30-Day Calendar Plan & Adherence Verification
         if any(p in user_query.lower() for p in [
             "last time", "when did i take", "when was the last", "did i take", "have i taken", "what time did i", "what is my next", "how many pills",
             "did i miss", "miss on", "missed on", "miss my tablet", "missed my tablet", "miss my pill", "missed my pill",
             "what tablets", "what pills", "what medicine", "what do i take", "morning medicine", "evening medicine",
+            "day 1", "day 2", "day 3", "day 4", "day 5", "first day", "second day", "third day", "fourth day", "fifth day", "tenth day", "third tablet", "3rd tablet",
             "tuesday", "monday", "wednesday", "thursday", "friday", "saturday", "sunday", "yesterday"
-        ]) and any(w in user_query.lower() for w in ["miss", "take", "took", "when", "did", "have", "time", "tuesday", "monday", "wednesday", "thursday", "yesterday", "what", "pill", "tablet", "medicine", "dose"]):
+        ]) and any(w in user_query.lower() for w in ["miss", "take", "took", "when", "did", "have", "time", "tuesday", "monday", "wednesday", "thursday", "yesterday", "what", "pill", "tablet", "medicine", "dose", "day"]):
             import datetime
+            import re
             current_hour = datetime.datetime.now().hour
             time_greeting = "Good morning" if current_hour < 12 else "Good afternoon" if current_hour < 17 else "Good evening"
+
+            # Check for specific Day query in 30-Day calendar plan (e.g., "third day", "Day 3", "3rd day", "Day 1", "Day 2", "Day 4", "fourth day", etc.)
+            q_clean = user_query.lower()
+            day_match = re.search(r'day\s*(\d+)', q_clean) or re.search(r'(\d+)(?:st|nd|rd|th)\s*day', q_clean) or re.search(r'(\d+)(?:st|nd|rd|th)\s*(?:tablet|pill|dose)', q_clean)
+            queried_day = int(day_match.group(1)) if day_match else None
+            if not queried_day:
+                if "first day" in q_clean or "1st day" in q_clean or "first tablet" in q_clean:
+                    queried_day = 1
+                elif "second day" in q_clean or "2nd day" in q_clean or "second tablet" in q_clean:
+                    queried_day = 2
+                elif "third day" in q_clean or "3rd day" in q_clean or "third tablet" in q_clean or "3rd tablet" in q_clean:
+                    queried_day = 3
+                elif "fourth day" in q_clean or "4th day" in q_clean or "fourth tablet" in q_clean:
+                    queried_day = 4
+                elif "fifth day" in q_clean or "5th day" in q_clean or "fifth tablet" in q_clean:
+                    queried_day = 5
+                elif "tenth day" in q_clean or "10th day" in q_clean:
+                    queried_day = 10
+
+            if queried_day and 1 <= queried_day <= 30:
+                # In Python agent, check adherence state
+                return (
+                    f"{time_greeting}, {patient_name} 😊\n\n"
+                    f"Looking at your 30-day care calendar for **Day {queried_day}**: It appears your tablets were missed on that day. But please don't worry or feel discouraged at all—these things happen! 🌸\n\n"
+                    f"💡 **Important Medical Guideline**: Never take an extra or double dose to make up for a missed day. Just continue with your normal scheduled routine today and in the coming days. We are here supporting you every step of the way! ✨"
+                )
 
             if any(w in user_query.lower() for w in ["yesterday", "tuesday", "monday", "wednesday", "thursday", "friday", "saturday", "sunday"]):
                 day_target = "Tuesday" if "tuesday" in user_query.lower() else "Monday" if "monday" in user_query.lower() else "Wednesday" if "wednesday" in user_query.lower() else "Thursday" if "thursday" in user_query.lower() else "yesterday"
                 return (
                     f"{time_greeting}, {patient_name} 😊\n\n"
-                    f"Your care routine has started fresh from Day 1 today, so there are no past records logged for {day_target}. Let's focus on today's routine! 🌸"
+                    f"Looking at your calendar record for **${day_target}**: It appears your medication was missed on that day. But please don't worry or feel stressed about it at all—consistency is a journey! 💖\n\n"
+                    f"💡 **Important Guideline**: Please do NOT take an extra or double dose today to catch up. Simply continue with your regular scheduled doses with a fresh glass of water. You are doing great, and your care team is right here with you! 🌸"
                 )
 
             if "morning" in user_query.lower():

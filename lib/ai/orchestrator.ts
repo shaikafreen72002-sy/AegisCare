@@ -7,7 +7,8 @@ export class MultiAgentOrchestrator {
   public async processMessage(
     message: string,
     medicationName: string = 'donepezil',
-    patientName: string = 'Lakshmi'
+    patientName: string = 'Afreen',
+    completedDays?: number[]
   ): Promise<ChatApiResponse> {
     const pipelineEvents: PipelineEvent[] = [];
     const msgLow = message.toLowerCase();
@@ -87,7 +88,8 @@ export class MultiAgentOrchestrator {
       patientName,
       guardrailDecision,
       adherenceDecision,
-      message
+      message,
+      completedDays
     );
 
     pipelineEvents.push({

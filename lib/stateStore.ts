@@ -283,6 +283,26 @@ export function updateUserAdherence(userId: string, updates: Partial<AdherenceSt
   return USER_ADHERENCE_MAP[userId];
 }
 
+export let COMPLETED_CALENDAR_DAYS: number[] = [];
+
+export function getCompletedCalendarDays(): number[] {
+  return COMPLETED_CALENDAR_DAYS;
+}
+
+export function setCompletedCalendarDays(days: number[]): void {
+  COMPLETED_CALENDAR_DAYS = days;
+}
+
+export function toggleCalendarDayInStore(day: number): boolean {
+  if (COMPLETED_CALENDAR_DAYS.includes(day)) {
+    COMPLETED_CALENDAR_DAYS = COMPLETED_CALENDAR_DAYS.filter((d) => d !== day);
+    return false;
+  } else {
+    COMPLETED_CALENDAR_DAYS = [...COMPLETED_CALENDAR_DAYS, day].sort((a, b) => a - b);
+    return true;
+  }
+}
+
 export function getUserAuditLogs(userId?: string): NotificationAuditRecord[] {
   const targetId = userId || ACTIVE_USER_ID;
   if (!USER_AUDIT_LOGS_MAP[targetId]) {

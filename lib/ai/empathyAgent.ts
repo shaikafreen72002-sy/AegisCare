@@ -1,4 +1,4 @@
-import { sendEscalationAlert, getUserAdherence } from '../stateStore';
+import { sendEscalationAlert, getUserAdherence, getCompletedCalendarDays } from '../stateStore';
 import type { GuardrailDecision } from './guardrailAgent';
 import type { AdherenceDecision } from './adherenceAgent';
 import type { UrgencyLevel } from '../types/escalation';
@@ -42,11 +42,15 @@ export class EmpatheticCommunicatorAgent {
     patientName: string,
     guardrailDecision: GuardrailDecision,
     adherenceDecision: AdherenceDecision | null,
-    userQuery: string
+    userQuery: string,
+    completedDays?: number[]
   ): Promise<string> {
     const status = guardrailDecision.status;
     const qLower = userQuery.toLowerCase();
     const timeGreeting = getTimeGreeting();
+
+    const storeCompletedDays = getCompletedCalendarDays();
+    const effectiveCompletedDays = Array.isArray(completedDays) && completedDays.length > 0 ? completedDays : storeCompletedDays;
 
     // Priority 1: Emergency Symptom
     if (status === 'urgent') {
@@ -70,10 +74,10 @@ export class EmpatheticCommunicatorAgent {
       }
     }
 
-    // Priority 3.5: Real-Time Live Adherence Schedule & Dose Status Inquiries
+    // Priority 3.5: Real-Time 30-Day Calendar Plan & Adherence Verification
     if (
-      /last time|when did i take|when was the last|did i take|have i taken|what time did i|what is my next|how many pills|did i miss|miss on|missed on|miss my tablet|missed my tablet|miss my pill|missed my pill|what tablets|what pills|what medicine|what do i take|morning medicine|evening medicine|tuesday|monday|wednesday|thursday|friday|saturday|sunday|yesterday/.test(qLower) &&
-      /miss|take|took|when|did|have|time|tuesday|monday|wednesday|thursday|yesterday|what|pill|tablet|medicine|dose/.test(qLower)
+      /last time|when did i take|when was the last|did i take|have i taken|what time did i|what is my next|how many pills|did i miss|miss on|missed on|miss my tablet|missed my tablet|miss my pill|missed my pill|what tablets|what pills|what medicine|what do i take|morning medicine|evening medicine|day \d+|\d+(?:st|nd|rd|th) day|first day|second day|third day|fourth day|fifth day|tenth day|third tablet|3rd tablet|tuesday|monday|wednesday|thursday|friday|saturday|sunday|yesterday/.test(qLower) &&
+      /miss|take|took|when|did|have|time|tuesday|monday|wednesday|thursday|yesterday|what|pill|tablet|medicine|dose|day/.test(qLower)
     ) {
       const userAdherence = getUserAdherence();
       const schedule = userAdherence?.schedule || [];
@@ -81,14 +85,52 @@ export class EmpatheticCommunicatorAgent {
       const middayDose = schedule.find((s) => s.time_slot.toLowerCase().includes('afternoon') || s.time_slot.toLowerCase().includes('midday') || s.scheduled_time.startsWith('13') || s.id.includes('afternoon'));
       const eveningDose = schedule.find((s) => s.time_slot.toLowerCase().includes('evening') || s.scheduled_time.startsWith('20') || s.id.includes('evening'));
 
-      // Check for past days
+      // Check for specific Day query in 30-Day calendar plan (e.g., "third day", "Day 3", "3rd day", "Day 1", "Day 2", "Day 4", "fourth day", etc.)
+      const dayMatch = qLower.match(/day\s*(\d+)/i) || qLower.match(/(\d+)(?:st|nd|rd|th)\s*day/i) || qLower.match(/(\d+)(?:st|nd|rd|th)\s*(?:tablet|pill|dose)/i);
+      let queriedDayNum: number | null = dayMatch ? parseInt(dayMatch[1], 10) : null;
+      if (!queriedDayNum) {
+        if (/first\s*day|1st\s*day|first\s*tablet|first\s*dose/.test(qLower)) queriedDayNum = 1;
+        else if (/second\s*day|2nd\s*day|second\s*tablet|second\s*dose/.test(qLower)) queriedDayNum = 2;
+        else if (/third\s*day|3rd\s*day|third\s*tablet|third\s*dose|3rd\s*tablet/.test(qLower)) queriedDayNum = 3;
+        else if (/fourth\s*day|4th\s*day|fourth\s*tablet|fourth\s*dose/.test(qLower)) queriedDayNum = 4;
+        else if (/fifth\s*day|5th\s*day|fifth\s*tablet|fifth\s*dose/.test(qLower)) queriedDayNum = 5;
+        else if (/tenth\s*day|10th\s*day/.test(qLower)) queriedDayNum = 10;
+      }
+
+      if (queriedDayNum && queriedDayNum >= 1 && queriedDayNum <= 30) {
+        const isDayDone = effectiveCompletedDays.includes(queriedDayNum);
+        if (isDayDone) {
+          return (
+            `${timeGreeting}, ${patientName} 😊\n\n` +
+            `Looking at your 30-day care calendar for **Day ${queriedDayNum}**: You took all your scheduled tablets on time! Your adherence for Day ${queriedDayNum} was 100% completed. You are doing a wonderful job staying consistent! 🌸`
+          );
+        } else {
+          return (
+            `${timeGreeting}, ${patientName} 😊\n\n` +
+            `Looking at your 30-day care calendar for **Day ${queriedDayNum}**: It appears your tablets were missed on that day. But please don't worry or feel discouraged at all—these things happen! 🌸\n\n` +
+            `💡 **Important Medical Guideline**: Never take an extra or double dose to make up for a missed day. Just continue with your normal scheduled routine today and in the coming days. We are here supporting you every step of the way! ✨`
+          );
+        }
+      }
+
+      // Check for past days (yesterday / day of week)
       if (/yesterday|tuesday|monday|wednesday|thursday|friday|saturday|sunday/.test(qLower)) {
         const dayTarget = /tuesday/.test(qLower) ? 'Tuesday' : /monday/.test(qLower) ? 'Monday' : /wednesday/.test(qLower) ? 'Wednesday' : /thursday/.test(qLower) ? 'Thursday' : /friday/.test(qLower) ? 'Friday' : 'yesterday';
         const pastLog = (userAdherence.history || []).find((h) => h.date.toLowerCase().includes(dayTarget.toLowerCase()));
-        if (pastLog && pastLog.status === 'COMPLETED') {
-          return `${timeGreeting}, ${patientName} 😊\n\nLooking at your record for ${dayTarget}: All doses were recorded as TAKEN on time! Your adherence was 100% consistent. 🌸`;
+        const yesterdayNum = new Date().getDate() - 1;
+        const isYesterdayDone = (pastLog && pastLog.status === 'COMPLETED') || (yesterdayNum > 0 && effectiveCompletedDays.includes(yesterdayNum));
+
+        if (isYesterdayDone) {
+          return (
+            `${timeGreeting}, ${patientName} 😊\n\n` +
+            `Looking at your record for **${dayTarget}**: All doses were recorded as TAKEN on time! Your adherence was 100% consistent. 🌸`
+          );
         } else {
-          return `${timeGreeting}, ${patientName} 😊\n\nYour care routine has started fresh from Day 1 today, so there are no past records logged for ${dayTarget}. Let's focus on today's routine! 🌸`;
+          return (
+            `${timeGreeting}, ${patientName} 😊\n\n` +
+            `Looking at your calendar record for **${dayTarget}**: It appears your medication was missed on that day. But please don't worry or feel stressed about it at all—consistency is a journey! 💖\n\n` +
+            `💡 **Important Guideline**: Please do NOT take an extra or double dose today to catch up. Simply continue with your regular scheduled doses with a fresh glass of water. You are doing great, and your care team is right here with you! 🌸`
+          );
         }
       }
 
