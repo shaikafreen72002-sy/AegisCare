@@ -1,8 +1,6 @@
-'use client';
-
 import React, { useState, useEffect } from 'react';
-import { usePatient } from '@/lib/context/PatientContext';
-import { apiService } from '@/lib/apiClient';
+import { usePatient } from '../context/PatientContext';
+import { apiService } from '../services/api';
 import {
   Send,
   CheckCircle2,
@@ -14,9 +12,8 @@ import {
   RefreshCw,
   X,
   MessageSquare,
-  Calendar,
-  Sun,
   Sunrise,
+  Sun,
   Moon,
   ShieldCheck,
   Bell
@@ -56,7 +53,6 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
     }
   }, [isOpen]);
 
-  // Periodic polling for button callbacks when modal is open
   useEffect(() => {
     if (!isOpen) return;
     const interval = setInterval(async () => {
@@ -83,8 +79,7 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
       med: 'Donepezil',
       dosage: '5 mg',
       doseId: 'dose_morning_01',
-      instruction: 'Take with breakfast or morning tea',
-      preview: `🔔 Scheduled Morning Medication Reminder (8:00 AM)\n\nGood morning, ${profile.preferred_name || profile.name}! 🌸 It is 8:00 AM. Time for your scheduled morning dose of Donepezil (5 mg) with breakfast and a glass of water.`
+      instruction: 'Take with breakfast or morning tea'
     },
     afternoon: {
       title: 'Midday Routine & Hydration',
@@ -93,8 +88,7 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
       med: 'Vitamin D & Hydration',
       dosage: '1000 IU',
       doseId: 'dose_afternoon_02',
-      instruction: 'Take with lunch and a fresh glass of water',
-      preview: `☀️ Scheduled Midday Routine (1:00 PM)\n\nGood afternoon, ${profile.preferred_name || profile.name}! 🌿 It is 1:00 PM. Time for your midday routine and hydration check.`
+      instruction: 'Take with lunch and a fresh glass of water'
     },
     evening: {
       title: 'Evening Primary Dose',
@@ -103,8 +97,7 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
       med: profile.primary_medication.name || 'Donepezil',
       dosage: profile.primary_medication.dosage || '10 mg',
       doseId: 'dose_evening_03',
-      instruction: 'Take with dinner or evening snack before bedtime',
-      preview: `🌙 Scheduled Evening Medication Reminder (8:00 PM)\n\nGood evening, ${profile.preferred_name || profile.name}! 🌙 It is 8:00 PM. Time for your scheduled evening dose of Donepezil (10 mg) with dinner or an evening snack.`
+      instruction: 'Take with dinner or evening snack before bedtime'
     }
   };
 
@@ -140,12 +133,6 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
     } finally {
       setIsPolling(false);
     }
-  };
-
-  const handleSaveChatId = async () => {
-    if (!chatIdInput.trim()) return;
-    await apiService.saveTelegramChatId(chatIdInput.trim());
-    await fetchStatus();
   };
 
   return (
