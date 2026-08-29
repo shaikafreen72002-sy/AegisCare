@@ -5,11 +5,11 @@ import { usePatient } from '@/lib/context/PatientContext';
 import { AdherenceStreakCard } from '@/components/AdherenceStreakCard';
 import { MedicationCard } from '@/components/MedicationCard';
 import { DemoScenarioBar } from '@/components/DemoScenarioBar';
+import { MonthlyCalendarPlan } from '@/components/MonthlyCalendarPlan';
 import {
   MessageSquareText,
   Clock,
   Calendar,
-  CheckCircle2,
   Send
 } from 'lucide-react';
 
@@ -105,6 +105,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenChatWithTopic }) => 
           ))}
         </div>
       </div>
+
+      {/* 30-Day Monthly Medication Adherence Calendar & Escalation Plan */}
+      <MonthlyCalendarPlan />
     </div>
   );
 };
