@@ -221,9 +221,9 @@ class ApiClient {
     if (isAfreen) {
       return {
         today: new Date().toISOString().split('T')[0],
-        growth_stage: 4,
+        growth_stage: 0,
         garden_name: `${name}'s Routine Care`,
-        routine_message: '🌱 Your medication routine is progressing consistently.',
+        routine_message: '🌱 Welcome! Start logging your daily doses to begin your adherence streak.',
         schedule: [
           {
             id: 'dose_morning_01',
@@ -231,8 +231,8 @@ class ApiClient {
             scheduled_time: '08:00',
             medication_name: 'Donepezil',
             dosage: '5 mg',
-            status: 'TAKEN',
-            taken_at: '08:15 AM',
+            status: 'DUE',
+            taken_at: null,
             instructions: 'Take with a glass of water. Can be taken with breakfast or tea.',
             color: 'emerald'
           },
@@ -242,8 +242,8 @@ class ApiClient {
             scheduled_time: '13:00',
             medication_name: 'Vitamin D & Hydration',
             dosage: '1000 IU',
-            status: 'TAKEN',
-            taken_at: '01:10 PM',
+            status: 'DUE',
+            taken_at: null,
             instructions: 'Gentle midday routine with lunch.',
             color: 'sky'
           },
@@ -259,11 +259,7 @@ class ApiClient {
             color: 'indigo'
           }
         ],
-        history: [
-          { date: '2026-08-27', status: 'COMPLETED', doses_taken: 3, total_doses: 3 },
-          { date: '2026-08-26', status: 'COMPLETED', doses_taken: 3, total_doses: 3 },
-          { date: '2026-08-25', status: 'COMPLETED', doses_taken: 3, total_doses: 3 }
-        ]
+        history: []
       };
     }
 

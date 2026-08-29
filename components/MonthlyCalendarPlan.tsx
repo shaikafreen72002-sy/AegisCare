@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePatient } from '@/lib/context/PatientContext';
 import {
   Calendar,
@@ -15,7 +15,8 @@ import {
   Sparkles,
   X,
   Pill,
-  CalendarDays
+  CalendarDays,
+  Check
 } from 'lucide-react';
 
 interface DayPlan {
@@ -49,17 +50,69 @@ export const MonthlyCalendarPlan: React.FC<MonthlyCalendarPlanProps> = ({
   const [isOpen, setIsOpen] = useState(initiallyExpanded);
   const [selectedDay, setSelectedDay] = useState<DayPlan | null>(null);
 
+  // Completed days set by user interaction / localStorage
+  const [completedDays, setCompletedDays] = useState<number[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('aegiscare_completed_days_set');
+        if (saved) return JSON.parse(saved);
+      } catch {}
+    }
+    return [];
+  });
+
   const today = new Date();
   const currentDayNum = today.getDate(); // e.g. 29
   const monthName = today.toLocaleString('en-US', { month: 'long' });
   const year = today.getFullYear();
 
-  // Count past completed days from adherence history + today's status
+  // Check if today's doses in the main schedule are fully taken
   const todayDosesTaken = adherence.schedule.filter((s) => s.status === 'TAKEN').length;
   const todayTotalDoses = adherence.schedule.length;
   const isTodayFullyTaken = todayTotalDoses > 0 && todayDosesTaken === todayTotalDoses;
 
-  // Generate 30-Day Plan for the Month
+  // Sync today's full completion with completedDays
+  useEffect(() => {
+    if (isTodayFullyTaken && !completedDays.includes(currentDayNum)) {
+      const next = [...completedDays, currentDayNum];
+      setCompletedDays(next);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('aegiscare_completed_days_set', JSON.stringify(next));
+      }
+    }
+  }, [isTodayFullyTaken, currentDayNum]);
+
+  // Toggle or mark a day completed
+  const handleToggleDayCompleted = (dayNum: number) => {
+    let next: number[];
+    if (completedDays.includes(dayNum)) {
+      next = completedDays.filter((d) => d !== dayNum);
+    } else {
+      next = [...completedDays, dayNum].sort((a, b) => a - b);
+    }
+    setCompletedDays(next);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('aegiscare_completed_days_set', JSON.stringify(next));
+      window.dispatchEvent(new CustomEvent('aegiscare_days_updated', { detail: next }));
+    }
+
+    // Update selectedDay modal view in real time
+    if (selectedDay && selectedDay.dayNumber === dayNum) {
+      const isNowCompleted = next.includes(dayNum);
+      setSelectedDay({
+        ...selectedDay,
+        status: isNowCompleted ? 'COMPLETED' : 'UPCOMING',
+        dosesTaken: isNowCompleted ? selectedDay.totalDoses : 0,
+        doses: selectedDay.doses.map((d) => ({
+          ...d,
+          status: isNowCompleted ? 'TAKEN' : 'DUE',
+          takenAt: isNowCompleted ? 'Recorded' : undefined
+        }))
+      });
+    }
+  };
+
+  // Generate 30-Day Plan for the Month (Starting from 0)
   const days: DayPlan[] = Array.from({ length: 30 }, (_, idx) => {
     const dayNum = idx + 1;
     const dateStr = `${year}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
@@ -70,18 +123,17 @@ export const MonthlyCalendarPlan: React.FC<MonthlyCalendarPlanProps> = ({
     const isCaregiverCheckpoint = dayNum % 3 === 0; // Day 3, 6, 9, 12, 15, 18, 21, 24, 27, 30
     const isDoctorCheckpoint = dayNum === 5 || dayNum === 10 || dayNum === 20 || dayNum === 25;
 
+    const isExplicitlyCompleted = completedDays.includes(dayNum);
+
     let status: 'COMPLETED' | 'IN_PROGRESS' | 'UPCOMING' | 'MISSED' = 'UPCOMING';
     let dosesTaken = 0;
     const totalDoses = 3;
 
-    if (dayNum < currentDayNum) {
+    if (isExplicitlyCompleted) {
       status = 'COMPLETED';
-      dosesTaken = 3;
+      dosesTaken = totalDoses;
     } else if (isToday) {
-      if (isTodayFullyTaken) {
-        status = 'COMPLETED';
-        dosesTaken = todayTotalDoses;
-      } else if (todayDosesTaken > 0) {
+      if (todayDosesTaken > 0) {
         status = 'IN_PROGRESS';
         dosesTaken = todayDosesTaken;
       } else {
@@ -99,24 +151,24 @@ export const MonthlyCalendarPlan: React.FC<MonthlyCalendarPlanProps> = ({
         time: '8:00 AM',
         medication: profile.primary_medication?.name || 'Donepezil',
         dosage: '5 mg',
-        status: (dayNum < currentDayNum || (isToday && adherence.schedule[0]?.status === 'TAKEN')) ? ('TAKEN' as const) : ('DUE' as const),
-        takenAt: (dayNum < currentDayNum || (isToday && adherence.schedule[0]?.status === 'TAKEN')) ? '08:15 AM' : undefined
+        status: isExplicitlyCompleted || (isToday && adherence.schedule[0]?.status === 'TAKEN') ? ('TAKEN' as const) : ('DUE' as const),
+        takenAt: isExplicitlyCompleted || (isToday && adherence.schedule[0]?.status === 'TAKEN') ? '08:15 AM' : undefined
       },
       {
         slot: 'Midday Routine',
         time: '1:00 PM',
         medication: 'Vitamin D & Hydration',
         dosage: '1000 IU',
-        status: (dayNum < currentDayNum || (isToday && adherence.schedule[1]?.status === 'TAKEN')) ? ('TAKEN' as const) : ('DUE' as const),
-        takenAt: (dayNum < currentDayNum || (isToday && adherence.schedule[1]?.status === 'TAKEN')) ? '01:10 PM' : undefined
+        status: isExplicitlyCompleted || (isToday && adherence.schedule[1]?.status === 'TAKEN') ? ('TAKEN' as const) : ('DUE' as const),
+        takenAt: isExplicitlyCompleted || (isToday && adherence.schedule[1]?.status === 'TAKEN') ? '01:10 PM' : undefined
       },
       {
         slot: 'Evening Routine',
         time: '8:00 PM',
         medication: `${profile.primary_medication?.name || 'Donepezil'} (Evening Maintenance)`,
         dosage: profile.primary_medication?.dosage || '10 mg',
-        status: (dayNum < currentDayNum || (isToday && adherence.schedule[2]?.status === 'TAKEN')) ? ('TAKEN' as const) : ('DUE' as const),
-        takenAt: (dayNum < currentDayNum || (isToday && adherence.schedule[2]?.status === 'TAKEN')) ? '08:05 PM' : undefined
+        status: isExplicitlyCompleted || (isToday && adherence.schedule[2]?.status === 'TAKEN') ? ('TAKEN' as const) : ('DUE' as const),
+        takenAt: isExplicitlyCompleted || (isToday && adherence.schedule[2]?.status === 'TAKEN') ? '08:05 PM' : undefined
       }
     ];
 
@@ -134,8 +186,8 @@ export const MonthlyCalendarPlan: React.FC<MonthlyCalendarPlanProps> = ({
     };
   });
 
-  const completedDaysCount = days.filter((d) => d.status === 'COMPLETED').length;
-  const adherencePercentage = Math.round((completedDaysCount / currentDayNum) * 100);
+  const completedDaysCount = completedDays.length;
+  const adherencePercentage = Math.round((completedDaysCount / 30) * 100);
 
   return (
     <div id="monthly-plan-section" className="bg-white border border-[#EFEAE1] rounded-[20px] p-4 sm:p-5 shadow-[0_4px_20px_rgba(45,37,69,0.04)] space-y-4 animate-fade-in transition-all">
@@ -192,7 +244,7 @@ export const MonthlyCalendarPlan: React.FC<MonthlyCalendarPlanProps> = ({
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-[#FF6138] shrink-0" />
               <span className="text-[#40365D] font-medium leading-relaxed">
-                <strong>Automated Safety Safeguards:</strong> If 2 consecutive days are missed, Day 3 automatically alerts Caregiver <strong>Priya</strong>. If missed through Day 5 or 10, clinical telemetry escalates directly to <strong>Dr. Aarav Mehta</strong>.
+                <strong>Interactive 30-Day Calendar:</strong> Click on any Day (Day 1, Day 2, Day 3...) to view doses or mark that day as taken. If 2 consecutive days are missed, Day 3 automatically alerts Caregiver <strong>Priya</strong>. If missed through Day 5 or 10, clinical telemetry escalates directly to <strong>Dr. Aarav Mehta</strong>.
               </span>
             </div>
             <span className="shrink-0 text-[10px] font-bold text-[#1E824C] bg-[#EAF8F0] px-2.5 py-0.5 rounded-full border border-[#1E824C]/20">
@@ -297,6 +349,7 @@ export const MonthlyCalendarPlan: React.FC<MonthlyCalendarPlanProps> = ({
               </button>
             </div>
 
+            {/* Doses List for this Day */}
             <div className="space-y-2.5">
               {selectedDay.doses.map((d, i) => (
                 <div
@@ -340,6 +393,29 @@ export const MonthlyCalendarPlan: React.FC<MonthlyCalendarPlanProps> = ({
               ))}
             </div>
 
+            {/* Mark Day Completed / Due Action Button */}
+            <div className="pt-1">
+              {completedDays.includes(selectedDay.dayNumber) ? (
+                <button
+                  type="button"
+                  onClick={() => handleToggleDayCompleted(selectedDay.dayNumber)}
+                  className="touch-target w-full py-2.5 rounded-full bg-[#FAF7F2] hover:bg-[#F0EBE0] text-[#6B6282] border border-[#EFEAE1] font-bold text-xs shadow-2xs transition active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <span>↩️ Mark Day {selectedDay.dayNumber} as Incomplete / Due</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => handleToggleDayCompleted(selectedDay.dayNumber)}
+                  className="touch-target w-full py-2.5 rounded-full bg-[#1E824C] hover:bg-[#166E3F] text-white font-bold text-xs shadow-xs transition active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Mark Day {selectedDay.dayNumber} Done (All 3 Doses Taken)</span>
+                </button>
+              )}
+            </div>
+
+            {/* Safeguard Telemetry Status */}
             <div className="p-3 bg-[#FAF7F2] rounded-[12px] border border-[#EFEAE1] text-xs space-y-1">
               <div className="font-bold text-[#2D2545] flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-[#1E824C]" />

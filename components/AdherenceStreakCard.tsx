@@ -18,6 +18,24 @@ export const AdherenceStreakCard: React.FC = () => {
   const { profile, adherence } = usePatient();
   const [showConfetti, setShowConfetti] = useState(false);
   const [celebratedMilestone, setCelebratedMilestone] = useState<Milestone | null>(null);
+  const [calendarDaysCount, setCalendarDaysCount] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('aegiscare_completed_days_set');
+        if (saved) return JSON.parse(saved).length;
+      } catch {}
+    }
+    return 0;
+  });
+
+  useEffect(() => {
+    const handleDaysUpdated = (e: any) => {
+      const daysArr = e.detail || [];
+      setCalendarDaysCount(daysArr.length);
+    };
+    window.addEventListener('aegiscare_days_updated', handleDaysUpdated);
+    return () => window.removeEventListener('aegiscare_days_updated', handleDaysUpdated);
+  }, []);
 
   const todayStr = new Date().toISOString().split('T')[0];
 
@@ -28,7 +46,7 @@ export const AdherenceStreakCard: React.FC = () => {
 
   // Today counts as 1 full day ONLY IF all doses scheduled for today are taken
   const isTodayFullyCompleted = adherence.schedule.length > 0 && adherence.schedule.every((s) => s.status === 'TAKEN');
-  const streakDays = previousFullDaysCompleted + (isTodayFullyCompleted ? 1 : 0);
+  const streakDays = Math.max(calendarDaysCount, previousFullDaysCompleted + (isTodayFullyCompleted ? 1 : 0));
 
   const milestones: Milestone[] = [
     { days: 1, label: 'Day 1 Done', title: 'First Step Taken', icon: '🌱', reward: 'Habit Initiator', color: 'from-emerald-500 to-teal-500' },

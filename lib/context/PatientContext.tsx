@@ -91,9 +91,9 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const [adherence, setAdherence] = useState<AdherenceState>(() => ({
     today: new Date().toISOString().split('T')[0],
-    growth_stage: 4,
-    garden_name: "Lakshmi's Routine Care",
-    routine_message: '🌱 Your medication routine is progressing consistently.',
+    growth_stage: 0,
+    garden_name: "Afreen's Routine Care",
+    routine_message: '🌱 Welcome! Start logging your daily doses to begin your adherence streak.',
     schedule: [
       {
         id: 'dose_morning_01',
@@ -101,8 +101,8 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
         scheduled_time: '08:00',
         medication_name: 'Donepezil',
         dosage: '5 mg',
-        status: 'TAKEN',
-        taken_at: '08:15 AM',
+        status: 'DUE',
+        taken_at: null,
         instructions: 'Take with a glass of water. Can be taken with breakfast or tea.',
         color: 'emerald'
       },
@@ -112,8 +112,8 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
         scheduled_time: '13:00',
         medication_name: 'Vitamin D & Hydration',
         dosage: '1000 IU',
-        status: 'TAKEN',
-        taken_at: '01:10 PM',
+        status: 'DUE',
+        taken_at: null,
         instructions: 'Gentle midday routine with lunch.',
         color: 'sky'
       },
@@ -122,18 +122,14 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
         time_slot: 'Evening (8:00 PM)',
         scheduled_time: '20:00',
         medication_name: 'Donepezil (Evening Maintenance)',
-        dosage: '5 mg',
+        dosage: '10 mg',
         status: 'DUE',
         taken_at: null,
         instructions: 'Take just prior to retiring with water or an evening snack.',
         color: 'indigo'
       }
     ],
-    history: [
-      { date: '2026-08-27', status: 'COMPLETED', doses_taken: 3, total_doses: 3 },
-      { date: '2026-08-26', status: 'COMPLETED', doses_taken: 3, total_doses: 3 },
-      { date: '2026-08-25', status: 'COMPLETED', doses_taken: 3, total_doses: 3 }
-    ]
+    history: []
   }));
 
   const [notifications, setNotifications] = useState<NotificationAuditRecord[]>([]);
