@@ -28,28 +28,35 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
   const userId = currentUser?.user_id || 'patient_afreen';
   const storageKey = `aegiscare_chat_sessions_${userId}`;
 
-  const createInitialWelcome = (name: string): ChatMessage => ({
-    id: `msg_welcome_${Date.now()}`,
-    sender: 'assistant',
-    text: `Hello ${name}! I am your clinical medication companion. How can I help you today? You can ask me about taking your medicine, meal guidelines, missed doses, or side effects.`,
-    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    intent: 'GENERAL_QUERY',
-    risk_level: 'LOW',
-    safety_status: 'SAFE',
-    escalation_required: false
-  });
+  const createInitialWelcome = (name: string): ChatMessage => {
+    const hour = new Date().getHours();
+    const timeGreeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    return {
+      id: `msg_welcome_${Date.now()}`,
+      sender: 'assistant',
+      text: `${timeGreeting}, ${name} 😊 I am your clinical medication companion. How can I help you today? You can ask me about taking your medicine, meal guidelines, missed doses, or side effects.`,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      intent: 'GENERAL_QUERY',
+      risk_level: 'LOW',
+      safety_status: 'SAFE',
+      escalation_required: false
+    };
+  };
 
   const getTodayDateStr = () => new Date().toISOString().split('T')[0];
 
   // Initialize sessions from localStorage or provide clean default history
   const [sessions, setSessions] = useState<ChatSession[]>(() => {
+    const patientName = profile.preferred_name || profile.name || 'Afreen';
+    let loadedSessions: ChatSession[] = [];
+
     if (typeof window !== 'undefined') {
       try {
         const saved = localStorage.getItem(storageKey);
         if (saved) {
           const parsed = JSON.parse(saved) as ChatSession[];
           if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed;
+            loadedSessions = parsed;
           }
         }
       } catch (e) {
@@ -57,65 +64,83 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
       }
     }
 
-    const todayDate = getTodayDateStr();
-    const patientName = profile.preferred_name || profile.name || 'Afreen';
+    // Default sample past history if empty
+    if (loadedSessions.length === 0) {
+      loadedSessions = [
+        {
+          id: `sess_yesterday_${Date.now() - 86400000}`,
+          title: 'Evening Donepezil Guidance & Meal Rules',
+          date_label: 'Yesterday',
+          created_at: new Date(Date.now() - 86400000).toISOString(),
+          messages: [
+            {
+              id: 'm_hist_1',
+              sender: 'user',
+              text: 'Should I take Donepezil before or after dinner?',
+              timestamp: '08:15 PM'
+            },
+            {
+              id: 'm_hist_2',
+              sender: 'assistant',
+              text: 'Donepezil can be taken with dinner or an evening snack with a glass of water to minimize stomach upset.',
+              timestamp: '08:15 PM',
+              risk_level: 'LOW',
+              safety_status: 'SAFE'
+            }
+          ],
+          last_snippet: 'Donepezil can be taken with dinner or an evening snack...'
+        },
+        {
+          id: `sess_past_${Date.now() - 172800000}`,
+          title: 'Mild Dizziness Side-Effect Review',
+          date_label: '2 Days Ago',
+          created_at: new Date(Date.now() - 172800000).toISOString(),
+          messages: [
+            {
+              id: 'm_hist_3',
+              sender: 'user',
+              text: 'I felt mild dizziness after taking my tablet yesterday.',
+              timestamp: '09:30 AM'
+            },
+            {
+              id: 'm_hist_4',
+              sender: 'assistant',
+              text: 'Mild dizziness is documented in the product monograph during early therapy. Sit or stand up slowly and drink plenty of water.',
+              timestamp: '09:31 AM',
+              risk_level: 'MEDIUM',
+              safety_status: 'SAFE'
+            }
+          ],
+          last_snippet: 'Mild dizziness is documented in the monograph...'
+        }
+      ];
+    }
 
-    return [
-      {
-        id: `sess_today_${Date.now()}`,
+    // Ensure we start with a clean fresh session for today's opening
+    const firstSess = loadedSessions[0];
+    if (firstSess && firstSess.messages.some((m) => m.sender === 'user')) {
+      const freshTodaySession: ChatSession = {
+        id: `sess_fresh_${Date.now()}`,
         title: "Today's Clinical Consultation",
         date_label: 'Today',
         created_at: new Date().toISOString(),
         messages: [createInitialWelcome(patientName)],
-        last_snippet: 'Hello! How can I help you today with your medication?'
-      },
-      {
-        id: `sess_yesterday_${Date.now() - 86400000}`,
-        title: 'Evening Donepezil Guidance & Meal Rules',
-        date_label: 'Yesterday',
-        created_at: new Date(Date.now() - 86400000).toISOString(),
-        messages: [
-          {
-            id: 'm_hist_1',
-            sender: 'user',
-            text: 'Should I take Donepezil before or after dinner?',
-            timestamp: '08:15 PM'
-          },
-          {
-            id: 'm_hist_2',
-            sender: 'assistant',
-            text: 'Donepezil can be taken with dinner or an evening snack with a glass of water to minimize stomach upset.',
-            timestamp: '08:15 PM',
-            risk_level: 'LOW',
-            safety_status: 'SAFE'
-          }
-        ],
-        last_snippet: 'Donepezil can be taken with dinner or an evening snack...'
-      },
-      {
-        id: `sess_past_${Date.now() - 172800000}`,
-        title: 'Mild Dizziness Side-Effect Review',
-        date_label: '2 Days Ago',
-        created_at: new Date(Date.now() - 172800000).toISOString(),
-        messages: [
-          {
-            id: 'm_hist_3',
-            sender: 'user',
-            text: 'I felt mild dizziness after taking my tablet yesterday.',
-            timestamp: '09:30 AM'
-          },
-          {
-            id: 'm_hist_4',
-            sender: 'assistant',
-            text: 'Mild dizziness is documented in the product monograph during early therapy. Sit or stand up slowly and drink plenty of water.',
-            timestamp: '09:31 AM',
-            risk_level: 'MEDIUM',
-            safety_status: 'SAFE'
-          }
-        ],
-        last_snippet: 'Mild dizziness is documented in the monograph...'
-      }
-    ];
+        last_snippet: 'Ready for consultation...'
+      };
+      return [freshTodaySession, ...loadedSessions];
+    } else if (!firstSess) {
+      const freshTodaySession: ChatSession = {
+        id: `sess_fresh_${Date.now()}`,
+        title: "Today's Clinical Consultation",
+        date_label: 'Today',
+        created_at: new Date().toISOString(),
+        messages: [createInitialWelcome(patientName)],
+        last_snippet: 'Ready for consultation...'
+      };
+      return [freshTodaySession];
+    }
+
+    return loadedSessions;
   });
 
   const [activeSessionId, setActiveSessionId] = useState<string>(() => sessions[0]?.id || 'sess_default');

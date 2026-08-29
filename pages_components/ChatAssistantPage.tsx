@@ -13,7 +13,7 @@ export const ChatAssistantPage: React.FC<ChatAssistantPageProps> = ({ initialTop
   const { profile } = usePatient();
 
   return (
-    <div className="max-w-4xl mx-auto space-y-4 animate-fade-in">
+    <div className="max-w-6xl mx-auto space-y-4 animate-fade-in">
       <div className="bg-white p-4 sm:p-5 rounded-[12px] border border-[#E2E8F0] shadow-[0_1px_3px_rgba(15,23,42,0.06)] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
         <div>
           <div className="flex items-center gap-2">
