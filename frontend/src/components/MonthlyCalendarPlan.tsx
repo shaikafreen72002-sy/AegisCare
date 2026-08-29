@@ -8,9 +8,12 @@ import {
   ShieldCheck,
   Stethoscope,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   Sparkles,
   X,
-  Pill
+  Pill,
+  CalendarDays
 } from 'lucide-react';
 
 interface DayPlan {
@@ -33,8 +36,15 @@ interface DayPlan {
   }[];
 }
 
-export const MonthlyCalendarPlan: React.FC = () => {
+interface MonthlyCalendarPlanProps {
+  initiallyExpanded?: boolean;
+}
+
+export const MonthlyCalendarPlan: React.FC<MonthlyCalendarPlanProps> = ({
+  initiallyExpanded = false
+}) => {
   const { profile, adherence } = usePatient();
+  const [isOpen, setIsOpen] = useState(initiallyExpanded);
   const [selectedDay, setSelectedDay] = useState<DayPlan | null>(null);
 
   const today = new Date();
@@ -123,119 +133,132 @@ export const MonthlyCalendarPlan: React.FC = () => {
   const adherencePercentage = Math.round((completedDaysCount / currentDayNum) * 100);
 
   return (
-    <div className="bg-white border border-[#EFEAE1] rounded-[20px] p-5 sm:p-6 shadow-[0_4px_20px_rgba(45,37,69,0.04)] space-y-5 animate-fade-in">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#F4EFE6] pb-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-[10px] bg-[#FFF0EB] text-[#FF6138] flex items-center justify-center font-bold">
-              <Calendar className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-xl font-extrabold text-[#2D2545] font-['Outfit']">
-                30-Day Medication Adherence Plan
+    <div id="monthly-plan-section" className="bg-white border border-[#EFEAE1] rounded-[20px] p-4 sm:p-5 shadow-[0_4px_20px_rgba(45,37,69,0.04)] space-y-4 animate-fade-in transition-all">
+      <div
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer select-none group"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-[12px] bg-gradient-to-tr from-[#FF6138] to-[#FF8C6B] text-white flex items-center justify-center font-bold shadow-xs shrink-0 group-hover:scale-105 transition">
+            <CalendarDays className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base sm:text-lg font-extrabold text-[#2D2545] font-['Outfit'] group-hover:text-[#FF6138] transition">
+                30-Day Medication Plan
               </h2>
-              <p className="text-xs text-[#6B6282] font-medium">
-                {monthName} {year} • Automated Checkpoints for {profile.preferred_name || profile.name}
-              </p>
+              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#EAF8F0] text-[#136B3B] border border-[#1E824C]/25">
+                {completedDaysCount}/30 Days Done ({adherencePercentage}%)
+              </span>
             </div>
+            <p className="text-xs text-[#6B6282] font-medium mt-0.5">
+              {monthName} {year} • Automated Day 3 Caregiver & Day 5/10 Doctor Safeguards
+            </p>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="px-3.5 py-1.5 rounded-full bg-[#EAF8F0] border border-[#1E824C]/25 flex items-center gap-1.5 text-xs font-bold text-[#136B3B]">
-            <CheckCircle2 className="w-4 h-4 text-[#1E824C]" />
-            <span>{completedDaysCount}/30 Days Done ({adherencePercentage}%)</span>
+        <div className="flex items-center gap-2 self-start sm:self-center">
+          <div className="hidden md:flex items-center gap-1.5 text-xs text-[#6B6282]">
+            <span className="px-2 py-0.5 rounded-full bg-[#FFF8E7] text-[#8C5A00] font-bold text-[10px] border border-[#FFBE53]/30">
+              Caregiver (Day 3)
+            </span>
+            <span className="px-2 py-0.5 rounded-full bg-[#F2EDFF] text-[#5B31D8] font-bold text-[10px] border border-[#7952EC]/30">
+              Doctor (Day 5 & 10)
+            </span>
           </div>
 
-          <div className="px-3 py-1.5 rounded-full bg-[#FFF8E7] border border-[#FFBE53]/40 flex items-center gap-1.5 text-[11px] font-bold text-[#8C5A00]">
-            <ShieldCheck className="w-3.5 h-3.5 text-[#FFBE53]" />
-            <span>Caregiver (Day 3 Safeguard)</span>
-          </div>
-
-          <div className="px-3 py-1.5 rounded-full bg-[#F2EDFF] border border-[#7952EC]/25 flex items-center gap-1.5 text-[11px] font-bold text-[#5B31D8]">
-            <Stethoscope className="w-3.5 h-3.5 text-[#7952EC]" />
-            <span>Physician (Day 5 & 10 Safeguard)</span>
-          </div>
+          <button
+            type="button"
+            aria-expanded={isOpen}
+            className="touch-target flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FAF7F2] hover:bg-[#FFF0EB] text-[#2D2545] hover:text-[#FF6138] border border-[#EFEAE1] font-bold text-xs shadow-2xs transition"
+          >
+            <span>{isOpen ? 'Hide Calendar' : 'View 30-Day Dropdown'}</span>
+            {isOpen ? <ChevronUp className="w-4 h-4 text-[#FF6138]" /> : <ChevronDown className="w-4 h-4 text-[#FF6138]" />}
+          </button>
         </div>
       </div>
 
-      <div className="p-3.5 bg-[#FAF7F2] border border-[#EFEAE1] rounded-[14px] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-[#FF6138] shrink-0" />
-          <span className="text-[#40365D] font-medium leading-relaxed">
-            <strong>Automated Safety Safeguards:</strong> If 2 consecutive days are missed, Day 3 automatically alerts Caregiver <strong>Priya</strong>. If missed through Day 5 or 10, clinical telemetry escalates directly to <strong>Dr. Aarav Mehta</strong>.
-          </span>
+      {isOpen && (
+        <div className="pt-3 border-t border-[#F4EFE6] space-y-4 animate-fade-in">
+          <div className="p-3 bg-[#FAF7F2] border border-[#EFEAE1] rounded-[12px] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#FF6138] shrink-0" />
+              <span className="text-[#40365D] font-medium leading-relaxed">
+                <strong>Automated Safety Safeguards:</strong> If 2 consecutive days are missed, Day 3 automatically alerts Caregiver <strong>Priya</strong>. If missed through Day 5 or 10, clinical telemetry escalates directly to <strong>Dr. Aarav Mehta</strong>.
+              </span>
+            </div>
+            <span className="shrink-0 text-[10px] font-bold text-[#1E824C] bg-[#EAF8F0] px-2.5 py-0.5 rounded-full border border-[#1E824C]/20">
+              ✓ Active by Default
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-2">
+            {days.map((day) => {
+              const isDone = day.status === 'COMPLETED';
+              const isToday = day.isToday;
+
+              return (
+                <button
+                  key={day.dayNumber}
+                  type="button"
+                  onClick={() => setSelectedDay(day)}
+                  className={`p-2.5 rounded-[12px] border text-left transition-all relative flex flex-col justify-between cursor-pointer group hover:scale-[1.02] ${
+                    isDone
+                      ? 'bg-[#EAF8F0] border-[#1E824C]/35 hover:border-[#1E824C]'
+                      : isToday
+                      ? 'bg-white border-[#FF6138] ring-2 ring-[#FF6138]/20 shadow-xs'
+                      : 'bg-[#FAF7F2] border-[#EFEAE1] hover:border-[#CBD5E1]'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-black text-[#2D2545] font-['Outfit']">
+                        Day {day.dayNumber}
+                      </span>
+                      <span className="text-[9px] font-semibold text-[#6B6282]">
+                        {day.displayDate}
+                      </span>
+                    </div>
+
+                    <div className="my-0.5">
+                      {isDone ? (
+                        <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#1E824C] text-white shadow-2xs">
+                          <CheckCircle2 className="w-2.5 h-2.5" /> {day.dosesTaken}/{day.totalDoses} Done
+                        </span>
+                      ) : isToday ? (
+                        <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#FFF0EB] text-[#FF6138] border border-[#FF6138]/25">
+                          <Clock className="w-2.5 h-2.5" /> Today ({day.dosesTaken}/{day.totalDoses})
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#EFEAE1] text-[#6B6282]">
+                          Scheduled
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mt-1.5 pt-1 border-t border-[#EFEAE1]/60 flex items-center justify-between text-[8.5px] font-bold">
+                    {day.isCaregiverCheckpoint && (
+                      <span className="text-[#8C5A00] flex items-center gap-0.5" title="Day 3 Safeguard: 2-Day Missed Alert to Caregiver">
+                        <ShieldAlert className="w-2.5 h-2.5 text-[#FFBE53]" /> Caregiver
+                      </span>
+                    )}
+                    {day.isDoctorCheckpoint && (
+                      <span className="text-[#5B31D8] flex items-center gap-0.5" title="Day 5 / 10 Safeguard: Physician Telemetry Alert">
+                        <Stethoscope className="w-2.5 h-2.5 text-[#7952EC]" /> Doctor
+                      </span>
+                    )}
+                    {!day.isCaregiverCheckpoint && !day.isDoctorCheckpoint && (
+                      <span className="text-[#988EA8]">Daily 3 Doses</span>
+                    )}
+                    <ChevronRight className="w-2.5 h-2.5 text-[#988EA8] opacity-0 group-hover:opacity-100 transition" />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
-        <span className="shrink-0 text-[10px] font-bold text-[#1E824C] bg-[#EAF8F0] px-2.5 py-1 rounded-full border border-[#1E824C]/20">
-          ✓ Active by Default
-        </span>
-      </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-2.5">
-        {days.map((day) => {
-          const isDone = day.status === 'COMPLETED';
-          const isToday = day.isToday;
-
-          return (
-            <button
-              key={day.dayNumber}
-              type="button"
-              onClick={() => setSelectedDay(day)}
-              className={`p-3 rounded-[14px] border text-left transition-all relative flex flex-col justify-between cursor-pointer group hover:scale-[1.02] ${
-                isDone
-                  ? 'bg-[#EAF8F0] border-[#1E824C]/35 hover:border-[#1E824C]'
-                  : isToday
-                  ? 'bg-white border-[#FF6138] ring-2 ring-[#FF6138]/20 shadow-xs'
-                  : 'bg-[#FAF7F2] border-[#EFEAE1] hover:border-[#CBD5E1]'
-              }`}
-            >
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs font-black text-[#2D2545] font-['Outfit']">
-                    Day {day.dayNumber}
-                  </span>
-                  <span className="text-[10px] font-semibold text-[#6B6282]">
-                    {day.displayDate}
-                  </span>
-                </div>
-
-                <div className="my-1">
-                  {isDone ? (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#1E824C] text-white shadow-2xs">
-                      <CheckCircle2 className="w-3 h-3" /> {day.dosesTaken}/{day.totalDoses} Done
-                    </span>
-                  ) : isToday ? (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FFF0EB] text-[#FF6138] border border-[#FF6138]/25">
-                      <Clock className="w-3 h-3" /> Today ({day.dosesTaken}/{day.totalDoses})
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#EFEAE1] text-[#6B6282]">
-                      Scheduled
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <div className="mt-2 pt-1.5 border-t border-[#EFEAE1]/60 flex items-center justify-between text-[9px] font-bold">
-                {day.isCaregiverCheckpoint && (
-                  <span className="text-[#8C5A00] flex items-center gap-0.5" title="Day 3 Safeguard: 2-Day Missed Alert to Caregiver">
-                    <ShieldAlert className="w-3 h-3 text-[#FFBE53]" /> Caregiver
-                  </span>
-                )}
-                {day.isDoctorCheckpoint && (
-                  <span className="text-[#5B31D8] flex items-center gap-0.5" title="Day 5 / 10 Safeguard: Physician Telemetry Alert">
-                    <Stethoscope className="w-3 h-3 text-[#7952EC]" /> Doctor
-                  </span>
-                )}
-                {!day.isCaregiverCheckpoint && !day.isDoctorCheckpoint && (
-                  <span className="text-[#988EA8]">Daily 3 Doses</span>
-                )}
-                <ChevronRight className="w-3 h-3 text-[#988EA8] opacity-0 group-hover:opacity-100 transition" />
-              </div>
-            </button>
-          );
-        })}
-      </div>
+      )}
 
       {selectedDay && (
         <div className="fixed inset-0 z-55 flex items-center justify-center p-4 bg-[#1E1A2E]/60 backdrop-blur-xs animate-fade-in">

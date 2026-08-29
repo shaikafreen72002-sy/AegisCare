@@ -64,6 +64,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenChatWithTopic }) => 
 
         <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-center shrink-0">
           <button
+            onClick={() => {
+              const el = document.getElementById('monthly-plan-section');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
+            aria-label="View 30-Day Medication Plan Dropdown"
+            className="touch-target flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-[#FAF7F2] hover:bg-[#FFF0EB] text-[#2D2545] hover:text-[#FF6138] border border-[#EFEAE1] font-bold text-xs sm:text-sm shadow-2xs transition active:scale-[0.98] cursor-pointer"
+          >
+            <Calendar className="w-4 h-4 text-[#FF6138]" />
+            <span>30-Day Plan Dropdown</span>
+          </button>
+
+          <button
             onClick={() => setIsTelegramModalOpen(true)}
             aria-label="Send Telegram Medication Reminder"
             className="touch-target flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-[#EBF2FF] hover:bg-[#D9E7FF] text-[#1D5BD8] border border-[#4E89FF]/20 font-bold text-xs sm:text-sm shadow-xs transition active:scale-[0.98] cursor-pointer"
