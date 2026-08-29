@@ -87,62 +87,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenChatWithTopic }) => 
 
       <DemoScenarioBar onSelectScenario={handleScenarioSelect} isLoading={false} />
 
-      {/* Safety & Escalation Status Box */}
-      <div className="bg-white border border-[#EFEAE1] rounded-[16px] p-5 sm:p-6 shadow-[0_4px_20px_rgba(45,37,69,0.04)] space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#F4EFE6] pb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-full bg-[#EAF8F0] text-[#1E824C] flex items-center justify-center font-bold">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-extrabold text-[#2D2545] font-['Outfit']">
-                Adherence Escalation & Safety Protocol
-              </h2>
-              <span className="text-xs text-[#6B6282] font-medium">
-                Monitored by Adherence Escalation Agent (2-Day Caregiver & 3-Day Physician Safeguard)
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#EAF8F0] text-[#136B3B] border border-[#1E824C]/20">
-              ✓ Adherence: {adherencePct}% Today
-            </span>
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#FFF0EB] text-[#FF6138] border border-[#FF6138]/20">
-              Tier: Normal Routine
-            </span>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs font-bold text-[#5D5570]">
-            <span>Escalation Progression: Step 0/3</span>
-            <span className="text-[#1E824C] font-bold">All Reminders Acknowledged</span>
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { step: 1, label: '1. Patient Telegram Reminder', desc: 'Day 1 Missed Prompt', bg: 'bg-[#FAF7F2]', border: 'border-[#EFEAE1]' },
-              { step: 2, label: '2. Caregiver Urgent Alert', desc: 'Day 2 Missed Flag', bg: 'bg-[#FFF8E7]', border: 'border-[#FFBE53]/40' },
-              { step: 3, label: '3. Physician Clinical Alert', desc: 'Day 3+ Doctor Escalation', bg: 'bg-[#FFF0F0]', border: 'border-[#E53E3E]/30' }
-            ].map((s) => (
-              <div
-                key={s.step}
-                className={`p-3 rounded-[12px] ${s.bg} border ${s.border} text-left space-y-0.5`}
-              >
-                <div className="text-[10px] font-bold text-[#988EA8] uppercase tracking-wider">Tier {s.step}</div>
-                <div className="text-xs font-bold text-[#2D2545] truncate">
-                  {s.label.split('. ')[1]}
-                </div>
-                <div className="text-[11px] text-[#6B6282] font-medium truncate">
-                  {s.desc}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Medication Doses Routine */}
+      {/* Medication Doses Routine (Top Priority) */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
