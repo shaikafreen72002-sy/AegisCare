@@ -21,6 +21,9 @@ export interface SendReminderParams {
   patientName?: string;
 }
 
+let lastUpdateOffset = 0;
+const welcomedChats = new Set<string>();
+
 export class TelegramService {
   public static async getBotInfo() {
     try {
@@ -33,9 +36,10 @@ export class TelegramService {
     }
   }
 
-  public static async getUpdates() {
+  public static async getUpdates(offset?: number) {
     try {
-      const res = await fetch(`${TELEGRAM_API_BASE}/getUpdates`);
+      const url = offset ? `${TELEGRAM_API_BASE}/getUpdates?offset=${offset}` : `${TELEGRAM_API_BASE}/getUpdates`;
+      const res = await fetch(url);
       if (!res.ok) return [];
       const data = await res.json();
       return data.result || [];
@@ -69,8 +73,7 @@ export class TelegramService {
       }
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const messageText = `🔔 *Medication Reminder*\n\nIt's time to take your *${medName} — ${dose}* (${params.time || 'Scheduled Time'}).\n\nHave you taken your medication?\n\n📱 *Direct Web Link:* [Open AegisCare Routine](${appUrl})`;
+    const messageText = `🔔 *Medication Reminder*\n\nIt's time to take your *${medName} — ${dose}* (${params.time || '8:00 PM'}).\n\nHave you taken your medication? Tap a button below:`;
 
     const inlineKeyboard = {
       inline_keyboard: [
@@ -81,9 +84,6 @@ export class TelegramService {
         [
           { text: '❓ Not sure', callback_data: `notsure:${doseId}` },
           { text: '❌ Missed', callback_data: `missed:${doseId}` }
-        ],
-        [
-          { text: '📱 Open AegisCare Routine', url: appUrl }
         ]
       ]
     };
@@ -164,7 +164,8 @@ export class TelegramService {
       const text = (update.message.text || '').trim();
       setConnectedTelegramChatId(chatId);
 
-      if (text.startsWith('/start') || text.toLowerCase().includes('hello') || text.toLowerCase().includes('hi')) {
+      if (!welcomedChats.has(chatId) && (text.startsWith('/start') || text.toLowerCase().includes('hello') || text.toLowerCase().includes('hi'))) {
+        welcomedChats.add(chatId);
         const welcomeText = `🌸 *Welcome to AegisCare Medication Coach!* 🌸\n\nI am your personalized clinical adherence companion for *Donepezil / Memory Care*.\n\n✅ *Telegram Connected Successfully!*\nChat ID: \`${chatId}\`\n\nWhen it is time for your medication (e.g. 8:00 PM), I will send you interactive reminders with quick confirmation buttons right here.`;
 
         await fetch(`${TELEGRAM_API_BASE}/sendMessage`, {
@@ -331,12 +332,22 @@ export class TelegramService {
   }
 
   public static async pollAndProcessUpdates() {
-    const updates = await this.getUpdates();
+    const updates = await this.getUpdates(lastUpdateOffset ? lastUpdateOffset + 1 : undefined);
     const results = [];
     for (const update of updates) {
+      if (update.update_id) {
+        lastUpdateOffset = Math.max(lastUpdateOffset, update.update_id);
+      }
       const res = await this.handleUpdate(update);
       results.push(res);
     }
+
+    if (updates.length > 0 && lastUpdateOffset > 0) {
+      try {
+        await fetch(`${TELEGRAM_API_BASE}/getUpdates?offset=${lastUpdateOffset + 1}`);
+      } catch {}
+    }
+
     return {
       processed_count: updates.length,
       connected_chat_id: getConnectedTelegramChatId(),
