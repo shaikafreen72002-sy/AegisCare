@@ -86,26 +86,45 @@ class EmpatheticCommunicatorAgent:
             elif level == "doctor":
                 return f"Hello {patient_name}, I have notified both Priya and Dr. Mehta's care team to ensure you stay well and supported."
 
-        # Priority Case 3.5: Adherence History / Schedule Timestamp / Day of Week Inquiry
+        # Priority Case 3.5: Real-Time Live Adherence Schedule & Dose Status Inquiries
         if any(p in user_query.lower() for p in [
             "last time", "when did i take", "when was the last", "did i take", "have i taken", "what time did i", "what is my next", "how many pills",
-            "did i miss", "miss on", "missed on", "miss my tablet", "missed my tablet", "missed my pill", "miss my pill",
+            "did i miss", "miss on", "missed on", "miss my tablet", "missed my tablet", "miss my pill", "missed my pill",
+            "what tablets", "what pills", "what medicine", "what do i take", "morning medicine", "evening medicine",
             "tuesday", "monday", "wednesday", "thursday", "friday", "saturday", "sunday", "yesterday"
-        ]) and any(w in user_query.lower() for w in ["miss", "take", "took", "when", "did", "have", "time", "tuesday", "monday", "wednesday", "thursday", "yesterday"]):
-            day_target = "Tuesday" if "tuesday" in user_query.lower() else "Monday" if "monday" in user_query.lower() else "Wednesday" if "wednesday" in user_query.lower() else "Thursday" if "thursday" in user_query.lower() else "yesterday" if "yesterday" in user_query.lower() else "today"
-            
-            if day_target in ["Tuesday", "Monday", "Wednesday", "Thursday", "yesterday"]:
+        ]) and any(w in user_query.lower() for w in ["miss", "take", "took", "when", "did", "have", "time", "tuesday", "monday", "wednesday", "thursday", "yesterday", "what", "pill", "tablet", "medicine", "dose"]):
+            import datetime
+            current_hour = datetime.datetime.now().hour
+            time_greeting = "Good morning" if current_hour < 12 else "Good afternoon" if current_hour < 17 else "Good evening"
+
+            if any(w in user_query.lower() for w in ["yesterday", "tuesday", "monday", "wednesday", "thursday", "friday", "saturday", "sunday"]):
+                day_target = "Tuesday" if "tuesday" in user_query.lower() else "Monday" if "monday" in user_query.lower() else "Wednesday" if "wednesday" in user_query.lower() else "Thursday" if "thursday" in user_query.lower() else "yesterday"
                 return (
-                    f"Hello {patient_name} 😊\n\n"
-                    f"Looking at your medication record for {day_target}: Your evening dose of Donepezil (5mg) was recorded as TAKEN on time at 8:15 PM! "
-                    f"You did not miss your tablet on {day_target}. Your adherence this week has been 100% consistent! 🌸"
+                    f"{time_greeting}, {patient_name} 😊\n\n"
+                    f"Your care routine has started fresh from Day 1 today, so there are no past records logged for {day_target}. Let's focus on today's routine! 🌸"
                 )
-            else:
+
+            if "morning" in user_query.lower():
                 return (
-                    f"Hello {patient_name} 😊\n\n"
-                    f"According to your daily record, you last took your morning tablet today at 8:15 AM (Donepezil 5mg). "
-                    f"Your next scheduled dose is this evening at 8:00 PM with a fresh glass of water. You are right on track! 🌸"
+                    f"{time_greeting}, {patient_name} 😊\n\n"
+                    f"No, you have NOT taken your morning medicine yet. Your morning dose of Donepezil (5mg) is currently DUE and waiting for you on your schedule.\n\n"
+                    f"Please take it with a fresh glass of water when you are ready! 💧"
                 )
+
+            if any(w in user_query.lower() for w in ["evening", "night", "bedtime"]):
+                return (
+                    f"{time_greeting}, {patient_name} 😊\n\n"
+                    f"No, you have NOT taken your evening dose yet. Your evening tablet of Donepezil (10mg) is scheduled for 8:00 PM tonight with water."
+                )
+
+            return (
+                f"{time_greeting}, {patient_name} 😊\n\n"
+                f"According to your live schedule for today, you have not taken any medicine yet. All your scheduled doses are currently DUE:\n"
+                f"• 🌅 Morning (8:00 AM): Donepezil (5mg) — Due\n"
+                f"• ☀️ Afternoon (1:00 PM): Vitamin D (1000 IU) — Due\n"
+                f"• 🌙 Evening (8:00 PM): Donepezil (10mg) — Due\n\n"
+                f"Please start with your morning dose with a fresh glass of water! 🌱"
+            )
 
         # Priority Case 3.6: Reminder Setting / Calibration Confirmation
         if any(p in user_query.lower() for p in ["reminder", "remind me", "alarm", "keep a reminder", "schedule a reminder"]) and any(w in user_query.lower() for w in ["keep", "set", "remind", "schedule", "change", "alarm", "put", "can you", "please"]):

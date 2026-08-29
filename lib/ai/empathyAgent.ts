@@ -1,4 +1,4 @@
-import { sendEscalationAlert } from '../stateStore';
+import { sendEscalationAlert, getUserAdherence } from '../stateStore';
 import type { GuardrailDecision } from './guardrailAgent';
 import type { AdherenceDecision } from './adherenceAgent';
 import type { UrgencyLevel } from '../types/escalation';
@@ -70,16 +70,70 @@ export class EmpatheticCommunicatorAgent {
       }
     }
 
-    // Priority 3.5: Adherence History & Day of Week
+    // Priority 3.5: Real-Time Live Adherence Schedule & Dose Status Inquiries
     if (
-      /last time|when did i take|when was the last|did i take|have i taken|what time did i|what is my next|how many pills|did i miss|miss on|missed on|miss my tablet|missed my tablet|tuesday|monday|wednesday|thursday|friday|saturday|sunday|yesterday/.test(qLower) &&
-      /miss|take|took|when|did|have|time|tuesday|monday|wednesday|thursday|yesterday/.test(qLower)
+      /last time|when did i take|when was the last|did i take|have i taken|what time did i|what is my next|how many pills|did i miss|miss on|missed on|miss my tablet|missed my tablet|miss my pill|missed my pill|what tablets|what pills|what medicine|what do i take|morning medicine|evening medicine|tuesday|monday|wednesday|thursday|friday|saturday|sunday|yesterday/.test(qLower) &&
+      /miss|take|took|when|did|have|time|tuesday|monday|wednesday|thursday|yesterday|what|pill|tablet|medicine|dose/.test(qLower)
     ) {
-      const dayTarget = /tuesday/.test(qLower) ? 'Tuesday' : /monday/.test(qLower) ? 'Monday' : /wednesday/.test(qLower) ? 'Wednesday' : /thursday/.test(qLower) ? 'Thursday' : /yesterday/.test(qLower) ? 'yesterday' : 'today';
-      if (['Tuesday', 'Monday', 'Wednesday', 'Thursday', 'yesterday'].includes(dayTarget)) {
-        return `${timeGreeting}, ${patientName} 😊\n\nLooking at your medication record for ${dayTarget}: Your evening dose of Donepezil (5mg) was recorded as TAKEN on time at 8:15 PM! You did not miss your tablet on ${dayTarget}. Your adherence this week has been 100% consistent! 🌸`;
+      const userAdherence = getUserAdherence();
+      const schedule = userAdherence?.schedule || [];
+      const morningDose = schedule.find((s) => s.time_slot.toLowerCase().includes('morning') || s.scheduled_time.startsWith('08') || s.id.includes('morning'));
+      const middayDose = schedule.find((s) => s.time_slot.toLowerCase().includes('afternoon') || s.time_slot.toLowerCase().includes('midday') || s.scheduled_time.startsWith('13') || s.id.includes('afternoon'));
+      const eveningDose = schedule.find((s) => s.time_slot.toLowerCase().includes('evening') || s.scheduled_time.startsWith('20') || s.id.includes('evening'));
+
+      // Check for past days
+      if (/yesterday|tuesday|monday|wednesday|thursday|friday|saturday|sunday/.test(qLower)) {
+        const dayTarget = /tuesday/.test(qLower) ? 'Tuesday' : /monday/.test(qLower) ? 'Monday' : /wednesday/.test(qLower) ? 'Wednesday' : /thursday/.test(qLower) ? 'Thursday' : /friday/.test(qLower) ? 'Friday' : 'yesterday';
+        const pastLog = (userAdherence.history || []).find((h) => h.date.toLowerCase().includes(dayTarget.toLowerCase()));
+        if (pastLog && pastLog.status === 'COMPLETED') {
+          return `${timeGreeting}, ${patientName} 😊\n\nLooking at your record for ${dayTarget}: All doses were recorded as TAKEN on time! Your adherence was 100% consistent. 🌸`;
+        } else {
+          return `${timeGreeting}, ${patientName} 😊\n\nYour care routine has started fresh from Day 1 today, so there are no past records logged for ${dayTarget}. Let's focus on today's routine! 🌸`;
+        }
+      }
+
+      // Check for specific Morning Dose inquiry
+      if (/morning/.test(qLower)) {
+        if (morningDose && morningDose.status === 'TAKEN') {
+          return `${timeGreeting}, ${patientName} 😊\n\nYes! Your morning tablet of ${morningDose.medication_name} (${morningDose.dosage}) was recorded as TAKEN at ${morningDose.taken_at || 'on time'}. Your next scheduled dose is ${eveningDose ? eveningDose.time_slot : 'this evening'} with a fresh glass of water. You are right on track! 🌸`;
+        } else {
+          return `${timeGreeting}, ${patientName} 😊\n\nNo, you have NOT taken your morning medicine yet. Your morning dose of ${morningDose?.medication_name || 'Donepezil'} (${morningDose?.dosage || '5mg'}) is currently DUE and waiting for you on your schedule.\n\nPlease take it with a fresh glass of water when you are ready! 💧`;
+        }
+      }
+
+      // Check for specific Evening Dose inquiry
+      if (/evening|night|bedtime/.test(qLower)) {
+        if (eveningDose && eveningDose.status === 'TAKEN') {
+          return `${timeGreeting}, ${patientName} 😊\n\nYes! Your evening tablet of ${eveningDose.medication_name} (${eveningDose.dosage}) was recorded as TAKEN at ${eveningDose.taken_at || 'on time'}. You have completed your doses for today! 🌸`;
+        } else {
+          return `${timeGreeting}, ${patientName} 😊\n\nNo, you have NOT taken your evening dose yet. Your evening tablet of ${eveningDose?.medication_name || 'Donepezil'} (${eveningDose?.dosage || '10mg'}) is scheduled for 8:00 PM tonight with water.`;
+        }
+      }
+
+      // General Today inquiry (did I take my medicine / what tablets today)
+      const takenDoses = schedule.filter((s) => s.status === 'TAKEN');
+      if (takenDoses.length === 0) {
+        return (
+          `${timeGreeting}, ${patientName} 😊\n\n` +
+          `According to your live schedule for today, you have not taken any medicine yet. All your scheduled doses are currently DUE:\n` +
+          `• 🌅 Morning (8:00 AM): ${morningDose?.medication_name || 'Donepezil'} (${morningDose?.dosage || '5mg'}) — Due\n` +
+          `• ☀️ Afternoon (1:00 PM): ${middayDose?.medication_name || 'Vitamin D'} (${middayDose?.dosage || '1000 IU'}) — Due\n` +
+          `• 🌙 Evening (8:00 PM): ${eveningDose?.medication_name || 'Donepezil'} (${eveningDose?.dosage || '10mg'}) — Due\n\n` +
+          `Please start with your morning dose with a fresh glass of water! 🌱`
+        );
+      } else if (takenDoses.length === schedule.length) {
+        return `${timeGreeting}, ${patientName} 🌸\n\nWonderful news! You have already taken all ${schedule.length} of your scheduled doses for today. Your adherence for today is 100% complete! ✨`;
       } else {
-        return `${timeGreeting}, ${patientName} 😊\n\nAccording to your daily record, you last took your morning tablet today at 8:15 AM (Donepezil 5mg). Your next scheduled dose is this evening at 8:00 PM with a fresh glass of water. You are right on track! 🌸`;
+        const takenNames = takenDoses.map((d) => `• ✓ ${d.time_slot}: ${d.medication_name} (${d.dosage}) - Taken at ${d.taken_at || 'on time'}`).join('\n');
+        const dueDoses = schedule.filter((s) => s.status !== 'TAKEN');
+        const dueNames = dueDoses.map((d) => `• ⏳ ${d.time_slot}: ${d.medication_name} (${d.dosage}) - Due`).join('\n');
+        return (
+          `${timeGreeting}, ${patientName} 😊\n\n` +
+          `Here is your current medication status for today:\n` +
+          `Already Taken:\n${takenNames}\n\n` +
+          `Still Due:\n${dueNames}\n\n` +
+          `You're doing great—remember to take your remaining doses with water!`
+        );
       }
     }
 
