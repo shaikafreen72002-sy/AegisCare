@@ -620,20 +620,69 @@ export const OnboardingWizard: React.FC = () => {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <div>
                           <label className="block text-[10px] font-bold text-[#64748B] uppercase mb-0.5">
-                            Dose Label / Context
+                            Routine Period
                           </label>
-                          <input
-                            type="text"
-                            value={slot.label}
-                            onChange={(e) => updateMedicationTiming(slot.id, 'label', e.target.value)}
-                            placeholder="e.g. Morning Dose, Night Dose"
-                            className="w-full h-[38px] text-xs px-2.5 rounded-[6px] border border-[#CBD5E1] bg-white text-[#0F172A] focus:outline-none focus:border-[#2F80ED]"
-                          />
+                          <select
+                            value={
+                              slot.label.toLowerCase().includes('morning')
+                                ? 'Morning Routine'
+                                : slot.label.toLowerCase().includes('afternoon') || slot.label.toLowerCase().includes('lunch') || slot.label.toLowerCase().includes('midday')
+                                ? 'Afternoon Routine'
+                                : slot.label.toLowerCase().includes('evening') || slot.label.toLowerCase().includes('night') || slot.label.toLowerCase().includes('dinner') || slot.label.toLowerCase().includes('bed')
+                                ? 'Evening Routine'
+                                : 'Other'
+                            }
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val === 'Morning Routine') {
+                                updateMedicationTiming(slot.id, 'label', 'Morning Routine (Breakfast)');
+                                if (!slot.time || slot.time === '20:00' || slot.time === '13:00') {
+                                  updateMedicationTiming(slot.id, 'time', '08:00');
+                                }
+                              } else if (val === 'Afternoon Routine') {
+                                updateMedicationTiming(slot.id, 'label', 'Afternoon Routine (Lunch)');
+                                if (!slot.time || slot.time === '20:00' || slot.time === '08:00') {
+                                  updateMedicationTiming(slot.id, 'time', '13:00');
+                                }
+                              } else if (val === 'Evening Routine') {
+                                updateMedicationTiming(slot.id, 'label', 'Evening Routine (Dinner / Bedtime)');
+                                if (!slot.time || slot.time === '08:00' || slot.time === '13:00') {
+                                  updateMedicationTiming(slot.id, 'time', '20:00');
+                                }
+                              } else {
+                                updateMedicationTiming(slot.id, 'label', 'Custom Routine');
+                              }
+                            }}
+                            className="w-full h-[38px] text-xs font-bold px-2.5 rounded-[6px] border border-[#CBD5E1] bg-white text-[#0F172A] focus:outline-none focus:border-[#2F80ED] cursor-pointer"
+                          >
+                            <option value="Morning Routine">🌅 Morning Routine (Breakfast)</option>
+                            <option value="Afternoon Routine">☀️ Afternoon Routine (Lunch)</option>
+                            <option value="Evening Routine">🌙 Evening Routine (Dinner / Bedtime)</option>
+                            <option value="Other">✨ Other / Custom Routine...</option>
+                          </select>
+
+                          {/* Custom Description if Other is chosen */}
+                          {(!slot.label.toLowerCase().includes('morning') &&
+                            !slot.label.toLowerCase().includes('afternoon') &&
+                            !slot.label.toLowerCase().includes('lunch') &&
+                            !slot.label.toLowerCase().includes('midday') &&
+                            !slot.label.toLowerCase().includes('evening') &&
+                            !slot.label.toLowerCase().includes('night') &&
+                            !slot.label.toLowerCase().includes('dinner') &&
+                            !slot.label.toLowerCase().includes('bed')) && (
+                            <input
+                              type="text"
+                              value={slot.label}
+                              onChange={(e) => updateMedicationTiming(slot.id, 'label', e.target.value)}
+                              placeholder="Describe custom routine (e.g. 4 PM Tea Routine)..."
+                              className="w-full mt-1.5 h-[34px] text-xs px-2.5 rounded-[6px] border border-[#CBD5E1] bg-white text-[#0F172A] focus:outline-none focus:border-[#2F80ED]"
+                            />
+                          )}
                         </div>
 
                         <div>
                           <label className="block text-[10px] font-bold text-[#64748B] uppercase mb-0.5 flex items-center justify-between">
-                            <span>Time (IST)</span>
+                            <span>Exact Time (IST)</span>
                             <span className="text-[#2F80ED] font-bold lowercase">
                               {parseInt(slot.time.split(':')[0] || '0', 10) >= 12 ? 'pm' : 'am'}
                             </span>
