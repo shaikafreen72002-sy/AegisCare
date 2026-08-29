@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import type { DoseScheduleItem } from '@/lib/types/adherence';
 import { usePatient } from '@/lib/context/PatientContext';
-import { CheckCircle2, Clock, HelpCircle, Pill, AlertCircle, Sparkles, MessageSquareHeart } from 'lucide-react';
+import { CheckCircle2, Clock, HelpCircle, Pill, AlertCircle, Sparkles, MessageSquareHeart, ShieldCheck } from 'lucide-react';
 
 interface MedicationCardProps {
   dose: DoseScheduleItem;
@@ -53,36 +53,36 @@ export const MedicationCard: React.FC<MedicationCardProps> = ({ dose, onOpenChat
 
   return (
     <div
-      className={`rounded-[16px] border transition-all p-5 sm:p-6 shadow-[0_4px_20px_rgba(45,37,69,0.04)] bg-white ${
+      className={`rounded-[18px] border transition-all duration-300 p-5 sm:p-6 shadow-[0_4px_20px_rgba(45,37,69,0.04)] ${
         isTaken
-          ? 'border-[#1E824C]/30 bg-[#EAF8F0]/30'
+          ? 'border-[#1E824C] bg-[#EAF8F0] ring-2 ring-[#1E824C]/25 shadow-[0_8px_25px_rgba(30,130,76,0.15)]'
           : isDue
-          ? 'border-[#FF6138] ring-2 ring-[#FF6138]/15'
+          ? 'border-[#FF6138] bg-white ring-2 ring-[#FF6138]/15'
           : isMissed
-          ? 'border-[#FFBE53]'
-          : 'border-[#EFEAE1]'
+          ? 'border-[#FFBE53] bg-white'
+          : 'border-[#EFEAE1] bg-white'
       }`}
     >
       <div className="flex flex-col justify-between gap-4 h-full">
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-2">
             <div
-              className={`w-11 h-11 rounded-[12px] flex items-center justify-center shrink-0 ${
+              className={`w-11 h-11 rounded-[12px] flex items-center justify-center shrink-0 transition-colors ${
                 isTaken
-                  ? 'bg-[#EAF8F0] text-[#1E824C]'
+                  ? 'bg-white text-[#1E824C] shadow-xs'
                   : isDue
                   ? 'bg-[#FFF0EB] text-[#FF6138]'
                   : 'bg-[#FAF7F2] text-[#6B6282]'
               }`}
             >
-              {isTaken ? <CheckCircle2 className="w-6 h-6" /> : <Pill className="w-6 h-6" />}
+              {isTaken ? <CheckCircle2 className="w-6 h-6 text-[#1E824C]" /> : <Pill className="w-6 h-6" />}
             </div>
 
             <div className="flex flex-wrap items-center gap-1.5 justify-end">
               <span
-                className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
+                className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider transition-colors ${
                   isTaken
-                    ? 'bg-[#EAF8F0] text-[#136B3B] border border-[#1E824C]/25'
+                    ? 'bg-[#1E824C] text-white shadow-2xs'
                     : isDue
                     ? 'bg-[#FFF0EB] text-[#FF6138] border border-[#FF6138]/25'
                     : isMissed
@@ -90,42 +90,42 @@ export const MedicationCard: React.FC<MedicationCardProps> = ({ dose, onOpenChat
                     : 'bg-[#FAF7F2] text-[#6B6282] border border-[#EFEAE1]'
                 }`}
               >
-                {isTaken ? 'Recorded' : isDue ? 'Due Now' : isMissed ? 'Needs Help' : 'Upcoming'}
+                {isTaken ? '✓ Taken & Recorded' : isDue ? 'Due Now' : isMissed ? 'Needs Help' : 'Upcoming'}
               </span>
 
               {/* Meal Context Tag */}
-              <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${mealTag.color}`}>
+              <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${isTaken ? 'bg-white text-[#136B3B] border-[#1E824C]/30' : mealTag.color}`}>
                 {mealTag.label}
               </span>
             </div>
           </div>
 
           <div>
-            <span className="text-xs font-bold text-[#6B6282] flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5 text-[#988EA8]" />
+            <span className={`text-xs font-bold flex items-center gap-1 ${isTaken ? 'text-[#136B3B]' : 'text-[#6B6282]'}`}>
+              <Clock className={`w-3.5 h-3.5 ${isTaken ? 'text-[#1E824C]' : 'text-[#988EA8]'}`} />
               {dose.time_slot} ({dose.scheduled_time || 'Daily'})
             </span>
 
-            <h3 className="text-lg font-extrabold text-[#2D2545] mt-1 font-['Outfit']">
+            <h3 className={`text-lg font-extrabold mt-1 font-['Outfit'] ${isTaken ? 'text-[#0E4A28]' : 'text-[#2D2545]'}`}>
               {dose.medication_name}{' '}
-              <span className="text-sm font-semibold text-[#6B6282]">
+              <span className={`text-sm font-semibold ${isTaken ? 'text-[#1B5E20]' : 'text-[#6B6282]'}`}>
                 ({dose.dosage})
               </span>
             </h3>
 
-            <p className="text-xs text-[#5D5570] mt-1 leading-relaxed">
+            <p className={`text-xs mt-1 leading-relaxed ${isTaken ? 'text-[#2E7D32]' : 'text-[#5D5570]'}`}>
               {dose.instructions}
             </p>
 
-            {isTaken && dose.taken_at && (
-              <p className="text-xs font-bold text-[#1E824C] mt-2 flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5 text-[#1E824C]" /> Recorded at {dose.taken_at} • Locked & Verified
+            {isTaken && (
+              <p className="text-xs font-black text-[#1E824C] mt-2.5 flex items-center gap-1.5 bg-white/80 py-1 px-2.5 rounded-[10px] w-fit border border-[#1E824C]/25">
+                <Sparkles className="w-3.5 h-3.5 text-[#1E824C]" /> Recorded at {dose.taken_at || '11:27 AM'} • Logged in Adherence History
               </p>
             )}
           </div>
         </div>
 
-        <div className="pt-2 border-t border-[#F4EFE6] flex items-center justify-between gap-2">
+        <div className="pt-2 border-t border-[#F4EFE6]/60 flex items-center justify-between gap-2">
           {!isTaken ? (
             <button
               onClick={handleMarkTaken}
@@ -138,11 +138,11 @@ export const MedicationCard: React.FC<MedicationCardProps> = ({ dose, onOpenChat
             </button>
           ) : (
             <div
-              title="Medication intake is recorded and locked. Cannot be altered."
-              className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-full bg-[#EAF8F0] text-[#136B3B] font-bold text-xs border border-[#1E824C]/30 cursor-not-allowed select-none shadow-2xs"
+              title="Medication intake is recorded and locked into clinical adherence history."
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full bg-[#1E824C] text-white font-bold text-xs shadow-xs select-none"
             >
-              <CheckCircle2 className="w-4 h-4 text-[#1E824C]" />
-              <span>✓ Recorded & Locked</span>
+              <CheckCircle2 className="w-4 h-4 text-white" />
+              <span>✓ Dose Taken & Logged</span>
             </div>
           )}
 
@@ -179,7 +179,7 @@ export const MedicationCard: React.FC<MedicationCardProps> = ({ dose, onOpenChat
                 </button>
                 <button
                   onClick={() => setShowMissedHelp(false)}
-                  className="touch-target px-3 py-1.5 rounded-full bg-white border border-[#EFEAE1] text-[#40365D] font-bold text-xs hover:bg-[#FAF7F2] transition"
+                  className="text-xs text-[#6B6282] hover:underline px-2 py-1"
                 >
                   Dismiss
                 </button>

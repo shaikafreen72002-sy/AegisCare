@@ -7,7 +7,8 @@ import { MonthlyCalendarPlan } from '../components/MonthlyCalendarPlan';
 import {
   MessageSquareText,
   Clock,
-  Calendar
+  Calendar,
+  CheckCircle2
 } from 'lucide-react';
 
 interface DashboardProps {
@@ -79,11 +80,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenChatWithTopic }) => 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Clock className="w-5 h-5 text-[#FF6138]" />
+            {takenCount > 0 ? (
+              <CheckCircle2 className="w-5 h-5 text-[#1E824C]" />
+            ) : (
+              <Clock className="w-5 h-5 text-[#FF6138]" />
+            )}
             <h2 className="text-xl font-extrabold text-[#2D2545] font-['Outfit']">Today's Medication Routine</h2>
           </div>
-          <span className="text-xs font-bold text-[#6B6282] bg-[#FAF7F2] px-3 py-1 rounded-full border border-[#EFEAE1]">
-            {takenCount} of {totalCount} doses taken
+          <span className={`text-xs font-extrabold px-3 py-1 rounded-full border transition-all ${
+            takenCount === totalCount && totalCount > 0
+              ? 'bg-[#EAF8F0] text-[#1E824C] border-[#1E824C]/30 shadow-2xs'
+              : takenCount > 0
+              ? 'bg-[#EAF8F0] text-[#136B3B] border-[#1E824C]/25'
+              : 'text-[#6B6282] bg-[#FAF7F2] border-[#EFEAE1]'
+          }`}>
+            {takenCount > 0 ? `✓ ${takenCount} of ${totalCount} doses recorded in history` : `${takenCount} of ${totalCount} doses taken`}
           </span>
         </div>
 

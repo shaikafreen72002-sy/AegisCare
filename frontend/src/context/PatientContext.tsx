@@ -170,6 +170,73 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [largeText]);
 
+  // 24/7 Automated Daily Telegram Reminder Scheduler
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const checkAndDispatchSchedule = async () => {
+      try {
+        const now = new Date();
+        const currentHours = String(now.getHours()).padStart(2, '0');
+        const currentMinutes = String(now.getMinutes()).padStart(2, '0');
+        const currentTimeStr = `${currentHours}:${currentMinutes}`;
+        const todayDateStr = now.toISOString().split('T')[0];
+
+        const storageKey = 'aegiscare_dispatched_scheduled_slots';
+        let dispatchedSlots: Record<string, string[]> = {};
+        try {
+          dispatchedSlots = JSON.parse(localStorage.getItem(storageKey) || '{}');
+        } catch {}
+
+        const todayDispatched = dispatchedSlots[todayDateStr] || [];
+
+        for (const dose of adherence.schedule) {
+          const doseTime = dose.scheduled_time;
+          if (doseTime === currentTimeStr && !todayDispatched.includes(dose.id) && dose.status === 'DUE') {
+            await apiService.sendTelegramReminder({
+              medication: dose.medication_name,
+              dosage: dose.dosage,
+              time: dose.time_slot,
+              doseId: dose.id,
+              patientName: profile.preferred_name || profile.name
+            });
+
+            dispatchedSlots[todayDateStr] = [...todayDispatched, dose.id];
+            localStorage.setItem(storageKey, JSON.stringify(dispatchedSlots));
+          }
+        }
+      } catch {}
+    };
+
+    const interval = setInterval(checkAndDispatchSchedule, 5000);
+    return () => clearInterval(interval);
+  }, [adherence.schedule, profile]);
+
+  // Continuous Global Telegram Callback Poller (Syncs Telegram button clicks like '✅ Taken' directly with UI)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const pollTelegramCallbackLoop = async () => {
+      try {
+        const pollRes = await apiService.pollTelegramUpdates();
+        if (pollRes && (pollRes.processed_count > 0 || (pollRes.details && pollRes.details.length > 0))) {
+          const freshAdherence = await apiService.getAdherence();
+          setAdherence({ ...freshAdherence });
+
+          try {
+            localStorage.setItem(`dementor_custom_schedule_${profile.patient_id || 'afreen'}`, JSON.stringify(freshAdherence.schedule));
+          } catch {}
+
+          const freshNotifications = await apiService.getNotificationHistory();
+          setNotifications(freshNotifications);
+        }
+      } catch {}
+    };
+
+    const interval = setInterval(pollTelegramCallbackLoop, 2000);
+    return () => clearInterval(interval);
+  }, [profile.patient_id]);
+
   const login = async (identifier: string, password: string = 'demo123'): Promise<AuthUser> => {
     const user = await apiService.login(identifier, password);
     setCurrentUser(user);

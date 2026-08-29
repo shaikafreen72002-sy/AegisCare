@@ -316,38 +316,49 @@ export function markDoseTakenInStore(doseId: string, notes?: string, userId?: st
   const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   let matched = false;
 
-  for (const item of adherence.schedule) {
-    if (item.id === doseId || doseId.includes(item.id) || item.id.includes(doseId)) {
-      item.status = 'TAKEN';
-      item.taken_at = now;
-      matched = true;
-      break;
+  const targetList = [adherence, GLOBAL_ADHERENCE_STATE];
+  Object.values(USER_ADHERENCE_MAP).forEach((userAdh) => {
+    if (!targetList.includes(userAdh)) {
+      targetList.push(userAdh);
     }
-  }
+  });
 
-  if (!matched && adherence.schedule.length > 0) {
-    const dueDose = adherence.schedule.find((d) => d.status === 'DUE');
-    if (dueDose) {
-      dueDose.status = 'TAKEN';
-      dueDose.taken_at = now;
-      matched = true;
+  for (const target of targetList) {
+    let localMatched = false;
+    for (const item of target.schedule) {
+      if (item.id === doseId || doseId.includes(item.id) || item.id.includes(doseId)) {
+        item.status = 'TAKEN';
+        item.taken_at = now;
+        localMatched = true;
+        matched = true;
+        break;
+      }
     }
-  }
 
-  const todayStr = new Date().toISOString().split('T')[0];
-  const takenCount = adherence.schedule.filter((s) => s.status === 'TAKEN').length;
-  const existingToday = adherence.history.find((h) => h.date === todayStr);
+    if (!localMatched && target.schedule.length > 0) {
+      const dueDose = target.schedule.find((d) => d.status === 'DUE');
+      if (dueDose) {
+        dueDose.status = 'TAKEN';
+        dueDose.taken_at = now;
+        matched = true;
+      }
+    }
 
-  if (existingToday) {
-    existingToday.doses_taken = takenCount;
-    existingToday.status = takenCount >= adherence.schedule.length ? 'COMPLETED' : 'IN_PROGRESS';
-  } else if (adherence.schedule.length > 0) {
-    adherence.history.unshift({
-      date: todayStr,
-      status: takenCount >= adherence.schedule.length ? 'COMPLETED' : 'IN_PROGRESS',
-      doses_taken: takenCount,
-      total_doses: adherence.schedule.length
-    });
+    const todayStr = new Date().toISOString().split('T')[0];
+    const takenCount = target.schedule.filter((s) => s.status === 'TAKEN').length;
+    const existingToday = target.history.find((h) => h.date === todayStr);
+
+    if (existingToday) {
+      existingToday.doses_taken = takenCount;
+      existingToday.status = takenCount >= target.schedule.length ? 'COMPLETED' : 'IN_PROGRESS';
+    } else if (target.schedule.length > 0) {
+      target.history.unshift({
+        date: todayStr,
+        status: takenCount >= target.schedule.length ? 'COMPLETED' : 'IN_PROGRESS',
+        doses_taken: takenCount,
+        total_doses: target.schedule.length
+      });
+    }
   }
 
   return matched;

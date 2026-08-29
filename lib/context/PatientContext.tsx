@@ -268,6 +268,31 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return () => clearInterval(interval);
   }, [adherence.schedule, profile]);
 
+  // Continuous Global Telegram Callback Poller (Syncs Telegram button clicks like '✅ Taken' directly with UI)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const pollTelegramCallbackLoop = async () => {
+      try {
+        const pollRes = await apiService.pollTelegramUpdates();
+        if (pollRes && (pollRes.processed_count > 0 || (pollRes.details && pollRes.details.length > 0))) {
+          const freshAdherence = await apiService.getAdherence();
+          setAdherence({ ...freshAdherence });
+
+          try {
+            localStorage.setItem(`dementor_custom_schedule_${profile.patient_id || 'afreen'}`, JSON.stringify(freshAdherence.schedule));
+          } catch {}
+
+          const freshNotifications = await apiService.getNotificationHistory();
+          setNotifications(freshNotifications);
+        }
+      } catch {}
+    };
+
+    const interval = setInterval(pollTelegramCallbackLoop, 2000);
+    return () => clearInterval(interval);
+  }, [profile.patient_id]);
+
   const login = async (identifier: string, password?: string): Promise<AuthUser> => {
     const user = await apiService.login(identifier, password);
     setCurrentUser(user);
