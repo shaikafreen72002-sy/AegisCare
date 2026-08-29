@@ -17,9 +17,11 @@ import {
   Moon,
   ShieldCheck,
   Bell,
+  HeartHandshake,
   CalendarCheck2,
   SlidersHorizontal,
-  Check
+  Check,
+  AlertCircle
 } from 'lucide-react';
 
 interface TelegramReminderModalProps {
@@ -52,6 +54,7 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
   const [selectedSlot, setSelectedSlot] = useState<'morning' | 'afternoon' | 'evening'>('evening');
   const [isEditingTimes, setIsEditingTimes] = useState(false);
   const [timingSavedSuccess, setTimingSavedSuccess] = useState(false);
+  const [showManualIdInput, setShowManualIdInput] = useState(false);
 
   // Extract current dose times from schedule
   const morningDose = adherence.schedule.find((s) => s.id.includes('morning') || s.time_slot.toLowerCase().includes('morning'));
@@ -82,19 +85,18 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
     }
   }, [isOpen]);
 
-  // Periodic polling for button callbacks when modal is open
   useEffect(() => {
     if (!isOpen) return;
     const interval = setInterval(async () => {
       try {
         const pollRes = await apiService.pollTelegramUpdates();
-        if (pollRes.processed_count > 0) {
+        if (pollRes.processed_count > 0 || pollRes.connected_chat_id) {
           await refreshState();
           await fetchStatus();
           setLastAction(`Updated from Telegram at ${new Date().toLocaleTimeString()}`);
         }
       } catch {}
-    }, 3000);
+    }, 2000);
 
     return () => clearInterval(interval);
   }, [isOpen]);
@@ -110,6 +112,13 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
     setTimingSavedSuccess(true);
     setIsEditingTimes(false);
     setTimeout(() => setTimingSavedSuccess(false), 4000);
+  };
+
+  const handleSaveChatId = async () => {
+    if (!chatIdInput.trim()) return;
+    await apiService.saveTelegramChatId(chatIdInput.trim());
+    await fetchStatus();
+    setShowManualIdInput(false);
   };
 
   const slotConfigs = {
@@ -183,10 +192,11 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
     }
   };
 
+  const isConnected = !!botStatus.connected_chat_id;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-in">
       <div className="bg-white rounded-[24px] max-w-lg w-full p-6 space-y-4 shadow-[0_20px_60px_rgba(45,37,69,0.2)] border border-[#EFEAE1] max-h-[90vh] overflow-y-auto">
-        {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-[#F4EFE6]">
           <div className="flex items-center gap-2.5">
             <div className="w-10 h-10 rounded-[12px] bg-[#4E89FF] text-white flex items-center justify-center shadow-xs">
@@ -210,57 +220,81 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
           </button>
         </div>
 
-        {/* Dementia & Memory Care Protocol Explanation */}
-        <div className="p-3.5 bg-[#EAF8F0] border border-[#1E824C]/25 rounded-[16px] space-y-1.5">
+        {/* Telegram Bot Connection Status & Activation Guide */}
+        <div className={`p-4 border rounded-[16px] space-y-2.5 ${isConnected ? 'bg-[#EAF8F0] border-[#1E824C]/30' : 'bg-[#FFF8E7] border-[#FFBE53]/40'}`}>
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#136B3B] font-['Outfit'] flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-[#1E824C]" /> Personalized Daily Routine Active
+            <span className={`text-xs font-bold flex items-center gap-1.5 font-['Outfit'] ${isConnected ? 'text-[#136B3B]' : 'text-[#8C5A00]'}`}>
+              {isConnected ? <CheckCircle2 className="w-4 h-4 text-[#1E824C]" /> : <AlertCircle className="w-4 h-4 text-[#FFBE53]" />}
+              {isConnected ? 'Step 1: Telegram Connected & Ready' : 'Step 1: Activate Telegram Notifications'}
             </span>
-            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-white text-[#136B3B] border border-[#1E824C]/20">
-              🟢 Set Once • Auto-Runs Daily
-            </span>
-          </div>
-          <p className="text-xs text-[#2D503C] leading-relaxed">
-            <strong>Dementia Care Automation:</strong> Reminders dispatch <strong>automatically at your exact scheduled timings</strong> ({format12Hour(morningTime)}, {format12Hour(afternoonTime)}, and {format12Hour(eveningTime)}) directly to Telegram.
-          </p>
-        </div>
-
-        {/* Telegram Bot Link & Connection Step */}
-        <div className="p-4 bg-[#FAF7F2] border border-[#EFEAE1] rounded-[16px] space-y-2.5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#2D2545] flex items-center gap-1.5 font-['Outfit']">
-              <Sparkles className="w-4 h-4 text-[#FF6138]" /> Step 1: One-Time Telegram Connection
-            </span>
-            <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${botStatus.connected_chat_id ? 'bg-[#EAF8F0] text-[#136B3B] border border-[#1E824C]/25' : 'bg-[#FFF8E7] text-[#8C5A00] border border-[#FFBE53]/40'}`}>
-              {botStatus.connected_chat_id ? `✓ Connected (Chat ID: ${botStatus.connected_chat_id})` : 'Waiting for /start'}
+            <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${isConnected ? 'bg-white text-[#136B3B] border border-[#1E824C]/25' : 'bg-white text-[#8C5A00] border border-[#FFBE53]/50'}`}>
+              {isConnected ? `🟢 Connected (Chat ID: ${botStatus.connected_chat_id})` : '🟡 Action Needed: Tap START in Telegram'}
             </span>
           </div>
 
-          <p className="text-xs text-[#5D5570]">
-            Connect once to receive automated daily reminders for the entire 30-day care cycle.
-          </p>
+          {!isConnected ? (
+            <div className="space-y-2 text-xs text-[#5D5570]">
+              <p className="leading-relaxed">
+                👉 <strong>How to activate:</strong> Telegram requires you to start the bot once so it has permission to send reminders to your device. Click the button below, then tap <strong>START</strong> in Telegram.
+              </p>
 
-          <div className="flex items-center gap-2 pt-0.5">
-            <a
-              href="https://t.me/BversityCareBot"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="touch-target flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-[#4E89FF] hover:bg-[#3B75EB] text-white text-xs font-bold rounded-full shadow-xs transition cursor-pointer"
-            >
-              <span>Open @BversityCareBot in Telegram</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
+              <div className="flex items-center gap-2 pt-1">
+                <a
+                  href="https://t.me/BversityCareBot"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="touch-target flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-[#4E89FF] hover:bg-[#3B75EB] text-white text-xs font-bold rounded-full shadow-xs transition cursor-pointer"
+                >
+                  <span>1. Open @BversityCareBot & Tap START</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
 
-            <button
-              onClick={handleManualPoll}
-              disabled={isPolling}
-              className="touch-target py-2.5 px-4 bg-white border border-[#EFEAE1] text-[#40365D] text-xs font-bold rounded-full hover:bg-[#FAF7F2] transition flex items-center gap-1.5 cursor-pointer"
-              title="Sync latest Telegram responses"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${isPolling ? 'animate-spin text-[#FF6138]' : ''}`} />
-              <span>Sync</span>
-            </button>
-          </div>
+                <button
+                  type="button"
+                  onClick={handleManualPoll}
+                  disabled={isPolling}
+                  className="touch-target py-2.5 px-4 bg-white border border-[#EFEAE1] text-[#40365D] text-xs font-bold rounded-full hover:bg-[#FAF7F2] transition flex items-center gap-1.5 cursor-pointer"
+                  title="Check if /start was clicked"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isPolling ? 'animate-spin text-[#FF6138]' : ''}`} />
+                  <span>2. Verify Connection</span>
+                </button>
+              </div>
+
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowManualIdInput(!showManualIdInput)}
+                  className="text-[11px] text-[#4E89FF] hover:underline font-semibold"
+                >
+                  {showManualIdInput ? 'Hide manual Chat ID entry' : 'Or enter Telegram Chat ID manually'}
+                </button>
+
+                {showManualIdInput && (
+                  <div className="flex items-center gap-2 mt-1.5 animate-fade-in">
+                    <input
+                      type="text"
+                      placeholder="e.g. 123456789"
+                      value={chatIdInput}
+                      onChange={(e) => setChatIdInput(e.target.value)}
+                      className="flex-1 h-[36px] px-3 text-xs bg-white border border-[#EFEAE1] rounded-[10px] focus:outline-none focus:border-[#4E89FF]"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSaveChatId}
+                      className="h-[36px] px-3 bg-[#4E89FF] hover:bg-[#3B75EB] text-white text-xs font-bold rounded-[10px] cursor-pointer"
+                    >
+                      Save ID
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <p className="text-xs text-[#2D503C] leading-relaxed">
+              ✓ <strong>Automatic Dispatch Active:</strong> Your Telegram account is successfully connected. Interactive reminders will be delivered straight to your Telegram at your scheduled times ({format12Hour(morningTime)}, {format12Hour(afternoonTime)}, and {format12Hour(eveningTime)}).
+            </p>
+          )}
         </div>
 
         {/* 30-Day Recurring Daily Schedule with Custom Timing Editor */}
@@ -283,7 +317,7 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
           {isEditingTimes && (
             <div className="p-3.5 bg-[#FFF0EB] border border-[#FF6138]/25 rounded-[16px] space-y-3 animate-fade-in">
               <div className="text-xs font-bold text-[#2D2545]">
-                Customize Exact Dose Timings (IST):
+                Customize Exact Dose Timings (24h/IST):
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -404,7 +438,6 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
             </p>
           </div>
 
-          {/* 4 Interactive Buttons */}
           <div className="grid grid-cols-2 gap-2 pt-1">
             <div className="py-2 px-3 bg-[#2D2545] border border-[#3D355C] rounded-full text-center text-xs font-bold text-emerald-400 flex items-center justify-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5" />
@@ -459,8 +492,8 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
                   </div>
                   <p className="text-[#40365D]">
                     {sendResult.simulated 
-                      ? 'Logged to audit records. Open Telegram to click the interactive buttons.'
-                      : `Delivered to Chat ID ${sendResult.target_chat_id}. Telegram Message ID: ${sendResult.telegram_message_id}`}
+                      ? 'No active Telegram Chat ID connected yet. Please click "Open @BversityCareBot & Tap START" above so Telegram allows notifications.'
+                      : `Delivered directly to Telegram Chat ID ${sendResult.target_chat_id}! Check your Telegram app.`}
                   </p>
                 </div>
               ) : (

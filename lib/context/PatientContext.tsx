@@ -264,7 +264,7 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
     };
 
-    const interval = setInterval(checkAndDispatchSchedule, 30000);
+    const interval = setInterval(checkAndDispatchSchedule, 5000);
     return () => clearInterval(interval);
   }, [adherence.schedule, profile]);
 
