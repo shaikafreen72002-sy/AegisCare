@@ -28,6 +28,13 @@ export class TelegramDispatchTool {
 
 export const WhatsAppDispatchTool = TelegramDispatchTool;
 
+function getTimeGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
 export class EmpatheticCommunicatorAgent {
   public dispatchTool = TelegramDispatchTool;
 
@@ -39,10 +46,11 @@ export class EmpatheticCommunicatorAgent {
   ): Promise<string> {
     const status = guardrailDecision.status;
     const qLower = userQuery.toLowerCase();
+    const timeGreeting = getTimeGreeting();
 
     // Priority 1: Emergency Symptom
     if (status === 'urgent') {
-      return `Hello ${patientName} 🌸 I want to make sure you stay completely safe. I have alerted Priya and Dr. Mehta's care team right away so they can check in on you. Please sit down comfortably, rest, and keep calm. Help is being notified now.`;
+      return `${timeGreeting}, ${patientName} 🌸 I want to make sure you stay completely safe. I have alerted Priya and Dr. Mehta's care team right away so they can check in on you. Please sit down comfortably, rest, and keep calm. Help is being notified now.`;
     }
 
     // Priority 2: Dose Acknowledged
@@ -54,11 +62,11 @@ export class EmpatheticCommunicatorAgent {
     if (adherenceDecision && ['gentle', 'caregiver_alert', 'doctor_escalation'].includes(adherenceDecision.escalation_level)) {
       const lvl = adherenceDecision.escalation_level;
       if (lvl === 'gentle') {
-        return `Hi ${patientName} 😊 It looks like your evening medicine reminder was missed. When you have a moment, please check your medicine table and take your tablet with water.`;
+        return `${timeGreeting}, ${patientName} 😊 It looks like your scheduled medicine reminder was missed. When you have a moment, please check your medicine table and take your tablet with water.`;
       } else if (lvl === 'caregiver_alert') {
-        return `⚠️ URGENT CAREGIVER ALERT: Hello ${patientName}, you have not logged medication for 2 consecutive days. I have automatically sent a high-priority Telegram alert to your caregiver so they can check in on you.`;
+        return `⚠️ URGENT CAREGIVER ALERT: ${timeGreeting}, ${patientName}, you have not logged medication for 2 consecutive days. I have automatically sent a high-priority Telegram alert to your caregiver so they can check in on you.`;
       } else {
-        return `🚨 CLINICAL ESCALATION: Hello ${patientName}, since no progress was logged for 3+ consecutive days, clinical telemetry and missed dose history have been escalated directly to Dr. Aarav Mehta (Physician).`;
+        return `🚨 CLINICAL ESCALATION: ${timeGreeting}, ${patientName}, since no progress was logged for 3+ consecutive days, clinical telemetry and missed dose history have been escalated directly to Dr. Aarav Mehta (Physician).`;
       }
     }
 
@@ -69,9 +77,9 @@ export class EmpatheticCommunicatorAgent {
     ) {
       const dayTarget = /tuesday/.test(qLower) ? 'Tuesday' : /monday/.test(qLower) ? 'Monday' : /wednesday/.test(qLower) ? 'Wednesday' : /thursday/.test(qLower) ? 'Thursday' : /yesterday/.test(qLower) ? 'yesterday' : 'today';
       if (['Tuesday', 'Monday', 'Wednesday', 'Thursday', 'yesterday'].includes(dayTarget)) {
-        return `Hello ${patientName} 😊\n\nLooking at your medication record for ${dayTarget}: Your evening dose of Donepezil (5mg) was recorded as TAKEN on time at 8:15 PM! You did not miss your tablet on ${dayTarget}. Your adherence this week has been 100% consistent! 🌸`;
+        return `${timeGreeting}, ${patientName} 😊\n\nLooking at your medication record for ${dayTarget}: Your evening dose of Donepezil (5mg) was recorded as TAKEN on time at 8:15 PM! You did not miss your tablet on ${dayTarget}. Your adherence this week has been 100% consistent! 🌸`;
       } else {
-        return `Hello ${patientName} 😊\n\nAccording to your daily record, you last took your morning tablet today at 8:15 AM (Donepezil 5mg). Your next scheduled dose is this evening at 8:00 PM with a fresh glass of water. You are right on track! 🌸`;
+        return `${timeGreeting}, ${patientName} 😊\n\nAccording to your daily record, you last took your morning tablet today at 8:15 AM (Donepezil 5mg). Your next scheduled dose is this evening at 8:00 PM with a fresh glass of water. You are right on track! 🌸`;
       }
     }
 
@@ -85,12 +93,12 @@ export class EmpatheticCommunicatorAgent {
       else if (/9:00|9 pm|9/.test(qLower)) timeStr = '9:00 PM';
       else if (/7:00|7 pm|7/.test(qLower)) timeStr = '7:00 PM';
 
-      return `Hello ${patientName} 😊\n\nI have set a daily reminder for your evening medicine at ${timeStr}! ⏰\n\nWhen ${timeStr} arrives, I will gently remind you to take your Donepezil (5mg) tablet with a fresh glass of water. Everything is saved and ready for you! ✨`;
+      return `${timeGreeting}, ${patientName} 😊\n\nI have set a daily reminder for your evening medicine at ${timeStr}! ⏰\n\nWhen ${timeStr} arrives, I will gently remind you to take your Donepezil (5mg) tablet with a fresh glass of water. Everything is saved and ready for you! ✨`;
     }
 
     // Priority 4: Unknown Non-Monograph Drugs (Zero Hallucination)
     if (status === 'unknown') {
-      return `Hello ${patientName} 😊\n\nI looked in your official medication guides, but I cannot find verified information about that specific question. To keep you completely safe, please check with your doctor, Dr. Mehta, or your pharmacist before trying new medications or supplements.`;
+      return `${timeGreeting}, ${patientName} 😊\n\nI looked in your official medication guides, but I cannot find verified information about that specific question. To keep you completely safe, please check with your doctor, Dr. Mehta, or your pharmacist before trying new medications or supplements.`;
     }
 
     // Priority 5: Clinical Doctor / Pharmacist LLM Generation via Mistral AI
@@ -101,7 +109,7 @@ export class EmpatheticCommunicatorAgent {
     // Deterministic Clinical Fallback
     if (/dizzy|nausea|side effect|cramp|vomit|headache|tired|insomnia|diarrhea|stomach|appetite|reaction|adverse|symptom/.test(qLower)) {
       return (
-        `Hello ${patientName} 🌸\n\n` +
+        `${timeGreeting}, ${patientName} 🌸\n\n` +
         `When taking Donepezil (5mg), mild dizziness and slight nausea are well-known, temporary reactions as your body gently adjusts over the first 1 to 3 weeks.\n\n` +
         `📋 **Other Known Monograph Symptoms to Be Aware Of**:\n` +
         `• **Mild Nausea or Upset Stomach**\n` +
@@ -117,11 +125,11 @@ export class EmpatheticCommunicatorAgent {
         `⚠️ **Important Safety Warning**: If you ever experience severe dizziness, a sudden slow heartbeat/pulse, fainting, or chest pain, please sit down immediately and contact Dr. Aarav Mehta and your caregiver Priya right away.`
       );
     } else if (/miss|forgot|skip/.test(qLower)) {
-      return `Hi ${patientName} 😊\n\nIf you missed your dose, the official guide advises: do NOT take an extra or double dose. Simply skip the missed tablet and resume your normal single dose at the next scheduled time.`;
+      return `${timeGreeting}, ${patientName} 😊\n\nIf you missed your dose, the official guide advises: do NOT take an extra or double dose. Simply skip the missed tablet and resume your normal single dose at the next scheduled time.`;
     } else if (/food|eat|meal/.test(qLower)) {
-      return `Hi ${patientName} 😊\n\nYou can take your tablet with or without food. If you ever feel a little stomach sensitivity, taking it with a small evening snack or warm milk helps soothe your stomach.`;
+      return `${timeGreeting}, ${patientName} 😊\n\nYou can take your tablet with or without food. If you ever feel a little stomach sensitivity, taking it with a small evening snack or warm milk helps soothe your stomach.`;
     } else {
-      return `Hello ${patientName} 😊\n\nYour medication (Donepezil 5mg) is prescribed to support your daily wellness, memory, and cognitive clarity. Take one tablet every evening before resting with water, and always feel free to ask me if you need help.`;
+      return `${timeGreeting}, ${patientName} 😊\n\nYour medication (Donepezil 5mg) is prescribed to support your daily wellness, memory, and cognitive clarity. Take your tablet as scheduled with water, and always feel free to ask me if you need help.`;
     }
   }
 
@@ -132,10 +140,12 @@ export class EmpatheticCommunicatorAgent {
     evidenceText: string,
     recommendedAction: string
   ): Promise<string | null> {
+    const timeGreeting = getTimeGreeting();
     const isSideEffectQuery = /side effect|dizzy|nausea|cramp|vomit|headache|tired|insomnia|diarrhea|stomach|reaction|adverse|symptom/.test(userQuery.toLowerCase());
 
     const prompt = isSideEffectQuery
       ? `You are a Senior Clinical Pharmacist and Empathetic Medical Companion for ${patientName} (who is prescribed Donepezil 5mg for dementia/memory care).
+Current Time of Day: ${timeGreeting}
 User Question: '${userQuery}'
 Clinical Evidence & Monograph:
 ${evidenceText}
@@ -143,12 +153,14 @@ Safety Status: ${status}
 Recommended Action: ${recommendedAction}
 
 Instructions for Side Effects:
-1. Reassure the patient warmly that mild dizziness and slight nausea are common and temporary (often resolving in 1-3 weeks as the body adjusts).
-2. Explicitly outline the other known monograph side effects: mild nausea, diarrhea, fatigue, muscle cramps, sleep changes/insomnia, and decreased appetite.
-3. Provide practical comfort tips: take with a light evening snack/milk, stay hydrated with water, and stand up slowly.
-4. Clearly state red-flag warning signs: any severe dizziness, sudden slow pulse/heart rate, fainting, or chest pain must be reported immediately to Dr. Aarav Mehta.
-5. Keep language warm, comforting, and easily readable for a senior.`
+1. Greet the patient warmly using the exact current time greeting: "${timeGreeting}, ${patientName}!". NEVER say "Good evening" if it is morning or afternoon.
+2. Reassure the patient warmly that mild dizziness and slight nausea are common and temporary (often resolving in 1-3 weeks as the body adjusts).
+3. Explicitly outline the other known monograph side effects: mild nausea, diarrhea, fatigue, muscle cramps, sleep changes/insomnia, and decreased appetite.
+4. Provide practical comfort tips: take with a light evening snack/milk, stay hydrated with water, and stand up slowly.
+5. Clearly state red-flag warning signs: any severe dizziness, sudden slow pulse/heart rate, fainting, or chest pain must be reported immediately to Dr. Aarav Mehta.
+6. Keep language warm, comforting, and easily readable for a senior.`
       : `You are a Senior Clinical Pharmacist and Empathetic Medical Companion for ${patientName} (who is prescribed Donepezil 5mg for dementia/memory care).
+Current Time of Day: ${timeGreeting}
 User Question: '${userQuery}'
 Clinical Evidence & Monograph:
 ${evidenceText}
@@ -156,10 +168,11 @@ Safety Status: ${status}
 Recommended Action: ${recommendedAction}
 
 Instructions:
-1. Answer like an expert clinical pharmacist and caring doctor: clear, authoritative, comforting, and scientifically accurate.
-2. Keep sentences clear and accessible for a senior/dementia patient (max 3-4 sentences).
-3. Strictly NO double dose recommendations.
-4. Give exactly ONE clear, reassuring action.`;
+1. Greet the patient warmly using the exact current time greeting: "${timeGreeting}, ${patientName}!". NEVER say "Good evening" if it is morning or afternoon.
+2. Answer like an expert clinical pharmacist and caring doctor: clear, authoritative, comforting, and scientifically accurate.
+3. Keep sentences clear and accessible for a senior/dementia patient (max 3-4 sentences).
+4. Strictly NO double dose recommendations.
+5. Give exactly ONE clear, reassuring action.`;
 
     try {
       const res = await fetch('https://api.mistral.ai/v1/chat/completions', {
@@ -171,7 +184,7 @@ Instructions:
         body: JSON.stringify({
           model: MISTRAL_MODEL,
           messages: [
-            { role: 'system', content: 'You are a Senior Clinical Pharmacist and Geriatric Doctor Companion. Return only warm, authoritative, monograph-grounded medical guidance text.' },
+            { role: 'system', content: `You are a Senior Clinical Pharmacist and Geriatric Doctor Companion. Current greeting is "${timeGreeting}". Return only warm, authoritative, monograph-grounded medical guidance text.` },
             { role: 'user', content: prompt }
           ],
           temperature: 0.1,
@@ -183,8 +196,20 @@ Instructions:
       if (res.ok) {
         const data = await res.json();
         let content = data.choices[0]?.message?.content?.trim() || null;
-        if (content && (/miss|forgot|double/.test(userQuery.toLowerCase())) && !/not take an extra|not take a double|skip|never double/.test(content.toLowerCase())) {
-          content += '\n\nImportant note: Please do not take an extra or double dose. Just take your next single dose at the regular time.';
+        if (content) {
+          // Normalize greeting if LLM mistakenly used wrong time of day
+          const hour = new Date().getHours();
+          if (hour < 12) {
+            content = content.replace(/^Good evening/i, 'Good morning').replace(/^Good afternoon/i, 'Good morning');
+          } else if (hour < 17) {
+            content = content.replace(/^Good evening/i, 'Good afternoon').replace(/^Good morning/i, 'Good afternoon');
+          } else {
+            content = content.replace(/^Good morning/i, 'Good evening').replace(/^Good afternoon/i, 'Good evening');
+          }
+
+          if ((/miss|forgot|double/.test(userQuery.toLowerCase())) && !/not take an extra|not take a double|skip|never double/.test(content.toLowerCase())) {
+            content += '\n\nImportant note: Please do not take an extra or double dose. Just take your next single dose at the regular time.';
+          }
         }
         return content;
       }

@@ -136,9 +136,13 @@ class EmpatheticCommunicatorAgent:
 
         # Deterministic Fallback if offline
         q_lower = user_query.lower()
+        import datetime
+        current_hour = datetime.datetime.now().hour
+        time_greeting = "Good morning" if current_hour < 12 else "Good afternoon" if current_hour < 17 else "Good evening"
+
         if any(w in q_lower for w in ["dizzy", "nausea", "side effect", "cramp", "vomit", "headache", "tired", "insomnia", "diarrhea", "stomach", "appetite", "reaction", "adverse", "symptom"]):
             return (
-                f"Hello {patient_name} 🌸\n\n"
+                f"{time_greeting}, {patient_name} 🌸\n\n"
                 f"When taking Donepezil (5mg), mild dizziness and slight nausea are well-known, temporary reactions as your body gently adjusts over the first 1 to 3 weeks.\n\n"
                 f"📋 **Other Known Monograph Symptoms to Be Aware Of**:\n"
                 f"• **Mild Nausea or Upset Stomach**\n"
@@ -155,19 +159,19 @@ class EmpatheticCommunicatorAgent:
             )
         elif "miss" in q_lower or "forgot" in q_lower:
             return (
-                f"Hi {patient_name} 😊\n\n"
+                f"{time_greeting}, {patient_name} 😊\n\n"
                 f"If you missed your dose, the official guide advises: do NOT take an extra or double dose. "
                 f"Simply skip the missed tablet and resume your normal single dose at the next scheduled time."
             )
         elif "food" in q_lower or "eat" in q_lower:
             return (
-                f"Hi {patient_name} 😊\n\n"
+                f"{time_greeting}, {patient_name} 😊\n\n"
                 f"You can take your tablet with or without food. If you ever feel a little stomach sensitivity, taking it with a small evening snack or warm milk helps soothe your stomach."
             )
         else:
             return (
-                f"Hello {patient_name} 😊\n\n"
-                f"Your medication (Donepezil 5mg) is prescribed to support your daily wellness, memory, and cognitive clarity. Take one tablet every evening before resting with water, and always feel free to ask me if you need help."
+                f"{time_greeting}, {patient_name} 😊\n\n"
+                f"Your medication (Donepezil 5mg) is prescribed to support your daily wellness, memory, and cognitive clarity. Take your scheduled dose with water, and always feel free to ask me if you need help."
             )
 
     def _call_mistral_empathy(
@@ -179,40 +183,47 @@ class EmpatheticCommunicatorAgent:
         recommended_action: str
     ) -> Optional[str]:
         api_key = self.mistral_api_key or DEFAULT_MISTRAL_KEY
+        import datetime
+        current_hour = datetime.datetime.now().hour
+        time_greeting = "Good morning" if current_hour < 12 else "Good afternoon" if current_hour < 17 else "Good evening"
         is_side_effect_query = any(w in user_query.lower() for w in ["side effect", "dizzy", "nausea", "cramp", "vomit", "headache", "tired", "insomnia", "diarrhea", "stomach", "reaction", "adverse", "symptom"])
 
         if is_side_effect_query:
             prompt = (
                 f"You are a Senior Clinical Pharmacist and Empathetic Medical Companion for {patient_name} (who is prescribed Donepezil 5mg for dementia/memory care).\n"
+                f"Current Time of Day: {time_greeting}\n"
                 f"User Question: '{user_query}'\n"
                 f"Clinical Evidence & Monograph:\n{evidence_text}\n"
                 f"Safety Status: {status}\n"
                 f"Recommended Action: {recommended_action}\n\n"
                 f"Instructions for Side Effects:\n"
-                f"1. Reassure the patient warmly that mild dizziness and slight nausea are common and temporary (often resolving in 1-3 weeks as the body adjusts).\n"
-                f"2. Explicitly outline the other known monograph side effects: mild nausea, diarrhea, fatigue, muscle cramps, sleep changes/insomnia, and decreased appetite.\n"
-                f"3. Provide practical comfort tips: take with a light evening snack/milk, stay hydrated with water, and stand up slowly.\n"
-                f"4. Clearly state red-flag warning signs: any severe dizziness, sudden slow pulse/heart rate, fainting, or chest pain must be reported immediately to Dr. Aarav Mehta.\n"
-                f"5. Keep language warm, comforting, and easily readable for a senior."
+                f"1. Greet the patient warmly using the exact current time greeting: \"{time_greeting}, {patient_name}!\". NEVER say \"Good evening\" if it is morning or afternoon.\n"
+                f"2. Reassure the patient warmly that mild dizziness and slight nausea are common and temporary (often resolving in 1-3 weeks as the body adjusts).\n"
+                f"3. Explicitly outline the other known monograph side effects: mild nausea, diarrhea, fatigue, muscle cramps, sleep changes/insomnia, and decreased appetite.\n"
+                f"4. Provide practical comfort tips: take with a light evening snack/milk, stay hydrated with water, and stand up slowly.\n"
+                f"5. Clearly state red-flag warning signs: any severe dizziness, sudden slow pulse/heart rate, fainting, or chest pain must be reported immediately to Dr. Aarav Mehta.\n"
+                f"6. Keep language warm, comforting, and easily readable for a senior."
             )
         else:
             prompt = (
                 f"You are a Senior Clinical Pharmacist and Empathetic Medical Companion for {patient_name} (who is prescribed Donepezil 5mg for dementia/memory care).\n"
+                f"Current Time of Day: {time_greeting}\n"
                 f"User Question: '{user_query}'\n"
                 f"Clinical Evidence & Monograph:\n{evidence_text}\n"
                 f"Safety Status: {status}\n"
                 f"Recommended Action: {recommended_action}\n\n"
                 f"Instructions:\n"
-                f"1. Answer like an expert clinical pharmacist and caring doctor: clear, authoritative, comforting, and scientifically accurate.\n"
-                f"2. Keep sentences clear and accessible for a senior/dementia patient (max 3-4 sentences).\n"
-                f"3. Strictly NO double dose recommendations. Give clear, reassuring guidance.\n"
-                f"4. Give exactly ONE clear, reassuring action."
+                f"1. Greet the patient warmly using the exact current time greeting: \"{time_greeting}, {patient_name}!\". NEVER say \"Good evening\" if it is morning or afternoon.\n"
+                f"2. Answer like an expert clinical pharmacist and caring doctor: clear, authoritative, comforting, and scientifically accurate.\n"
+                f"3. Keep sentences clear and accessible for a senior/dementia patient (max 3-4 sentences).\n"
+                f"4. Strictly NO double dose recommendations. Give clear, reassuring guidance.\n"
+                f"5. Give exactly ONE clear, reassuring action."
             )
 
         payload = {
             "model": self.mistral_model,
             "messages": [
-                {"role": "system", "content": "You are a Senior Clinical Pharmacist and Geriatric Doctor Companion. Return only the warm, authoritative medical guidance text."},
+                {"role": "system", "content": f"You are a Senior Clinical Pharmacist and Geriatric Doctor Companion. Current greeting is \"{time_greeting}\". Return only warm, authoritative, monograph-grounded medical guidance text."},
                 {"role": "user", "content": prompt}
             ],
             "temperature": 0.1,
