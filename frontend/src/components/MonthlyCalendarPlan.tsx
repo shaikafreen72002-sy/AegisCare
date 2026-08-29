@@ -137,31 +137,50 @@ export const MonthlyCalendarPlan: React.FC<MonthlyCalendarPlanProps> = ({
     }
 
     const defaultDoses = [
-      {
-        slot: 'Morning Routine',
-        time: '8:00 AM',
-        medication: profile.primary_medication?.name || 'Donepezil',
-        dosage: '5 mg',
-        status: isExplicitlyCompleted || (isToday && adherence.schedule[0]?.status === 'TAKEN') ? ('TAKEN' as const) : ('DUE' as const),
-        takenAt: isExplicitlyCompleted || (isToday && adherence.schedule[0]?.status === 'TAKEN') ? '08:15 AM' : undefined
-      },
-      {
-        slot: 'Midday Routine',
-        time: '1:00 PM',
-        medication: 'Vitamin D & Hydration',
-        dosage: '1000 IU',
-        status: isExplicitlyCompleted || (isToday && adherence.schedule[1]?.status === 'TAKEN') ? ('TAKEN' as const) : ('DUE' as const),
-        takenAt: isExplicitlyCompleted || (isToday && adherence.schedule[1]?.status === 'TAKEN') ? '01:10 PM' : undefined
-      },
-      {
-        slot: 'Evening Routine',
-        time: '8:00 PM',
-        medication: `${profile.primary_medication?.name || 'Donepezil'} (Evening Maintenance)`,
-        dosage: profile.primary_medication?.dosage || '10 mg',
-        status: isExplicitlyCompleted || (isToday && adherence.schedule[2]?.status === 'TAKEN') ? ('TAKEN' as const) : ('DUE' as const),
-        takenAt: isExplicitlyCompleted || (isToday && adherence.schedule[2]?.status === 'TAKEN') ? '08:05 PM' : undefined
-      }
-    ];
+    const dynamicDoses = (adherence.schedule && adherence.schedule.length > 0)
+      ? adherence.schedule.map((doseItem, sIdx) => {
+          const isDoseTaken = isExplicitlyCompleted || (isToday && doseItem.status === 'TAKEN');
+          const [h, m] = (doseItem.scheduled_time || '20:00').split(':');
+          const hourNum = parseInt(h, 10);
+          const period = hourNum >= 12 ? 'PM' : 'AM';
+          const displayHour = hourNum % 12 || 12;
+          const formatted12h = `${displayHour}:${m || '00'} ${period}`;
+
+          return {
+            slot: doseItem.time_slot ? doseItem.time_slot.split(' (')[0] : `Dose ${sIdx + 1}`,
+            time: formatted12h,
+            medication: doseItem.medication_name || 'Prescribed Medicine',
+            dosage: doseItem.dosage || 'Standard Dose',
+            status: isDoseTaken ? ('TAKEN' as const) : ('DUE' as const),
+            takenAt: isDoseTaken ? (doseItem.taken_at || formatted12h) : undefined
+          };
+        })
+      : [
+          {
+            slot: 'Morning Routine',
+            time: '8:00 AM',
+            medication: profile.primary_medication?.name || 'Donepezil',
+            dosage: '5 mg',
+            status: isExplicitlyCompleted || (isToday && adherence.schedule[0]?.status === 'TAKEN') ? ('TAKEN' as const) : ('DUE' as const),
+            takenAt: isExplicitlyCompleted || (isToday && adherence.schedule[0]?.status === 'TAKEN') ? '08:15 AM' : undefined
+          },
+          {
+            slot: 'Midday Routine',
+            time: '1:00 PM',
+            medication: 'Vitamin D & Hydration',
+            dosage: '1000 IU',
+            status: isExplicitlyCompleted || (isToday && adherence.schedule[1]?.status === 'TAKEN') ? ('TAKEN' as const) : ('DUE' as const),
+            takenAt: isExplicitlyCompleted || (isToday && adherence.schedule[1]?.status === 'TAKEN') ? '01:10 PM' : undefined
+          },
+          {
+            slot: 'Evening Routine',
+            time: '8:00 PM',
+            medication: `${profile.primary_medication?.name || 'Donepezil'} (Evening Maintenance)`,
+            dosage: profile.primary_medication?.dosage || '10 mg',
+            status: isExplicitlyCompleted || (isToday && adherence.schedule[2]?.status === 'TAKEN') ? ('TAKEN' as const) : ('DUE' as const),
+            takenAt: isExplicitlyCompleted || (isToday && adherence.schedule[2]?.status === 'TAKEN') ? '08:05 PM' : undefined
+          }
+        ];
 
     return {
       dayNumber: dayNum,
@@ -169,11 +188,11 @@ export const MonthlyCalendarPlan: React.FC<MonthlyCalendarPlanProps> = ({
       displayDate,
       status,
       dosesTaken,
-      totalDoses: isToday ? todayTotalDoses || 3 : totalDoses,
+      totalDoses: isToday ? todayTotalDoses || dynamicDoses.length : dynamicDoses.length,
       isCaregiverCheckpoint,
       isDoctorCheckpoint,
       isToday,
-      doses: defaultDoses
+      doses: dynamicDoses
     };
   });
 

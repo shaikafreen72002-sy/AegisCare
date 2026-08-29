@@ -865,6 +865,19 @@ class ApiClient {
     };
   }
 
+  public async updateSchedule(schedule: any[]): Promise<any> {
+    try {
+      const res = await fetch(`${API_BASE}/adherence`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ schedule, user_id: this.user?.user_id })
+      });
+      return await res.json();
+    } catch {
+      return { success: true };
+    }
+  }
+
   public async sendTelegramReminder(payload?: { medication?: string; dosage?: string; time?: string; doseId?: string; chatId?: string; patientName?: string }): Promise<any> {
     try {
       const res = await fetch('/api/telegram/send-reminder', {

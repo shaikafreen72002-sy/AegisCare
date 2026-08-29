@@ -38,6 +38,7 @@ interface PatientContextType {
   setAudioAutoSpeak: (val: boolean) => void;
   markDoseAsTaken: (doseId: string, notes?: string) => Promise<void>;
   updateProfileData: (updates: Partial<PatientProfile>) => Promise<void>;
+  updateScheduleTimes: (timingUpdates: Record<string, string>) => Promise<void>;
   triggerEscalationAlert: (summary: string, urgency?: UrgencyLevel) => Promise<NotificationAuditRecord>;
   refreshState: () => Promise<void>;
   isEmergencyModalOpen: boolean;
@@ -155,12 +156,33 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
       const p = await apiService.getProfile();
       setProfile(p);
-      const a = await apiService.getAdherence();
+      let a = await apiService.getAdherence();
+      if (typeof window !== 'undefined') {
+        try {
+          const savedCustomSchedule = localStorage.getItem(`dementor_custom_schedule_${p.patient_id || 'afreen'}`);
+          if (savedCustomSchedule) {
+            const parsedSchedule = JSON.parse(savedCustomSchedule);
+            if (Array.isArray(parsedSchedule) && parsedSchedule.length > 0) {
+              a = { ...a, schedule: parsedSchedule };
+            }
+          }
+        } catch {}
+      }
       setAdherence(a);
       const n = await apiService.getNotificationHistory();
       setNotifications(n);
     };
     init();
+
+    const handleCustomScheduleUpdate = (e: any) => {
+      if (e.detail && Array.isArray(e.detail)) {
+        setAdherence((prev) => ({ ...prev, schedule: e.detail }));
+      }
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('dementor_schedule_updated', handleCustomScheduleUpdate);
+      return () => window.removeEventListener('dementor_schedule_updated', handleCustomScheduleUpdate);
+    }
   }, []);
 
   useEffect(() => {
@@ -349,6 +371,50 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setProfile(updated);
   };
 
+  const updateScheduleTimes = async (timingUpdates: Record<string, string>) => {
+    const formatTimeLabel = (timeStr: string, slotPrefix: string) => {
+      if (!timeStr) return slotPrefix;
+      const [h, m] = timeStr.split(':');
+      const hourNum = parseInt(h, 10);
+      const period = hourNum >= 12 ? 'PM' : 'AM';
+      const displayHour = hourNum % 12 || 12;
+      return `${slotPrefix} (${displayHour}:${m || '00'} ${period})`;
+    };
+
+    const updatedSchedule = adherence.schedule.map((dose) => {
+      let newTime = timingUpdates[dose.id];
+      if (!newTime) {
+        if (dose.id.includes('morning') || dose.time_slot.toLowerCase().includes('morning')) newTime = timingUpdates['morning'];
+        else if (dose.id.includes('afternoon') || dose.time_slot.toLowerCase().includes('afternoon')) newTime = timingUpdates['afternoon'];
+        else if (dose.id.includes('evening') || dose.time_slot.toLowerCase().includes('evening')) newTime = timingUpdates['evening'];
+      }
+
+      if (newTime) {
+        const slotPrefix = dose.time_slot.split(' (')[0] || (dose.id.includes('morning') ? 'Morning' : dose.id.includes('afternoon') ? 'Afternoon' : 'Evening');
+        return {
+          ...dose,
+          scheduled_time: newTime,
+          time_slot: formatTimeLabel(newTime, slotPrefix)
+        };
+      }
+      return dose;
+    });
+
+    setAdherence((prev) => ({
+      ...prev,
+      schedule: updatedSchedule
+    }));
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(`dementor_custom_schedule_${profile.patient_id || currentUser?.user_id || 'afreen'}`, JSON.stringify(updatedSchedule));
+        window.dispatchEvent(new CustomEvent('dementor_schedule_updated', { detail: updatedSchedule }));
+      } catch {}
+    }
+
+    await apiService.updateSchedule(updatedSchedule);
+  };
+
   const triggerEscalationAlert = async (summary: string, urgency: UrgencyLevel = 'HIGH') => {
     const record = await apiService.triggerEscalation(summary, urgency);
     setNotifications((prev) => [record, ...prev]);
@@ -394,6 +460,7 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setAudioAutoSpeak,
         markDoseAsTaken,
         updateProfileData,
+        updateScheduleTimes,
         triggerEscalationAlert,
         refreshState,
         isEmergencyModalOpen,

@@ -1,4 +1,4 @@
-import type { AdherenceState } from './types/adherence';
+import type { AdherenceState, DoseScheduleItem } from './types/adherence';
 import type { PatientProfile, NotificationAuditRecord, UrgencyLevel } from './types/escalation';
 import type { ChatApiResponse } from './types/chat';
 import type { AuthUser, IntakeSubmission } from './types/auth';
@@ -271,6 +271,19 @@ class ApiClient {
       schedule: [],
       history: []
     };
+  }
+
+  public async updateSchedule(schedule: DoseScheduleItem[]): Promise<any> {
+    try {
+      const res = await fetch('/api/adherence', {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify({ schedule, user_id: this.user?.user_id })
+      });
+      return await res.json();
+    } catch {
+      return { success: true };
+    }
   }
 
   public async markDoseTaken(doseId: string, _notes?: string): Promise<any> {

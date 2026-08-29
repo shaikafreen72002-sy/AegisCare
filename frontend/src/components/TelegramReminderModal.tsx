@@ -17,7 +17,9 @@ import {
   Moon,
   ShieldCheck,
   Bell,
-  CalendarCheck2
+  CalendarCheck2,
+  SlidersHorizontal,
+  Check
 } from 'lucide-react';
 
 interface TelegramReminderModalProps {
@@ -25,8 +27,17 @@ interface TelegramReminderModalProps {
   onClose: () => void;
 }
 
+const format12Hour = (time24: string) => {
+  if (!time24) return '8:00 PM';
+  const [h, m] = time24.split(':');
+  const hourNum = parseInt(h, 10);
+  const period = hourNum >= 12 ? 'PM' : 'AM';
+  const displayHour = hourNum % 12 || 12;
+  return `${displayHour}:${m || '00'} ${period}`;
+};
+
 export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ isOpen, onClose }) => {
-  const { profile, adherence, refreshState } = usePatient();
+  const { profile, adherence, refreshState, updateScheduleTimes } = usePatient();
   const [chatIdInput, setChatIdInput] = useState('');
   const [botStatus, setBotStatus] = useState<any>({
     bot_username: 'BversityCareBot',
@@ -39,6 +50,23 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
   const [isPolling, setIsPolling] = useState(false);
   const [lastAction, setLastAction] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<'morning' | 'afternoon' | 'evening'>('evening');
+  const [isEditingTimes, setIsEditingTimes] = useState(false);
+  const [timingSavedSuccess, setTimingSavedSuccess] = useState(false);
+
+  // Extract current dose times from schedule
+  const morningDose = adherence.schedule.find((s) => s.id.includes('morning') || s.time_slot.toLowerCase().includes('morning'));
+  const afternoonDose = adherence.schedule.find((s) => s.id.includes('afternoon') || s.time_slot.toLowerCase().includes('afternoon'));
+  const eveningDose = adherence.schedule.find((s) => s.id.includes('evening') || s.time_slot.toLowerCase().includes('evening'));
+
+  const [morningTime, setMorningTime] = useState(morningDose?.scheduled_time || '08:00');
+  const [afternoonTime, setAfternoonTime] = useState(afternoonDose?.scheduled_time || '13:00');
+  const [eveningTime, setEveningTime] = useState(eveningDose?.scheduled_time || '20:00');
+
+  useEffect(() => {
+    if (morningDose?.scheduled_time) setMorningTime(morningDose.scheduled_time);
+    if (afternoonDose?.scheduled_time) setAfternoonTime(afternoonDose.scheduled_time);
+    if (eveningDose?.scheduled_time) setEveningTime(eveningDose.scheduled_time);
+  }, [adherence.schedule]);
 
   const fetchStatus = async () => {
     const data = await apiService.getTelegramStatus();
@@ -54,6 +82,7 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
     }
   }, [isOpen]);
 
+  // Periodic polling for button callbacks when modal is open
   useEffect(() => {
     if (!isOpen) return;
     const interval = setInterval(async () => {
@@ -72,36 +101,50 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
 
   if (!isOpen) return null;
 
+  const handleSaveCustomTimes = async () => {
+    await updateScheduleTimes({
+      morning: morningTime,
+      afternoon: afternoonTime,
+      evening: eveningTime
+    });
+    setTimingSavedSuccess(true);
+    setIsEditingTimes(false);
+    setTimeout(() => setTimingSavedSuccess(false), 4000);
+  };
+
   const slotConfigs = {
     morning: {
       title: 'Morning Dose Routine',
-      time: '8:00 AM',
+      time: format12Hour(morningTime),
+      rawTime: morningTime,
       icon: Sunrise,
-      med: 'Donepezil',
-      dosage: '5 mg',
-      doseId: 'dose_morning_01',
-      instruction: 'Take with breakfast or morning tea',
-      preview: `🔔 Scheduled Morning Medication Reminder (8:00 AM)\n\nGood morning, ${profile.preferred_name || profile.name}! 🌸 It is 8:00 AM. Time for your scheduled morning dose of Donepezil (5 mg) with breakfast and a glass of water.`
+      med: morningDose?.medication_name || 'Donepezil',
+      dosage: morningDose?.dosage || '5 mg',
+      doseId: morningDose?.id || 'dose_morning_01',
+      instruction: morningDose?.instructions || 'Take with breakfast or morning tea',
+      preview: `🔔 Scheduled Morning Medication Reminder (${format12Hour(morningTime)})\n\nGood morning, ${profile.preferred_name || profile.name}! 🌸 It is ${format12Hour(morningTime)}. Time for your scheduled morning dose of ${morningDose?.medication_name || 'Donepezil'} (${morningDose?.dosage || '5 mg'}) with breakfast and a glass of water.`
     },
     afternoon: {
       title: 'Midday Routine & Hydration',
-      time: '1:00 PM',
+      time: format12Hour(afternoonTime),
+      rawTime: afternoonTime,
       icon: Sun,
-      med: 'Vitamin D & Hydration',
-      dosage: '1000 IU',
-      doseId: 'dose_afternoon_02',
-      instruction: 'Take with lunch and a fresh glass of water',
-      preview: `☀️ Scheduled Midday Routine (1:00 PM)\n\nGood afternoon, ${profile.preferred_name || profile.name}! 🌿 It is 1:00 PM. Time for your midday routine and hydration check.`
+      med: afternoonDose?.medication_name || 'Vitamin D & Hydration',
+      dosage: afternoonDose?.dosage || '1000 IU',
+      doseId: afternoonDose?.id || 'dose_afternoon_02',
+      instruction: afternoonDose?.instructions || 'Take with lunch and a fresh glass of water',
+      preview: `☀️ Scheduled Midday Routine (${format12Hour(afternoonTime)})\n\nGood afternoon, ${profile.preferred_name || profile.name}! 🌿 It is ${format12Hour(afternoonTime)}. Time for your midday routine and hydration check.`
     },
     evening: {
       title: 'Evening Primary Dose',
-      time: '8:00 PM',
+      time: format12Hour(eveningTime),
+      rawTime: eveningTime,
       icon: Moon,
-      med: profile.primary_medication.name || 'Donepezil',
-      dosage: profile.primary_medication.dosage || '10 mg',
-      doseId: 'dose_evening_03',
-      instruction: 'Take with dinner or evening snack before bedtime',
-      preview: `🌙 Scheduled Evening Medication Reminder (8:00 PM)\n\nGood evening, ${profile.preferred_name || profile.name}! 🌙 It is 8:00 PM. Time for your scheduled evening dose of Donepezil (10 mg) with dinner or an evening snack.`
+      med: eveningDose?.medication_name || profile.primary_medication.name || 'Donepezil',
+      dosage: eveningDose?.dosage || profile.primary_medication.dosage || '10 mg',
+      doseId: eveningDose?.id || 'dose_evening_03',
+      instruction: eveningDose?.instructions || 'Take with dinner or evening snack before bedtime',
+      preview: `🌙 Scheduled Evening Medication Reminder (${format12Hour(eveningTime)})\n\nGood evening, ${profile.preferred_name || profile.name}! 🌙 It is ${format12Hour(eveningTime)}. Time for your scheduled evening dose of ${profile.primary_medication.name || 'Donepezil'} (${profile.primary_medication.dosage || '10 mg'}) with dinner or an evening snack.`
     }
   };
 
@@ -116,7 +159,8 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
         dosage: currentSlot.dosage,
         time: currentSlot.time,
         doseId: currentSlot.doseId,
-        chatId: chatIdInput.trim() || undefined
+        chatId: chatIdInput.trim() || undefined,
+        patientName: profile.preferred_name || profile.name
       });
       setSendResult(res);
       await fetchStatus();
@@ -140,25 +184,20 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E1A2E]/60 backdrop-blur-xs animate-fade-in">
-      <div className="bg-white rounded-[20px] max-w-lg w-full p-6 border border-[#EFEAE1] shadow-[0_20px_50px_rgba(45,37,69,0.25)] space-y-4 max-h-[92vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-in">
+      <div className="bg-white rounded-[24px] max-w-lg w-full p-6 space-y-4 shadow-[0_20px_60px_rgba(45,37,69,0.2)] border border-[#EFEAE1] max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-start justify-between border-b border-[#F4EFE6] pb-3.5">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-[12px] bg-[#4E89FF] text-white flex items-center justify-center font-bold text-xl shadow-xs">
+        <div className="flex items-center justify-between pb-3 border-b border-[#F4EFE6]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-[12px] bg-[#4E89FF] text-white flex items-center justify-center shadow-xs">
               <Send className="w-5 h-5" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-lg font-extrabold text-[#2D2545] font-['Outfit']">
-                  Automated Medication Reminders
-                </h3>
-                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#EBF2FF] text-[#1D5BD8] border border-[#4E89FF]/20">
-                  @BversityCareBot
-                </span>
-              </div>
-              <p className="text-xs text-[#6B6282] font-medium">
-                Set once by caregiver/doctor — runs automatically throughout the whole month
+              <h3 className="font-extrabold text-base text-[#2D2545] font-['Outfit']">
+                Telegram Automated Medication Reminders
+              </h3>
+              <p className="text-xs text-[#6B6282]">
+                Personalized Timings • Set Once, Auto-Runs Daily for 30 Days
               </p>
             </div>
           </div>
@@ -175,14 +214,14 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
         <div className="p-3.5 bg-[#EAF8F0] border border-[#1E824C]/25 rounded-[16px] space-y-1.5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-[#136B3B] font-['Outfit'] flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-[#1E824C]" /> 30-Day Automated Routine Active
+              <ShieldCheck className="w-4 h-4 text-[#1E824C]" /> Personalized Daily Routine Active
             </span>
             <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-white text-[#136B3B] border border-[#1E824C]/20">
               🟢 Set Once • Auto-Runs Daily
             </span>
           </div>
           <p className="text-xs text-[#2D503C] leading-relaxed">
-            <strong>Dementia Care Automation:</strong> Because patients often forget to set alarms or open apps, DeMentor dispatches reminders <strong>automatically every single day</strong> to Telegram at <strong>8:00 AM</strong>, <strong>1:00 PM</strong>, and <strong>8:00 PM</strong>. No daily app setup is required!
+            <strong>Dementia Care Automation:</strong> Reminders dispatch <strong>automatically at your exact scheduled timings</strong> ({format12Hour(morningTime)}, {format12Hour(afternoonTime)}, and {format12Hour(eveningTime)}) directly to Telegram.
           </p>
         </div>
 
@@ -224,14 +263,86 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
           </div>
         </div>
 
-        {/* 30-Day Recurring Daily Schedule (Always Active) */}
-        <div className="space-y-2">
+        {/* 30-Day Recurring Daily Schedule with Custom Timing Editor */}
+        <div className="space-y-2.5">
           <div className="flex items-center justify-between px-1">
             <span className="text-xs font-bold text-[#2D2545] font-['Outfit'] flex items-center gap-1.5">
-              <CalendarCheck2 className="w-3.5 h-3.5 text-[#FF6138]" /> 30-Day Daily Routine Schedule
+              <CalendarCheck2 className="w-3.5 h-3.5 text-[#FF6138]" /> Your Daily Medication Timings
             </span>
-            <span className="text-[11px] text-[#136B3B] font-bold">🟢 Runs Every Day</span>
+            <button
+              type="button"
+              onClick={() => setIsEditingTimes(!isEditingTimes)}
+              className="text-xs font-bold text-[#FF6138] hover:text-[#E84E27] flex items-center gap-1 cursor-pointer"
+            >
+              <SlidersHorizontal className="w-3 h-3" />
+              <span>{isEditingTimes ? 'Cancel Edit' : 'Edit Timings'}</span>
+            </button>
           </div>
+
+          {/* Interactive Time Editor Drawer */}
+          {isEditingTimes && (
+            <div className="p-3.5 bg-[#FFF0EB] border border-[#FF6138]/25 rounded-[16px] space-y-3 animate-fade-in">
+              <div className="text-xs font-bold text-[#2D2545]">
+                Customize Exact Dose Timings (IST):
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-[#6B6282] mb-1">
+                    🌅 Morning
+                  </label>
+                  <input
+                    type="time"
+                    value={morningTime}
+                    onChange={(e) => setMorningTime(e.target.value)}
+                    className="w-full h-[38px] text-xs font-bold px-2 rounded-[10px] border border-[#EFEAE1] bg-white text-[#2D2545] focus:outline-none focus:border-[#FF6138]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-[#6B6282] mb-1">
+                    ☀️ Afternoon / Midday
+                  </label>
+                  <input
+                    type="time"
+                    value={afternoonTime}
+                    onChange={(e) => setAfternoonTime(e.target.value)}
+                    className="w-full h-[38px] text-xs font-bold px-2 rounded-[10px] border border-[#EFEAE1] bg-white text-[#2D2545] focus:outline-none focus:border-[#FF6138]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-[#6B6282] mb-1">
+                    🌙 Evening
+                  </label>
+                  <input
+                    type="time"
+                    value={eveningTime}
+                    onChange={(e) => setEveningTime(e.target.value)}
+                    className="w-full h-[38px] text-xs font-bold px-2 rounded-[10px] border border-[#EFEAE1] bg-white text-[#2D2545] focus:outline-none focus:border-[#FF6138]"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={handleSaveCustomTimes}
+                  className="touch-target py-2 px-4 bg-[#FF6138] hover:bg-[#E84E27] text-white font-bold text-xs rounded-full shadow-xs transition active:scale-[0.98] flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Save & Sync Timings Everywhere</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {timingSavedSuccess && (
+            <div className="p-2.5 bg-[#EAF8F0] border border-[#1E824C]/30 text-[#136B3B] rounded-[12px] text-xs font-bold flex items-center gap-1.5 animate-fade-in">
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-[#1E824C]" />
+              <span>✓ Timings updated and synced across Today's Routine, 30-Day Plan & Telegram scheduler!</span>
+            </div>
+          )}
 
           <div className="grid grid-cols-3 gap-2">
             {(['morning', 'afternoon', 'evening'] as const).map((slotKey) => {
