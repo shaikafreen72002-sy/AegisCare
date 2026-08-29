@@ -2,6 +2,8 @@ import {
   GLOBAL_ADHERENCE_STATE,
   GLOBAL_PATIENT_PROFILE,
   markDoseTakenInStore,
+  markDoseSnoozedInStore,
+  markDoseUnsureInStore,
   markDoseMissedInStore,
   setConnectedTelegramChatId,
   getConnectedTelegramChatId,
@@ -239,6 +241,8 @@ export class TelegramService {
       }
 
       if (action === 'snooze') {
+        markDoseSnoozedInStore(doseId || 'dose_evening_03', 15);
+
         await fetch(`${TELEGRAM_API_BASE}/answerCallbackQuery`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -268,6 +272,8 @@ export class TelegramService {
       }
 
       if (action === 'notsure') {
+        markDoseUnsureInStore(doseId || 'dose_evening_03');
+
         await fetch(`${TELEGRAM_API_BASE}/answerCallbackQuery`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

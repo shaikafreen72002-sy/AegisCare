@@ -1,4 +1,4 @@
-export type DoseStatus = 'UPCOMING' | 'DUE' | 'TAKEN' | 'MISSED';
+export type DoseStatus = 'UPCOMING' | 'DUE' | 'TAKEN' | 'MISSED' | 'SNOOZED' | 'UNSURE';
 
 export interface DoseScheduleItem {
   id: string;

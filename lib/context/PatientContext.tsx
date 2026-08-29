@@ -338,13 +338,20 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const calibrateIntakeWithAI = async (intakeData: any) => {
     const res = await apiService.calibrateIntake(intakeData);
-    if (res.profile) setProfile(res.profile);
-    const p = await apiService.getProfile();
-    setProfile(p);
-    const a = await apiService.getAdherence();
-    setAdherence(a);
+    const p = (res && res.profile) || await apiService.getProfile();
+    setProfile({ ...p });
+    const a = (res && res.adherence) || await apiService.getAdherence();
+    setAdherence({ ...a });
     const n = await apiService.getNotificationHistory();
     setNotifications(n);
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(`dementor_custom_schedule_${p.patient_id || 'patient'}`, JSON.stringify(a.schedule));
+        window.dispatchEvent(new CustomEvent('dementor_schedule_updated', { detail: a.schedule }));
+        window.dispatchEvent(new CustomEvent('dementor_adherence_updated', { detail: a }));
+      } catch {}
+    }
 
     if (currentUser) {
       setCurrentUser({ ...currentUser, intake_completed: true });
@@ -393,7 +400,15 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const updateProfileData = async (updates: Partial<PatientProfile>) => {
     const updated = await apiService.updateProfile(updates);
-    setProfile(updated);
+    setProfile({ ...updated });
+    const freshAdh = await apiService.getAdherence();
+    setAdherence({ ...freshAdh });
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(`dementor_custom_schedule_${updated.patient_id || 'patient'}`, JSON.stringify(freshAdh.schedule));
+        window.dispatchEvent(new CustomEvent('dementor_schedule_updated', { detail: freshAdh.schedule }));
+      } catch {}
+    }
   };
 
   const updateScheduleTimes = async (timingUpdates: Record<string, string>) => {

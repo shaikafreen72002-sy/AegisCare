@@ -6,7 +6,9 @@ import {
   getUserAdherence,
   updateUserAdherence,
   getActiveUserId,
-  REGISTERED_USERS
+  REGISTERED_USERS,
+  GLOBAL_ADHERENCE_STATE,
+  GLOBAL_PATIENT_PROFILE
 } from '@/lib/stateStore';
 import { DoseScheduleItem } from '@/lib/types/adherence';
 
@@ -39,7 +41,7 @@ export async function POST(req: Request) {
         brand: body.brand || 'Aricept',
         dosage: medDosage,
         schedule_time: eveningTime,
-        instructions: `Take orally once daily at ${eveningTime} with a glass of water.`
+        instructions: `Take orally once daily with a glass of water.`
       },
       caregiver: {
         name: body.caregiver_name || '',
@@ -57,7 +59,10 @@ export async function POST(req: Request) {
       emergency_protocol: 'If severe confusion or dizziness occurs, sit safely and notify caregiver or emergency team.'
     });
 
-    // 2. Build personalized adherence schedule for this user with support for multiple timings
+    // Sync global patient profile
+    Object.assign(GLOBAL_PATIENT_PROFILE, updatedProfile);
+
+    // 2. Build personalized adherence schedule for this user with ONLY their inputted timings
     const prefName = body.preferred_name || body.name || 'Patient';
     const colors = ['emerald', 'sky', 'indigo', 'purple', 'amber', 'rose'];
 
@@ -65,8 +70,7 @@ export async function POST(req: Request) {
     const rawTimings = (body.medication_timings && Array.isArray(body.medication_timings) && body.medication_timings.length > 0)
       ? [...body.medication_timings].sort((a, b) => (a.time || '20:00').localeCompare(b.time || '20:00'))
       : [
-          { id: 't_morning', label: 'Morning Dose (Breakfast)', time: '08:00', instructions: 'Take with or after morning breakfast with water.' },
-          { id: 't_evening', label: 'Evening Maintenance Dose', time: eveningTime, instructions: 'Take after dinner or before retiring with water.' }
+          { id: 't_evening', label: 'Evening Dose', time: eveningTime, instructions: 'Take after dinner or before retiring with water.' }
         ];
 
     const scheduleItems: DoseScheduleItem[] = rawTimings.map((slot: any, idx: number) => {
@@ -77,7 +81,6 @@ export async function POST(req: Request) {
       const displayHour = hourNum % 12 || 12;
       const formattedTime = `${displayHour}:${m || '00'} ${period} IST`;
 
-      // Smart meal context depending on time of day
       let defaultInstruction = `Take orally at ${formattedTime} with water.`;
       if (hourNum < 12) {
         defaultInstruction = `☕ Take with or after breakfast / morning tea with water.`;
@@ -93,22 +96,30 @@ export async function POST(req: Request) {
         scheduled_time: slotTime,
         medication_name: medName,
         dosage: medDosage,
-        status: 'DUE' as const, // All doses start fresh for the patient to log upon reminder
+        status: 'DUE' as const,
         taken_at: null,
         instructions: slot.instructions || defaultInstruction,
         color: colors[idx % colors.length]
       };
     });
 
-    updateUserAdherence(userId, {
+    const updatedAdherence = updateUserAdherence(userId, {
       growth_stage: 1,
       garden_name: `${prefName}'s Routine Care`,
-      routine_message: `🌱 Fresh daily routine ready for ${prefName} with ${medName} ${medDosage} across ${scheduleItems.length} dose timing(s).`,
+      routine_message: `🌱 Daily routine active for ${prefName} with ${medName} ${medDosage} across ${scheduleItems.length} scheduled dose(s).`,
       schedule: scheduleItems,
       history: [
         { date: new Date().toISOString().split('T')[0], status: 'IN_PROGRESS', doses_taken: 0, total_doses: scheduleItems.length }
       ]
     });
+
+    // Sync global adherence state
+    GLOBAL_ADHERENCE_STATE.schedule = [...scheduleItems];
+    GLOBAL_ADHERENCE_STATE.growth_stage = 1;
+    GLOBAL_ADHERENCE_STATE.routine_message = `🌱 Daily routine active for ${prefName} with ${medName} ${medDosage} across ${scheduleItems.length} scheduled dose(s).`;
+    GLOBAL_ADHERENCE_STATE.history = [
+      { date: new Date().toISOString().split('T')[0], status: 'IN_PROGRESS', doses_taken: 0, total_doses: scheduleItems.length }
+    ];
 
     // 3. Mark user intake completed
     const user = REGISTERED_USERS.find((u) => u.user_id === userId);
@@ -120,6 +131,7 @@ export async function POST(req: Request) {
       success: true,
       message: 'Intake profile calibrated successfully and saved to user account.',
       profile: updatedProfile,
+      adherence: updatedAdherence,
       calibration: result
     });
   } catch (error: any) {

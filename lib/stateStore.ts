@@ -84,14 +84,33 @@ export function createFreshProfile(user: { user_id: string; name: string; prefer
 }
 
 export function createFreshAdherenceState(user: { name: string; preferred_name?: string }): AdherenceState {
-  const pName = user.preferred_name || user.name;
+  const pName = user.preferred_name || user.name || 'Patient';
   return {
     today: new Date().toISOString().split('T')[0],
     growth_stage: 1,
     garden_name: `${pName}'s Routine Care`,
-    routine_message: '🌱 Welcome! Complete your intake assessment to activate your personalized schedule.',
-    schedule: [],
-    history: []
+    routine_message: `🌱 Welcome ${pName}! Your daily medication routine is active for today.`,
+    schedule: [
+      {
+        id: `dose_evening_${Date.now()}`,
+        time_slot: 'Evening Routine (8:00 PM)',
+        scheduled_time: '20:00',
+        medication_name: 'Donepezil Hydrochloride',
+        dosage: '10 mg',
+        status: 'DUE',
+        taken_at: null,
+        instructions: 'Take with dinner or before retiring with water.',
+        color: 'emerald'
+      }
+    ],
+    history: [
+      {
+        date: new Date().toISOString().split('T')[0],
+        status: 'IN_PROGRESS',
+        doses_taken: 0,
+        total_doses: 1
+      }
+    ]
   };
 }
 
@@ -364,20 +383,87 @@ export function markDoseTakenInStore(doseId: string, notes?: string, userId?: st
   return matched;
 }
 
-export function markDoseMissedInStore(doseId: string, _reason?: string, userId?: string): boolean {
+export function markDoseSnoozedInStore(doseId: string, snoozeMinutes: number = 15, userId?: string): boolean {
   const adherence = getUserAdherence(userId);
-  for (const item of adherence.schedule) {
-    if (item.id === doseId || doseId.includes(item.id) || item.id.includes(doseId)) {
-      item.status = 'MISSED';
-      return true;
+  const targetList = [adherence, GLOBAL_ADHERENCE_STATE];
+  Object.values(USER_ADHERENCE_MAP).forEach((userAdh) => {
+    if (!targetList.includes(userAdh)) targetList.push(userAdh);
+  });
+
+  let matched = false;
+  for (const target of targetList) {
+    for (const item of target.schedule) {
+      if (item.id === doseId || doseId.includes(item.id) || item.id.includes(doseId)) {
+        item.status = 'SNOOZED';
+        item.instructions = `⏰ Snoozed for ${snoozeMinutes} mins. Take with water when ready.`;
+        matched = true;
+        break;
+      }
+    }
+    if (!matched && target.schedule.length > 0) {
+      const dueDose = target.schedule.find((d) => d.status === 'DUE');
+      if (dueDose) {
+        dueDose.status = 'SNOOZED';
+        dueDose.instructions = `⏰ Snoozed for ${snoozeMinutes} mins. Take with water when ready.`;
+        matched = true;
+      }
     }
   }
-  const dueDose = adherence.schedule.find((d) => d.status === 'DUE');
-  if (dueDose) {
-    dueDose.status = 'MISSED';
-    return true;
+  return matched;
+}
+
+export function markDoseUnsureInStore(doseId: string, userId?: string): boolean {
+  const adherence = getUserAdherence(userId);
+  const targetList = [adherence, GLOBAL_ADHERENCE_STATE];
+  Object.values(USER_ADHERENCE_MAP).forEach((userAdh) => {
+    if (!targetList.includes(userAdh)) targetList.push(userAdh);
+  });
+
+  let matched = false;
+  for (const target of targetList) {
+    for (const item of target.schedule) {
+      if (item.id === doseId || doseId.includes(item.id) || item.id.includes(doseId)) {
+        item.status = 'UNSURE';
+        matched = true;
+        break;
+      }
+    }
+    if (!matched && target.schedule.length > 0) {
+      const dueDose = target.schedule.find((d) => d.status === 'DUE');
+      if (dueDose) {
+        dueDose.status = 'UNSURE';
+        matched = true;
+      }
+    }
   }
-  return false;
+  return matched;
+}
+
+export function markDoseMissedInStore(doseId: string, _reason?: string, userId?: string): boolean {
+  const adherence = getUserAdherence(userId);
+  const targetList = [adherence, GLOBAL_ADHERENCE_STATE];
+  Object.values(USER_ADHERENCE_MAP).forEach((userAdh) => {
+    if (!targetList.includes(userAdh)) targetList.push(userAdh);
+  });
+
+  let matched = false;
+  for (const target of targetList) {
+    for (const item of target.schedule) {
+      if (item.id === doseId || doseId.includes(item.id) || item.id.includes(doseId)) {
+        item.status = 'MISSED';
+        matched = true;
+        break;
+      }
+    }
+    if (!matched && target.schedule.length > 0) {
+      const dueDose = target.schedule.find((d) => d.status === 'DUE');
+      if (dueDose) {
+        dueDose.status = 'MISSED';
+        matched = true;
+      }
+    }
+  }
+  return matched;
 }
 
 export function sendEscalationAlert(
