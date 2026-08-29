@@ -11,7 +11,7 @@ export interface AdherenceDecision {
 
 export class AdherenceEscalationAgent {
   private counter: number = 0;
-  private maxCounter: number = 3;
+  private maxCounter: number = 5;
 
   public resetCounter() {
     this.counter = 0;
@@ -52,20 +52,30 @@ export class AdherenceEscalationAgent {
     } else if (c === 2) {
       return {
         acknowledgement_count: 2,
-        adherence_status: 'day_2_caregiver_alert',
+        adherence_status: 'day_2_missed',
+        escalation_level: 'gentle',
+        action: 'send_patient_reminder',
+        reason: 'Day 2: Second consecutive missed dose. Gentle reassurance and safety guideline sent to patient.',
+        requires_caregiver_alert: false,
+        requires_doctor_alert: false
+      };
+    } else if (c === 3 || c === 4) {
+      return {
+        acknowledgement_count: c,
+        adherence_status: `day_${c}_caregiver_alert`,
         escalation_level: 'caregiver_alert',
         action: 'dispatch_caregiver_alert',
-        reason: 'Day 2: Patient has not taken medication for 2 consecutive days. High-priority Telegram alert dispatched to caregiver.',
+        reason: `Day ${c}: Patient has not taken medication for ${c} consecutive days. Urgent Telegram alert dispatched to Caregiver Priya to check in on patient.`,
         requires_caregiver_alert: true,
         requires_doctor_alert: false
       };
     } else {
       return {
-        acknowledgement_count: 3,
-        adherence_status: 'day_3_doctor_escalation',
+        acknowledgement_count: 5,
+        adherence_status: 'day_5_doctor_escalation',
         escalation_level: 'doctor_escalation',
         action: 'dispatch_doctor_escalation',
-        reason: 'Day 3+: No progress after caregiver notification. Clinical telemetry and missed dose escalation sent to Dr. Aarav Mehta (Physician).',
+        reason: 'Day 5: Patient has missed medication for 5 consecutive days. Critical clinical escalation dispatched to Dr. Aarav Mehta (Physician) and Apollo Clinical Hub.',
         requires_caregiver_alert: true,
         requires_doctor_alert: true
       };

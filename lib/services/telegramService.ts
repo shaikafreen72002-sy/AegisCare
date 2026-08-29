@@ -354,4 +354,98 @@ export class TelegramService {
       details: results
     };
   }
+
+  public static async sendCaregiverAlert(params: {
+    chatId?: string;
+    patientName?: string;
+    caregiverName?: string;
+    missedDays?: number;
+    medication?: string;
+    dosage?: string;
+  }) {
+    const targetChatId = params.chatId || getConnectedTelegramChatId();
+    const patient = params.patientName || GLOBAL_PATIENT_PROFILE.preferred_name || 'Afreen';
+    const caregiver = params.caregiverName || GLOBAL_PATIENT_PROFILE.caregiver?.name || 'Priya';
+    const medName = params.medication || GLOBAL_PATIENT_PROFILE.primary_medication.name || 'Donepezil';
+    const dose = params.dosage || GLOBAL_PATIENT_PROFILE.primary_medication.dosage || '10 mg';
+    const days = params.missedDays || 3;
+
+    const messageText = `⚠️ *URGENT CAREGIVER ALERT (Day ${days} Non-Adherence)* ⚠️\n\nHello *${caregiver}*,\n\nYour patient *${patient}* has not confirmed taking their *${medName} (${dose})* for *${days} consecutive days*.\n\n💡 *Action Required:* Please check in on ${patient} immediately and remind them to take their medications on time.\n\n📋 *Clinical Guideline:* Advise them strictly NOT to double-dose to catch up.`;
+
+    if (targetChatId) {
+      try {
+        await fetch(`${TELEGRAM_API_BASE}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: targetChatId,
+            text: messageText,
+            parse_mode: 'Markdown'
+          })
+        });
+      } catch (err) {
+        console.error('Caregiver Telegram alert error:', err);
+      }
+    }
+
+    const receipt = sendEscalationAlert(
+      patient,
+      'HIGH',
+      `DAY_${days}_CAREGIVER_ESCALATION`,
+      `Caregiver Alert sent to ${caregiver}: ${patient} has missed medication for ${days} consecutive days.`,
+      `Caregiver (${caregiver})`,
+      targetChatId || '@BversityCareBot',
+      'TELEGRAM_BOT'
+    );
+
+    return { success: true, target_chat_id: targetChatId, receipt_id: receipt.receipt_id };
+  }
+
+  public static async sendDoctorAlert(params: {
+    chatId?: string;
+    patientName?: string;
+    doctorName?: string;
+    caregiverName?: string;
+    missedDays?: number;
+    medication?: string;
+    dosage?: string;
+  }) {
+    const targetChatId = params.chatId || getConnectedTelegramChatId();
+    const patient = params.patientName || GLOBAL_PATIENT_PROFILE.preferred_name || 'Afreen';
+    const doctor = params.doctorName || GLOBAL_PATIENT_PROFILE.physician?.name || 'Dr. Aarav Mehta, MD';
+    const caregiver = params.caregiverName || GLOBAL_PATIENT_PROFILE.caregiver?.name || 'Priya';
+    const medName = params.medication || GLOBAL_PATIENT_PROFILE.primary_medication.name || 'Donepezil';
+    const dose = params.dosage || GLOBAL_PATIENT_PROFILE.primary_medication.dosage || '10 mg';
+    const days = params.missedDays || 5;
+
+    const messageText = `🚨 *CRITICAL CLINICAL ESCALATION (Day ${days} Non-Adherence)* 🚨\n\nAttn: *${doctor}* & Caregiver *${caregiver}*,\n\nPatient *${patient}* has missed scheduled *${medName} (${dose})* for *${days} consecutive days*.\n\n⚠️ *Clinical Risk:* High risk of loss of therapeutic steady-state plasma concentrations.\n\n📊 *Clinical Action:* Telemetry logs and adherence records have been escalated for physician review and immediate clinical outreach.`;
+
+    if (targetChatId) {
+      try {
+        await fetch(`${TELEGRAM_API_BASE}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: targetChatId,
+            text: messageText,
+            parse_mode: 'Markdown'
+          })
+        });
+      } catch (err) {
+        console.error('Doctor Telegram alert error:', err);
+      }
+    }
+
+    const receipt = sendEscalationAlert(
+      patient,
+      'CRITICAL',
+      `DAY_${days}_DOCTOR_ESCALATION`,
+      `Clinical Escalation to ${doctor}: ${patient} missed medication for ${days} consecutive days.`,
+      `Physician (${doctor})`,
+      targetChatId || '@BversityCareBot',
+      'TELEGRAM_BOT'
+    );
+
+    return { success: true, target_chat_id: targetChatId, receipt_id: receipt.receipt_id };
+  }
 }

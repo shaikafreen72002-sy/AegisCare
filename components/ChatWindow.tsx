@@ -252,9 +252,11 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
 
         let responseText = `Hi ${profile.preferred_name || profile.name} 😊 It looks like your evening medicine reminder was missed. When you have a moment, please take your scheduled tablet with water.`;
         if (count === 2) {
-          responseText = `⚠️ URGENT CAREGIVER ALERT: Hello ${profile.preferred_name || profile.name}, you have missed your medication for 2 consecutive days. I have automatically dispatched a Telegram alert to your caregiver (${profile.caregiver?.name || 'Priya'}) to check in on you.`;
-        } else if (count >= 3) {
-          responseText = `🚨 CLINICAL ESCALATION: Patient has missed medication for 3+ consecutive days with no response. Telemetry logs have been forwarded to Dr. Aarav Mehta (Physician) for medical review.`;
+          responseText = `Hello ${profile.preferred_name || profile.name} 😊 Looking at your schedule, your tablet was missed yesterday and today. Please take your scheduled dose with water when possible. Safety rule: Never take a double dose.`;
+        } else if (count === 3 || count === 4) {
+          responseText = `⚠️ URGENT CAREGIVER ALERT: Hello ${profile.preferred_name || profile.name}, medication has not been confirmed for 3 consecutive days. I have automatically dispatched an urgent Telegram alert to your caregiver (${profile.caregiver?.name || 'Priya'}) to check in on you.`;
+        } else if (count >= 5) {
+          responseText = `🚨 CLINICAL ESCALATION: Patient has missed medication for 5 consecutive days without confirmation. Full telemetry logs have been escalated directly to Dr. Aarav Mehta (Physician) for medical review and clinical outreach.`;
         }
 
         const astSimMsg: ChatMessage = {
@@ -263,9 +265,9 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ initialTopic }) => {
           text: responseText,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           intent: 'MISSED_DOSE',
-          risk_level: count >= 3 ? 'CRITICAL' : count === 2 ? 'HIGH' : 'MEDIUM',
+          risk_level: count >= 5 ? 'CRITICAL' : count >= 3 ? 'HIGH' : 'MEDIUM',
           safety_status: 'SAFE_WITH_STRICT_NO_DOUBLE_DOSE',
-          escalation_required: count >= 2,
+          escalation_required: count >= 3,
           escalation: simResp.escalation_details ? {
             recipient: simResp.escalation_details.recipient,
             urgency: simResp.escalation_details.urgency,

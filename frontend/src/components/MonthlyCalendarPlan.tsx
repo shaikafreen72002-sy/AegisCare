@@ -232,7 +232,7 @@ export const MonthlyCalendarPlan: React.FC<MonthlyCalendarPlanProps> = ({
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-[#FF6138] shrink-0" />
               <span className="text-[#40365D] font-medium leading-relaxed">
-                <strong>Interactive 30-Day Calendar:</strong> Click on any Day (Day 1, Day 2, Day 3...) to view doses or mark that day as taken. If 2 consecutive days are missed, Day 3 automatically alerts Caregiver <strong>Priya</strong>. If missed through Day 5 or 10, clinical telemetry escalates directly to <strong>Dr. Aarav Mehta</strong>.
+                <strong>Interactive 30-Day Calendar:</strong> Click on any Day (Day 1, Day 2, Day 3...) to view doses or mark that day as taken. If 3 consecutive days are missed, Day 3 automatically alerts Caregiver <strong>Priya</strong> on Telegram. If missed through Day 5, clinical telemetry escalates directly to <strong>Dr. Aarav Mehta (Physician)</strong>.
               </span>
             </div>
             <span className="shrink-0 text-[10px] font-bold text-[#1E824C] bg-[#EAF8F0] px-2.5 py-0.5 rounded-full border border-[#1E824C]/20">
@@ -406,7 +406,7 @@ export const MonthlyCalendarPlan: React.FC<MonthlyCalendarPlanProps> = ({
               </div>
               <p className="text-[11px] text-[#6B6282] leading-relaxed">
                 {selectedDay.isCaregiverCheckpoint
-                  ? '⚠️ Caregiver Checkpoint (Day 3, 6, 9...): If 2 consecutive days were missed, Telegram notification dispatches automatically to Priya.'
+                  ? '⚠️ Caregiver Checkpoint (Day 3, 6, 9...): If 3 consecutive days were missed, Telegram notification dispatches automatically to Priya.'
                   : selectedDay.isDoctorCheckpoint
                   ? '🚨 Physician Telemetry Checkpoint (Day 5, 10...): Adherence summary escalates directly to Dr. Aarav Mehta.'
                   : '✓ Normal Routine Monitored: Patient is maintaining consistent adherence.'}
