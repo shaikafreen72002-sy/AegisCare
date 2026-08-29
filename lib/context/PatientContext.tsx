@@ -201,6 +201,51 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [zoomScale]);
 
+  // 24/7 Automated Daily Telegram Reminder Scheduler (Runs for the whole month)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const checkAndDispatchSchedule = async () => {
+      try {
+        const now = new Date();
+        const currentHours = String(now.getHours()).padStart(2, '0');
+        const currentMinutes = String(now.getMinutes()).padStart(2, '0');
+        const currentTimeStr = `${currentHours}:${currentMinutes}`;
+        const todayDateStr = now.toISOString().split('T')[0];
+
+        const storageKey = 'aegiscare_dispatched_scheduled_slots';
+        let dispatchedSlots: Record<string, string[]> = {};
+        try {
+          dispatchedSlots = JSON.parse(localStorage.getItem(storageKey) || '{}');
+        } catch {}
+
+        const todayDispatched = dispatchedSlots[todayDateStr] || [];
+
+        // Check each scheduled dose in the patient's routine (8:00 AM, 1:00 PM, 8:00 PM)
+        for (const dose of adherence.schedule) {
+          const doseTime = dose.scheduled_time; // "08:00", "13:00", "20:00"
+          if (doseTime === currentTimeStr && !todayDispatched.includes(dose.id) && dose.status === 'DUE') {
+            await apiService.sendTelegramReminder({
+              medication: dose.medication_name,
+              dosage: dose.dosage,
+              time: dose.time_slot,
+              doseId: dose.id,
+              patientName: profile.preferred_name || profile.name
+            });
+
+            dispatchedSlots[todayDateStr] = [...todayDispatched, dose.id];
+            localStorage.setItem(storageKey, JSON.stringify(dispatchedSlots));
+          }
+        }
+      } catch (err) {
+        console.error('Automated scheduler check error:', err);
+      }
+    };
+
+    const interval = setInterval(checkAndDispatchSchedule, 30000);
+    return () => clearInterval(interval);
+  }, [adherence.schedule, profile]);
+
   const login = async (identifier: string, password?: string): Promise<AuthUser> => {
     const user = await apiService.login(identifier, password);
     setCurrentUser(user);

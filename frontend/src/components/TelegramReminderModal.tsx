@@ -16,7 +16,8 @@ import {
   Sun,
   Moon,
   ShieldCheck,
-  Bell
+  Bell,
+  CalendarCheck2
 } from 'lucide-react';
 
 interface TelegramReminderModalProps {
@@ -79,7 +80,8 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
       med: 'Donepezil',
       dosage: '5 mg',
       doseId: 'dose_morning_01',
-      instruction: 'Take with breakfast or morning tea'
+      instruction: 'Take with breakfast or morning tea',
+      preview: `🔔 Scheduled Morning Medication Reminder (8:00 AM)\n\nGood morning, ${profile.preferred_name || profile.name}! 🌸 It is 8:00 AM. Time for your scheduled morning dose of Donepezil (5 mg) with breakfast and a glass of water.`
     },
     afternoon: {
       title: 'Midday Routine & Hydration',
@@ -88,7 +90,8 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
       med: 'Vitamin D & Hydration',
       dosage: '1000 IU',
       doseId: 'dose_afternoon_02',
-      instruction: 'Take with lunch and a fresh glass of water'
+      instruction: 'Take with lunch and a fresh glass of water',
+      preview: `☀️ Scheduled Midday Routine (1:00 PM)\n\nGood afternoon, ${profile.preferred_name || profile.name}! 🌿 It is 1:00 PM. Time for your midday routine and hydration check.`
     },
     evening: {
       title: 'Evening Primary Dose',
@@ -97,13 +100,14 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
       med: profile.primary_medication.name || 'Donepezil',
       dosage: profile.primary_medication.dosage || '10 mg',
       doseId: 'dose_evening_03',
-      instruction: 'Take with dinner or evening snack before bedtime'
+      instruction: 'Take with dinner or evening snack before bedtime',
+      preview: `🌙 Scheduled Evening Medication Reminder (8:00 PM)\n\nGood evening, ${profile.preferred_name || profile.name}! 🌙 It is 8:00 PM. Time for your scheduled evening dose of Donepezil (10 mg) with dinner or an evening snack.`
     }
   };
 
   const currentSlot = slotConfigs[selectedSlot];
 
-  const handleSendReminder = async () => {
+  const handleSendTestReminder = async () => {
     setIsSending(true);
     setSendResult(null);
     try {
@@ -147,14 +151,14 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-lg font-extrabold text-[#2D2545] font-['Outfit']">
-                  Telegram Medication Reminders
+                  Automated Medication Reminders
                 </h3>
                 <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#EBF2FF] text-[#1D5BD8] border border-[#4E89FF]/20">
                   @BversityCareBot
                 </span>
               </div>
               <p className="text-xs text-[#6B6282] font-medium">
-                Automated daily schedule dispatch with interactive adherence buttons
+                Set once by caregiver/doctor — runs automatically throughout the whole month
               </p>
             </div>
           </div>
@@ -167,36 +171,35 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
           </button>
         </div>
 
-        {/* 24/7 Automated Daily Schedule Status Banner */}
-        <div className="p-3.5 bg-[#EAF8F0] border border-[#1E824C]/25 rounded-[16px] flex items-start gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-[#1E824C] text-white flex items-center justify-center shrink-0 shadow-xs">
-            <ShieldCheck className="w-4 h-4" />
+        {/* Dementia & Memory Care Protocol Explanation */}
+        <div className="p-3.5 bg-[#EAF8F0] border border-[#1E824C]/25 rounded-[16px] space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-[#136B3B] font-['Outfit'] flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-[#1E824C]" /> 30-Day Automated Routine Active
+            </span>
+            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-white text-[#136B3B] border border-[#1E824C]/20">
+              🟢 Set Once • Auto-Runs Daily
+            </span>
           </div>
-          <div className="flex-1 text-xs">
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-[#136B3B] font-['Outfit'] text-sm">
-                24/7 Automated Schedule Active
-              </span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-[#136B3B] border border-[#1E824C]/20">
-                🟢 Auto-Dispatch Enabled
-              </span>
-            </div>
-            <p className="text-[#325240] mt-0.5 leading-relaxed">
-              Reminders are automatically sent to your phone at <strong>8:00 AM</strong>, <strong>1:00 PM</strong>, and <strong>8:00 PM</strong> every day. You do not need to press anything to receive daily reminders.
-            </p>
-          </div>
+          <p className="text-xs text-[#2D503C] leading-relaxed">
+            <strong>Dementia Care Automation:</strong> Because patients often forget to set alarms or open apps, AegisCare dispatches reminders <strong>automatically every single day</strong> to Telegram at <strong>8:00 AM</strong>, <strong>1:00 PM</strong>, and <strong>8:00 PM</strong>. No daily app setup is required!
+          </p>
         </div>
 
-        {/* Telegram Bot Link & Step 1 */}
+        {/* Telegram Bot Link & Connection Step */}
         <div className="p-4 bg-[#FAF7F2] border border-[#EFEAE1] rounded-[16px] space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-[#2D2545] flex items-center gap-1.5 font-['Outfit']">
-              <Sparkles className="w-4 h-4 text-[#FF6138]" /> Connection Status
+              <Sparkles className="w-4 h-4 text-[#FF6138]" /> Step 1: One-Time Telegram Connection
             </span>
             <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${botStatus.connected_chat_id ? 'bg-[#EAF8F0] text-[#136B3B] border border-[#1E824C]/25' : 'bg-[#FFF8E7] text-[#8C5A00] border border-[#FFBE53]/40'}`}>
               {botStatus.connected_chat_id ? `✓ Connected (Chat ID: ${botStatus.connected_chat_id})` : 'Waiting for /start'}
             </span>
           </div>
+
+          <p className="text-xs text-[#5D5570]">
+            Connect once to receive automated daily reminders for the entire 30-day care cycle.
+          </p>
 
           <div className="flex items-center gap-2 pt-0.5">
             <a
@@ -221,13 +224,13 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
           </div>
         </div>
 
-        {/* Daily Schedule Slots (Selectable) */}
+        {/* 30-Day Recurring Daily Schedule (Always Active) */}
         <div className="space-y-2">
           <div className="flex items-center justify-between px-1">
             <span className="text-xs font-bold text-[#2D2545] font-['Outfit'] flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-[#FF6138]" /> Daily Scheduled Doses
+              <CalendarCheck2 className="w-3.5 h-3.5 text-[#FF6138]" /> 30-Day Daily Routine Schedule
             </span>
-            <span className="text-[11px] text-[#6B6282] font-medium">Select to preview slot</span>
+            <span className="text-[11px] text-[#136B3B] font-bold">🟢 Runs Every Day</span>
           </div>
 
           <div className="grid grid-cols-3 gap-2">
@@ -269,11 +272,11 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
           </div>
         </div>
 
-        {/* Interactive Reminder Preview Box (Exact Telegram Output) */}
+        {/* Live Message Preview for Selected Daily Slot */}
         <div className="p-4 bg-[#1E1A2E] text-white rounded-[16px] space-y-3 shadow-inner">
           <div className="flex items-center justify-between text-[11px] text-[#988EA8] border-b border-[#3D355C] pb-2">
             <span className="flex items-center gap-1.5">
-              <Bell className="w-3.5 h-3.5 text-[#FFBE53]" /> Telegram Message Preview ({currentSlot.title})
+              <Bell className="w-3.5 h-3.5 text-[#FFBE53]" /> Automated Message Format ({currentSlot.title})
             </span>
             <span className="text-[#FFBE53] font-mono font-bold">{currentSlot.time} Daily</span>
           </div>
@@ -314,20 +317,26 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
           </div>
         </div>
 
-        {/* Action Trigger Button */}
-        <div className="space-y-2">
+        {/* Primary Confirmation & Secondary Verification Test */}
+        <div className="space-y-2.5 pt-1">
           <button
-            onClick={handleSendReminder}
-            disabled={isSending}
-            className="touch-target w-full h-[46px] rounded-full bg-[#1E824C] hover:bg-[#156B3D] text-white font-bold text-sm shadow-[0_4px_14px_rgba(30,130,76,0.3)] transition active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+            onClick={onClose}
+            className="touch-target w-full h-[46px] rounded-full bg-[#1E824C] hover:bg-[#156B3D] text-white font-bold text-sm shadow-[0_4px_14px_rgba(30,130,76,0.3)] transition active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
           >
-            <Send className="w-4 h-4" />
-            <span>{isSending ? 'Dispatching to Telegram...' : `Send Test Reminder for ${currentSlot.time}`}</span>
+            <CheckCircle2 className="w-4 h-4" />
+            <span>30-Day Daily Reminders Active & Confirmed</span>
           </button>
 
-          <p className="text-[11px] text-[#6B6282] text-center">
-            💡 This button sends an immediate test reminder of the selected slot to verify reception on your phone.
-          </p>
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={handleSendTestReminder}
+              disabled={isSending}
+              className="text-xs text-[#5D5570] hover:text-[#FF6138] font-bold underline transition cursor-pointer disabled:opacity-50"
+            >
+              {isSending ? 'Dispatching test alert...' : `📲 Send a quick test notification for ${currentSlot.time} to verify Telegram reception`}
+            </button>
+          </div>
 
           {sendResult && (
             <div className={`p-3.5 rounded-[14px] text-xs font-medium border ${sendResult.success ? 'bg-[#EAF8F0] text-[#136B3B] border-[#1E824C]/30' : 'bg-[#FFF0F0] text-[#E53E3E] border-[#E53E3E]/30'}`}>
@@ -335,7 +344,7 @@ export const TelegramReminderModal: React.FC<TelegramReminderModalProps> = ({ is
                 <div className="space-y-0.5">
                   <div className="font-bold flex items-center gap-1">
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>Scheduled reminder dispatched to @BversityCareBot!</span>
+                    <span>Test alert dispatched to Telegram @BversityCareBot!</span>
                   </div>
                   <p className="text-[#40365D]">
                     {sendResult.simulated 

@@ -373,13 +373,13 @@ class ApiClient {
     return await res.json();
   }
 
-  public async sendTelegramReminder(payload?: { medication?: string; dosage?: string; time?: string; doseId?: string; chatId?: string }): Promise<any> {
+  public async sendTelegramReminder(payload?: { medication?: string; dosage?: string; time?: string; doseId?: string; chatId?: string; patientName?: string }): Promise<any> {
     const res = await fetch('/api/telegram/send-reminder', {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify({
         ...payload,
-        patient_name: this.user?.preferred_name || this.user?.name || 'Afreen',
+        patient_name: payload?.patientName || this.user?.preferred_name || this.user?.name || 'Afreen',
         user_id: this.user?.user_id
       })
     });
