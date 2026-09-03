@@ -1,6 +1,6 @@
-# 🛡️ AegisCare: Clinical Multi-Agent Medication Adherence & Memory Support Platform
+# 🧠 DeMentor: Autonomous Multi-Agent Medication Adherence & Memory Companion
 
-A modern, full-stack Next.js 15 clinical intelligence and memory care platform designed for geriatric patients and their care teams. AegisCare delivers personalized routine coaching, clinical monographs RAG search, multi-agent empathetic conversations, and real-time Telegram Bot medication reminders with 4-button interactive adherence tracking.
+A modern, full-stack Next.js 15 clinical intelligence and memory care platform designed for geriatric patients and their care teams. DeMentor delivers personalized routine coaching, ChromaDB vector search over clinical monographs, multi-agent empathetic conversations, and real-time Telegram Bot medication reminders with 4-button interactive adherence tracking.
 
 ---
 
