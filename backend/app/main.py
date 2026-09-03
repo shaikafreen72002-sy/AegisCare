@@ -15,6 +15,7 @@ from backend.app.api.auth import router as auth_router
 from backend.app.api.intake import router as intake_router
 from backend.app.api.documents import router as documents_router
 from backend.app.api.agent import router as agent_router
+from backend.app.api.chroma import router as chroma_router
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -41,6 +42,7 @@ app.include_router(adherence_router, prefix=settings.API_PREFIX)
 app.include_router(profile_router, prefix=settings.API_PREFIX)
 app.include_router(escalation_router, prefix=settings.API_PREFIX)
 app.include_router(monographs_router, prefix=settings.API_PREFIX)
+app.include_router(chroma_router, prefix=settings.API_PREFIX)
 
 @app.get("/health")
 async def health_check():
